@@ -38,8 +38,8 @@
  */
 /* *********************************************************************/
 
-#include "mimerapi.h"
 #include "Python.h"
+#include "mimerapi.h"
 
 /**
  * We must pass pointers between the C layer and Python. We use the "L"

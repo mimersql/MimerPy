@@ -4,15 +4,17 @@ import platform
 
 plat = platform.system()
 
+incDirs = []
+libDirs = []
+libs = ['mimerapi']
+
 if plat == 'Linux':
-    incDirs = ['/usr/include']
-    libDirs = ['/usr/lib']
+    pass
 elif plat == 'Darwin':
     incDirs = ['/usr/local/include']
     libDirs = ['/usr/local/lib']
 elif plat == 'Windows':
-    incDirs = ['something']
-    libDirs = ['something']
+    libs = ['mimapi64']
 else:
     raise Exception('Unsupported platform: ' + plat)
 
