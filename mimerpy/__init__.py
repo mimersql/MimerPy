@@ -20,7 +20,19 @@
 #
 # See license for more details.
 
+from pkg_resources import get_distribution, DistributionNotFound
 from mimerpy.connectionPy import Connection
+
+#
+#  Set version number from tag in git
+#
+try:
+    __version__ = get_distribution(__name__).version
+except DistributionNotFound:
+    # Package is not installed
+    pass
+
+
 
 def connect(*args, **kwargs):
     """

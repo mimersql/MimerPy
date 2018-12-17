@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 from distutils.core import Extension
 import platform
 
@@ -47,7 +47,9 @@ requires that Mimer V11 is installed.
 
 setup (
     name='mimerpy',
-    version='1.0.11',
+#    version='1.0.11',
+    use_scm_version = True,
+    setup_requires = ['setuptools_scm'],
     url='https://www.mimer.com',
     description='Python database interface for Mimer SQL',
     long_description=long_description,
