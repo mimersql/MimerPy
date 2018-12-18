@@ -40,35 +40,35 @@ while getopts ":b, :c, :C, :s, :S, :p, :P, :z, :m, :M, :j, :J, :k, :d" opt; do
       echo ""
       ;;
     k)
-    coverage run tests/cursorTest.py TestCursorMethods
-    coverage run --append tests/connectionTest.py TestConnectionMethods
-    coverage run --append tests/scrollCursorTest.py TestScrollCursorMethods
-    coverage run --append tests/monkeyTest.py TestMonkey
+    coverage run tests/testCursor.py TestCursorMethods
+    coverage run --append tests/testConnection.py TestConnectionMethods
+    coverage run --append tests/testScrollCursor.py TestScrollCursorMethods
+    coverage run --append tests/testMonkey.py TestMonkey
     coverage html
       ;;
     c)
-      python3 tests/cursorTest.py TestCursorMethods
+      python3 tests/testCursor.py TestCursorMethods
       ;;
     C)
-      python3 tests/connectionTest.py TestConnectionMethods
+      python3 tests/testConnection.py TestConnectionMethods
       ;;
     P)
-      python3 tests/scrollCursorTest.py TestScrollCursorMethods
+      python3 tests/testScrollCursor.py TestScrollCursorMethods
       ;;
     s)
-      python3 tests/cursorTest.py TestCursorMethods.test_insert_nclob
+      python3 tests/testCursor.py TestCursorMethods.test_insert_nclob
       ;;
     S)
-      python3 tests/connectionTest.py TestConnectionMethods.test_with_commit_insert
+      python3 tests/testConnection.py TestConnectionMethods.test_with_commit_insert
       ;;
     p)
-      python3 tests/scrollCursorTest.py TestScrollCursorMethods.test_next_noselect
+      python3 tests/testScrollCursor.py TestScrollCursorMethods.test_next_noselect
       ;;
     m)
-      python3 tests/monkeyTest.py TestMonkey.test_condis
+      python3 tests/testMonkey.py TestMonkey.test_condis
       ;;
     M)
-      python3 tests/monkeyTest.py TestMonkey
+      python3 tests/testMonkey.py TestMonkey
       ;;
     z)
       python3 tests/dropdb.py
