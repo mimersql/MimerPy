@@ -20,11 +20,9 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("CREATE IDENT TEST_IDENT AS USER USING 'mimerPass'")
         b.execute("create databank testbank")
         b.execute("Grant TABLE on databank testbank to TEST_IDENT")
-        print("set up up complete \n------------------------")
 
     @classmethod
     def tearDownClass(self):
-        print("Tear down begun")
         a = mimerpy.connect(dsn = self.dbName, user = self.sysadmName, password = self.sysadmpsw)
         b = a.cursor(scrollable = 'True')
         b.execute("DROP DATABANK testbank CASCADE")
@@ -32,18 +30,14 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.close()
         a.commit()
         a.close()
-        print("Tear down complete")
 
     def test_createTable(self):
-        print("Running test_createTable: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob(c1 INTEGER, c2 NVARCHAR(10)) in testbank")
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_createTable_2(self):
-        print("Running test_createTable_2: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bobcr1(c1 INTEGER, c2 NVARCHAR(10)) in testbank")
@@ -51,49 +45,39 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("create table bobcr3(c1 INTEGER, c2 NVARCHAR(10)) in testbank")
         b.execute("create table bobcr4(c1 INTEGER, c2 NVARCHAR(10)) in testbank")
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_createTable_DropTable(self):
-        print("Running test_createTable_DropTable: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob2(c1 INTEGER, c2 NVARCHAR(10)) in testbank")
         b.execute("drop table bob2 CASCADE")
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_create_invalid_insert(self):
-        print("Running test_create_invalid_insert: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jon (c1 INTEGER, c2 INTEGER) in testbank")
         with self.assertRaises(ProgrammingError):
             b.execute("banana INTO jon VALUES (3, 14)")
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_create_rollback_table(self):
-        print("Running test_create_rollback_table: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jonnynothere (c1 INTEGER, c2 INTEGER) in testbank")
         a.rollback()
         b.execute("select * from jonnynothere")
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_two_select(self):
-        print("Running test_two_select: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jonny (c1 INTEGER, c2 INTEGER) in testbank")
         b.execute("select c1 from jonny where c1 = (?)",(2))
         b.execute("select * from jonny")
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_many_select(self):
-        print("Running test_many_select: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob356 (c1 INTEGER) in testbank")
@@ -102,10 +86,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         for gal in range(100):
             b.execute("select c1 from bob356 where c1 > (?)",(gal))
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_select_no_commit(self):
-        print("Running test_select_no_commit: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bobc (c1 INTEGER, c2 FLOAT) in testbank")
@@ -114,10 +96,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("select * from bobc where c1 = 99")
         self.assertEqual(b.fetchall(),[(99,99.5)])
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_select_description(self):
-        print("Running test_select_description: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table description (columnone INTEGER) in testbank")
@@ -126,10 +106,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("select * from description")
         self.assertEqual(b.description, (('columnone', 50, None, None, None, None, None),))
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_select_description2(self):
-        print("Running test_select_description2: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table description2 (c1 INTEGER, c2 FLOAT) in testbank")
@@ -146,10 +124,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         self.assertEqual(b.description, (('c1', 50, None, None, None, None, None),
                                         ('c2', 56, None, None, None, None, None)))
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_select_description3(self):
-        print("Running test_select_description3: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table description3 (price INTEGER, currentvalue FLOAT, currency NVARCHAR(128),rate BIGINT, currentyear INTEGER) in testbank")
@@ -177,10 +153,8 @@ class TestScrollCursorMethods(unittest.TestCase):
                                         ('currency', 63, None, None, None, None, None),
                                         ('rate', 52, None, None, None, None, None),
                                         ('currentyear', 50, None, None, None, None, None)))
-        print("------------------------\nTest complete: \n")
 
     def test_select_description4(self):
-        print("Running test_select_description4: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         name1 = "e"*127+"q"
@@ -192,10 +166,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("select * from description4")
         self.assertEqual(b.description, ((name1, 50, None, None, None, None, None),
                                         (name2, 42, None, None, None, None, None)))
-        print("------------------------\nTest complete: \n")
 
     def test_select_description5(self):
-        print("Running test_select_description5: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         name1 = "e"*127+"q"
@@ -207,29 +179,23 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("select * from description5")
         self.assertEqual(b.description, ((name1, 50, None, None, None, None, None),
                                         (name2, 42, None, None, None, None, None)))
-        print("------------------------\nTest complete: \n")
 
     def test_invalid_create(self):
-        print("Running test_invalid_create: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.close()
         with self.assertRaises(ProgrammingError):
             b.execute("creat table jon")
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_insert_parametermarkers(self):
-        print("Running test_insert_parametermarkers: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob1 (c1 INTEGER,  c2 NVARCHAR(10)) in testbank")
         b.execute("insert into bob1 values (:a, :b)", (3, 'bob'))
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_insert_parametermarkers_longs_string(self):
-        print("Running test_insert_parametermarkers_longs_string: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bobstring (c1 INTEGER,  c2 NVARCHAR(256)) in testbank")
@@ -239,10 +205,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("select c2 from bobstring")
         b.fetchall()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_insert_parametermarkers_2(self):
-        print("Running test_insert_parametermarkers_2: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob13 (c1 INTEGER, c2 NVARCHAR(10), c3 FLOAT) in testbank")
@@ -250,10 +214,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.executemany("insert into bob13 values (:a, :b, :c)", ((1,'pi',14.345),(2,'pii',14.345),(-3,'piii',14.345),(7,'piii',14.345),(1121231,'piiii',14.345)))
         a.commit()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_insert_parametermarkers_russian(self):
-        print("Running test_insert_parametermarkers_2: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob14 (c1 INTEGER, c2 NVARCHAR(128), c3 FLOAT) in testbank")
@@ -263,11 +225,9 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("select * from bob14")
         self.assertEqual(b.fetchall(), [(1,'продиктованной ангелом',14.345),(2,'安排他們參',14.345)])
         a.close()
-        print("------------------------\nTest complete: \n")
 
 
     def test_insert_parametermarkers_unicode(self):
-        print("Running test_insert_parametermarkers_unicode: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table boby14 (c1 INTEGER, c2 NVARCHAR(128), c3 FLOAT) in testbank")
@@ -277,10 +237,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("select * from boby14")
         self.assertEqual(b.fetchall(), [(1,'продиктованной ангелом',14.345),(2,'安排他們參‱',14.345)])
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_insert_parametermarkers_too_long(self):
-        print("Running test_insert_parametermarkers_too_long: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob15 (c1 NVARCHAR(10)) in testbank")
@@ -289,40 +247,32 @@ class TestScrollCursorMethods(unittest.TestCase):
             b.execute("insert into bob15 values (:a)", ('This sentence is too long'))
         a.commit()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_insert_too_few_parametermarkers(self):
-        print("Running test_insert_too_few_parametermarkers: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob3 (c1 INTEGER, c2 NVARCHAR(10)) in testbank")
         with self.assertRaises(DatabaseError):
             b.execute("insert into bob3 values (:a, :b)", (3))
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_insert_too_many_parametermarkers(self):
-        print("Running test_insert_too_many_parametermarkers: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob33 (c1 INTEGER, c2 NVARCHAR(10)) in testbank")
         with self.assertRaises(ProgrammingError):
             b.executemany("insert into bob33 values (:a, :b)", ((3,'pi',14),(3)))
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_insert_many_times(self):
-        print("Running test_insert_many_times: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob34(c1 INTEGER, c2 NVARCHAR(10), c3 FLOAT) in testbank")
         for c in range(0, 101):
             b.execute("insert into bob34 values (5,'ウィキペディ', 4.4543543)")
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_executemany_one_value(self):
-        print("Running test_executemany_one_value: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob4 (c1 INTEGER) in testbank")
@@ -335,20 +285,16 @@ class TestScrollCursorMethods(unittest.TestCase):
             b.executemany("insert into bob4 values (:a)", [1])
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_executemany_one_tuple(self):
-        print("Running test_executemany_one_tuple: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob5 (c1 INTEGER, c2 NVARCHAR(10)) in testbank")
         b.executemany("insert into bob5 values (:a, :b)", ((1,'bob1'),))
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_executemany_several_tuples(self):
-        print("Running test_executemany_several_tuples: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bobe6 (c1 INTEGER, c2 NVARCHAR(10)) in testbank")
@@ -356,10 +302,8 @@ class TestScrollCursorMethods(unittest.TestCase):
                                                 (3,'bob3')])
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_commit(self):
-        print("Running test_executemany_several_tuples: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob7 (c1 INTEGER, c2 NVARCHAR(10)) in testbank")
@@ -367,10 +311,8 @@ class TestScrollCursorMethods(unittest.TestCase):
                                                 (3,'bob3')))
         a.commit()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_fetchone(self):
-        print("Running test_fetchone: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob8 (c1 INTEGER, c2 NVARCHAR(10)) in testbank")
@@ -383,10 +325,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("select * from bob8")
         self.assertEqual(b.fetchone(), (8, 'bob'))
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_fetchmany(self):
-        print("Running test_fetchmany: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob9 (c1 INTEGER, c2 NVARCHAR(10)) in testbank")
@@ -400,10 +340,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("select * from bob9")
         self.assertEqual(b.fetchmany(3), [(9, 'bob9'), (10, 'bob10'), (11, 'bob11')])
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_fetchmany_too_many(self):
-        print("Running test_fetchmany_too_many: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob11 (c1 INTEGER, c2 NVARCHAR(10)) in testbank")
@@ -417,10 +355,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("select * from bob11")
         self.assertEqual(b.fetchmany(5), [(9, 'bob9'), (10, 'bob10'), (11, 'bob11')])
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_fetchmany_notall(self):
-        print("Running test_fetchmany_notall: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob12 (c1 INTEGER, c2 NVARCHAR(10)) in testbank")
@@ -434,11 +370,9 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("select * from bob12")
         self.assertEqual(b.fetchmany(2), [(9, 'bob9'), (10, 'bob10')])
         a.close()
-        print("------------------------\nTest complete: \n")
 
 
     def test_fetchall(self):
-        print("Running test_fetchall: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob10 (c1 INTEGER, c2 NVARCHAR(10)) in testbank")
@@ -452,10 +386,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("select * from bob10")
         self.assertEqual(b.fetchall(), [(10, 'bob10'),(11, 'bob11'), (12, 'bob12')])
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_fetchall_correct_number_of_rows(self):
-        print("Running test_insert_many_times: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob101(c1 INTEGER, c2 NVARCHAR(100), c3 FLOAT) in testbank")
@@ -470,10 +402,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         self.assertEqual(len(c), 100)
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_fetchall_correct_number_of_rows2(self):
-        print("Running test_insert_many_timesscroll: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob102(c1 INTEGER, c2 NVARCHAR(100), c3 FLOAT) in testbank")
@@ -488,10 +418,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         self.assertEqual(len(c), 0)
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_use_next(self):
-        print("Running test_use_next: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bobnext(c1 INTEGER) in testbank")
@@ -504,10 +432,8 @@ class TestScrollCursorMethods(unittest.TestCase):
             self.assertEqual(val, (c,))
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_use_next_StopIteration(self):
-        print("Running test_use_next: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bobstop(c1 INTEGER) in testbank")
@@ -521,30 +447,24 @@ class TestScrollCursorMethods(unittest.TestCase):
             b.next()
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_insert_wrong_type_parametermarkers(self):
-        print("Running test_insert_wrong_parametermarkers: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob1337 (c1 INTEGER, c2 INTEGER) in testbank")
         with self.assertRaises(ProgrammingError):
             b.execute("insert into bob1337  values (:a, :b)", (3, 3.14))
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_operate_after_closed(self):
-        print("Running test_operate_after_closed: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.close()
         with self.assertRaises(ProgrammingError):
             b.execute("select * from jon")
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_operate_after_closed_2(self):
-        print("Running test_operate_after_closed_2: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.close()
@@ -562,29 +482,23 @@ class TestScrollCursorMethods(unittest.TestCase):
         with self.assertRaises(ProgrammingError):
             b.next()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_invalide_select(self):
-        print("Running test_invalide_select: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         with self.assertRaises(ProgrammingError):
             b.execute("select * from jonisnotatablejo where c1 = ?", (5))
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_same_table_twice(self):
-        print("Running test_same_table_twice: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob2437(c1 INTEGER) in testbank")
         with self.assertRaises(ProgrammingError):
             b.execute("create table bob2437(c1 INTEGER) in testbank")
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_invalid_sequence_select(self):
-        print("Running test_bob_invalid_sequence: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob6565(c1 INTEGER) in testbank")
@@ -595,11 +509,9 @@ class TestScrollCursorMethods(unittest.TestCase):
             b.execute("create table bob6569(c1 INTEGER) in testbank")
         a.rollback()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     #borde bli fel men blir rätt....
     def test_invalid_sequence_select_2(self):
-        print("Running test_invalid_sequence_select_2: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob555(c1 INTEGER) in testbank")
@@ -613,10 +525,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("select * from bob556")
         self.assertEqual(b.fetchone(), (3,))
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_invalid_sequence_insert(self):
-        print("Running test_invalid_sequence_insert: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob6567(c1 INTEGER) in testbank")
@@ -626,10 +536,8 @@ class TestScrollCursorMethods(unittest.TestCase):
             b.execute("create table bob6566(c1 INTEGER) in testbank")
         a.rollback()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_invalid_sequence_insert_parametermarkers(self):
-        print("Running test_invalid_sequence_insert_parametermarkers: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob6568(c1 INTEGER) in testbank")
@@ -639,28 +547,22 @@ class TestScrollCursorMethods(unittest.TestCase):
             b.execute("create table bob6566(c1 INTEGER) in testbank")
         a.rollback()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_executemany_DDL(self):
-        print("Running test_executemany_DDL: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         with self.assertRaises(InterfaceError):
             b = a.executemany("create table bob6(c1 INTEGER) in testbank", (3))
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_insert_exceeded(self):
-        print("Running test_insert_exceeded: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.execute("create table bob16(c1 INTEGER) in testbank")
         big = pow(2,100)
         with self.assertRaises(ProgrammingError):
             b.execute("insert into bob16 values (?)", big)
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_insert_too_long(self):
-        print("Running test_insert_too_long: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob17(c1 NVARCHAR(10)) in testbank")
@@ -670,10 +572,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         a.commit()
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_valid_int32_insert(self):
-        print("Running test_valid_int32_insert: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jon32 (c1 INTEGER, c2 INTEGER) in testbank")
@@ -681,10 +581,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         var = 2**31 - 1
         b.execute("insert INTO jon32 VALUES (?, ?)", (nvar, var))
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_invalid_int32_insert_too_small(self):
-        print("Running test_invalid_int32_insert_too_small: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jon31 (c1 INTEGER) in testbank")
@@ -692,10 +590,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         with self.assertRaises(ProgrammingError):
             b.execute("insert INTO jon31 VALUES (?)", (nvar))
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_invalid_int32_insert_too_big(self):
-        print("Running test_invalid_int32_insert_too_big: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jon33 (c1 INTEGER) in testbank")
@@ -703,10 +599,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         with self.assertRaises(ProgrammingError):
             b.execute("insert INTO jon33 VALUES (?)", (var))
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_valid_int64_insert(self):
-        print("Running test_valid_int64_insert: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jon64 (c1 BIGINT, c2 BIGINT) in testbank")
@@ -714,10 +608,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         var = 2**63 - 1
         b.execute("insert INTO jon64 VALUES (?,?)", (nvar,var))
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_overflow_int64_insert(self):
-        print("Running test_overflow_int64_insert: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table intjon4 (c1 BIGINT, c2 BIGINT) in testbank")
@@ -726,10 +618,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         with self.assertRaises(ProgrammingError):
             b.executemany("insert INTO intjon4 VALUES (?,?)", ((nvar,var),(nvar,var)))
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_invalid_int64_insert_too_small(self):
-        print("Running test_invalid_int64_insert_too_small: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jon63 (c1 BIGINT) in testbank")
@@ -737,10 +627,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         with self.assertRaises(ProgrammingError):
             b.execute("insert INTO jon63 VALUES (?)", (nvar))
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_invalid_int64_insert_too_big(self):
-        print("Running test_invalid_int64_insert_too_big: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jon65 (c1 BIGINT) in testbank")
@@ -748,10 +636,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         with self.assertRaises(ProgrammingError):
             b.execute("insert INTO jon65 VALUES (?)", (var))
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_valid_int16_insert(self):
-        print("Running test_valid_int16_insert: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jon26 (c1 SMALLINT, c2 SMALLINT) in testbank")
@@ -759,10 +645,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         var = 2**15 - 1
         b.execute("insert INTO jon26 VALUES (?, ?)", (nvar, var))
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_invalid_int16_insert_too_small(self):
-        print("Running test_invalid_int32_insert_too_small: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jon15 (c1 SMALLINT) in testbank")
@@ -770,10 +654,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         with self.assertRaises(ProgrammingError):
             b.execute("insert INTO jon15 VALUES (?)", (nvar))
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_invalid_int16_insert_too_small(self):
-        print("Running test_invalid_int32_insert_too_small: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jon17 (c1 SMALLINT) in testbank")
@@ -781,11 +663,9 @@ class TestScrollCursorMethods(unittest.TestCase):
         with self.assertRaises(ProgrammingError):
             b.execute("insert INTO jon17 VALUES (?)", (nvar))
         a.close()
-        print("------------------------\nTest complete: \n")
 
     # Gives a Warning we dont catch atm
     def test_valid_double_insert(self):
-        print("Running test_valid_double_insert: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jon16 (c1 REAL, c2 DOUBLE PRECISION) in testbank")
@@ -793,10 +673,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("insert INTO jon16 VALUES (?, ?)", (var, var))
         a.commit()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_valid_double_insert_none(self):
-        print("Running test_valid_double_insert_none: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jon18 (c1 REAL, c2 DOUBLE PRECISION) in testbank")
@@ -804,10 +682,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("insert INTO jon18 VALUES (?, ?)", (var, var))
         a.commit()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_valid_double_select_none(self):
-        print("Running test_valid_double_select_none: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jon19 (c1 REAL, c2 DOUBLE PRECISION) in testbank")
@@ -817,10 +693,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("select * from jon19")
         self.assertEqual(b.fetchall(),[(None, None)])
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_message_cleared(self):
-        print("Running test_message_cleared: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jonwas17 (c1 SMALLINT) in testbank")
@@ -830,10 +704,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("insert INTO jonwas17 VALUES (?)", (5))
         self.assertEqual(b.messages, [])
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_message_cleared_2(self):
-        print("Running test_message_cleared_2: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jonwas173 (c1 SMALLINT) in testbank")
@@ -842,10 +714,8 @@ class TestScrollCursorMethods(unittest.TestCase):
             b.execute("insert INTO jonwas173 VALUES (?)", (nvar))
         self.assertEqual(b.messages[0][1], 'MicroAPI error -24010')
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_None_is_returned(self):
-        print("Running test_None_is_returned: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jonNone (c1 INTEGER) in testbank")
@@ -857,10 +727,8 @@ class TestScrollCursorMethods(unittest.TestCase):
             b.fetchone()
         self.assertEqual(b.fetchone(), [])
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_empty_sequence_is_returned_many(self):
-        print("Running test_empty_sequence_is_returned_many: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jonEmpty (c1 INTEGER) in testbank")
@@ -871,10 +739,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.fetchmany(10)
         self.assertEqual(b.fetchmany(10), [])
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_empty_sequence_is_returned_all(self):
-        print("Running test_empty_sequence_is_returned_all: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jonEmpty2 (c1 INTEGER) in testbank")
@@ -885,10 +751,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.fetchall()
         self.assertEqual(b.fetchall(), [])
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_empty_insert(self):
-        print("Running test_empty_insert: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jonEmp (c1 NVARCHAR(128)) in testbank")
@@ -897,10 +761,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("select * from jonEmp")
         self.assertEqual(b.fetchall(), [('',), ('',), (' ',)])
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_empty_insert2(self):
-        print("Running test_empty_insert2: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jonEmp2 (c1 NVARCHAR(128)) in testbank")
@@ -911,19 +773,15 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("select * from jonEmp2")
         self.assertEqual(b.fetchall(), [('',), ('',), (' ',)])
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_invalide_databank(self):
-        print("Running test_invalide_databank: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         with self.assertRaises(ProgrammingError):
             b.execute("create table bjonEmp2 (c1 NVARCHAR(128)) in potato")
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_insert_rowcount_update(self):
-        print("Running test_insert_rowcount_update: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bobrowcount (c1 INTEGER,  c2 NVARCHAR(256)) in testbank")
@@ -936,10 +794,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         self.assertEqual(b.rowcount, 3)
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_delete(self):
-        print("Running test_delete: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bobrowcount2(c1 INTEGER) in testbank")
@@ -953,10 +809,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         self.assertEqual(b.rowcount, 11)
         b.execute("SELECT * from bobrowcount2")
         self.assertEqual(len(b.fetchall()), 10)
-        print("------------------------\nTest complete: \n")
 
     def test_update(self):
-        print("Running test_update: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bobupdate(c1 INTEGER) in testbank")
@@ -970,10 +824,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         self.assertEqual(b.rowcount, 10)
         b.execute("SELECT * from bobupdate")
         self.assertEqual(len(b.fetchall()), 21)
-        print("------------------------\nTest complete: \n")
 
     def test_invalid_sequence_fetchone(self):
-        print("Running test_invalid_sequence_fetchone: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jonfetchone (c1 INTEGER) in testbank")
@@ -983,10 +835,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         with self.assertRaises(ProgrammingError):
             b.fetchone()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_isolated(self):
-        print("Running test_isolated: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b1 = a.cursor()
         b2 = a.cursor()
@@ -998,11 +848,9 @@ class TestScrollCursorMethods(unittest.TestCase):
         self.assertEqual(len(c2), 5)
         self.assertEqual(c2, [(1,),(2,),(3,),(4,),(5,),])
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_isolated2(self):
         #fråga per
-        print("Running test_isolated2: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jonisolated2 (c1 INTEGER) in testbank")
@@ -1028,11 +876,9 @@ class TestScrollCursorMethods(unittest.TestCase):
         self.assertEqual(c3, [(1,),(2,),(3,),(4,),(5,),])
         a1.close()
         a2.close()
-        print("------------------------\nTest complete: \n")
 
     #fråga per
     def test_isolated3(self):
-        print("Running test_isolated3: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jonisolated3 (c1 INTEGER) in testbank")
@@ -1051,11 +897,9 @@ class TestScrollCursorMethods(unittest.TestCase):
         c2 = b.fetchall()
         self.assertEqual(c2, [(1,),(2,),(3,),(4,),(5,),])
         a.close()
-        print("------------------------\nTest complete: \n")
 
     #blir fel
     def test_invalid_sequence_fetchmany(self):
-        print("Running test_invalid_sequence_fetchmany: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jonfetchmany (c1 INTEGER) in testbank")
@@ -1065,12 +909,10 @@ class TestScrollCursorMethods(unittest.TestCase):
         with self.assertRaises(ProgrammingError):
             b.fetchmany(10)
         a.close()
-        print("------------------------\nTest complete: \n")
 
     #blir fel, samma som ovan
     #@unittest.skip
     def test_invalid_sequence_fetchall(self):
-        print("Running test_invalid_sequence_fetchall: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jonfetchall (c1 INTEGER) in testbank")
@@ -1080,11 +922,9 @@ class TestScrollCursorMethods(unittest.TestCase):
         with self.assertRaises(ProgrammingError):
             b.fetchall()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     @unittest.skip
     def test_insert_blob(self):
-        print("Running test_insert_blob: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jonblob (c1 BLOB(18389)) in testbank")
@@ -1096,11 +936,9 @@ class TestScrollCursorMethods(unittest.TestCase):
             c = b.fetchall()[0]
             self.assertEqual(c[0], ablob)
         a.close()
-        print("------------------------\nTest complete: \n")
 
     @unittest.skip
     def test_insert_blob_2(self):
-        print("Running test_insert_blob_2: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jonblob2 (c1 BLOB(64111)) in testbank")
@@ -1112,11 +950,9 @@ class TestScrollCursorMethods(unittest.TestCase):
             c = b.fetchall()[0]
             self.assertEqual(c[0], ablob)
         a.close()
-        print("------------------------\nTest complete: \n")
 
     @unittest.skip
     def test_insert_blob_3(self):
-        print("Running test_insert_blob_3: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jonblob3 (c1 BLOB(3000000)) in testbank")
@@ -1128,11 +964,9 @@ class TestScrollCursorMethods(unittest.TestCase):
             c = b.fetchall()[0][0]
             self.assertEqual(c, ablob)
         a.close()
-        print("------------------------\nTest complete: \n")
 
     @unittest.skip
     def test_insert_blob_4(self):
-        print("Running test_insert_blob_4: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jonblob4 (c1 BLOB(3000000)) in testbank")
@@ -1144,12 +978,10 @@ class TestScrollCursorMethods(unittest.TestCase):
             c = b.fetchall()[0][0]
             self.assertEqual(c, ablob)
         a.close()
-        print("------------------------\nTest complete: \n")
 
     # bug reported -erik 201808
     @unittest.skip
     def test_insert_nclob(self):
-        print("Running test_insert_nclob: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jonnclob (c1 NCLOB(50000)) in testbank")
@@ -1160,10 +992,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         c = b.fetchall()[0]
         self.assertEqual(c[0], anclob)
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_insert_binary(self):
-        print("Running test_insert_binary: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jonbinary (c1 BINARY(3)) in testbank")
@@ -1174,11 +1004,9 @@ class TestScrollCursorMethods(unittest.TestCase):
         c = b.fetchall()
         #self.assertEqual(c[0], [])
         a.close()
-        print("------------------------\nTest complete: \n")
 
     @unittest.skip
     def test_insert_binary_parameter_markers(self):
-        print("Running test_insert_binary_parameter_markers: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jonbinary2 (c1 BINARY(2)) in testbank")
@@ -1189,11 +1017,9 @@ class TestScrollCursorMethods(unittest.TestCase):
         #c = b.fetchall()[0]
         #self.assertEqual(c[0], anclob)
         a.close()
-        print("------------------------\nTest complete: \n")
 
     @unittest.skip
     def test_insert_nclob_2(self):
-        print("Running test_insert_nclob_2: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jonnclob2 (c1 Nclob(450000)) in testbank")
@@ -1205,10 +1031,8 @@ class TestScrollCursorMethods(unittest.TestCase):
             c = b.fetchall()[0]
             self.assertEqual(c[0], anclob)
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_insert_clob(self):
-        print("Running test_insert_clob: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table jonclob (c1 clob(30000)) in testbank")
@@ -1219,11 +1043,9 @@ class TestScrollCursorMethods(unittest.TestCase):
         c = b.fetchall()[0]
         self.assertEqual(c[0], anclob)
         a.close()
-        print("------------------------\nTest complete: \n")
 
 
     def test_insert_bool(self):
-        print("Running test_insert_bool: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bobybool (c1 boolean) in testbank")
@@ -1232,10 +1054,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("insert INTO bobybool VALUES (?)", (45))
         a.commit()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_select_bool(self):
-        print("Running test_select_bool: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bobybool2 (c1 boolean) in testbank")
@@ -1249,27 +1069,21 @@ class TestScrollCursorMethods(unittest.TestCase):
         c = b.fetchone()
         self.assertEqual(c[0], True)
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_get_connection(self):
-        print("Running test_get_mimerpy.connect: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         self.assertEqual(b.connection, a)
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_with(self):
-        print("Running test_with: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         with a.cursor() as b:
             b.execute("create table withtable (c1 INTEGER) in testbank")
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_for(self):
-        print("Running test_with: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table fortable (c1 INTEGER) in testbank")
@@ -1278,10 +1092,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         for val in b:
             self.assertEqual(val[0], 45)
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_result_set_twice(self):
-        print("Running test_result_set_twise: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table kor (c1 INTEGER) in testbank")
@@ -1292,10 +1104,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("select * from kor")
         b.execute("select c1 from kor")
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_executemany_none(self):
-        print("Running test_executemany_none: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table manytable (c1 INTEGER) in testbank")
@@ -1304,10 +1114,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         a.close()
 
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_select_executemany(self):
-        print("Running test_select_executemany: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bobyselect (c1 INTEGER) in testbank")
@@ -1317,10 +1125,8 @@ class TestScrollCursorMethods(unittest.TestCase):
             b.executemany("select * from bobyselect where c1 = (?)", ((5,),(10,)))
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_select_twice(self):
-        print("Running test_select_twice: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bananaselect (c1 INTEGER) in testbank")
@@ -1328,10 +1134,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("select c1 from bananaselect where c1 = (?)", (7))
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_fetchall_no_select(self):
-        print("Running test_fetchall_no_select: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         with self.assertRaises(ProgrammingError):
@@ -1342,10 +1146,8 @@ class TestScrollCursorMethods(unittest.TestCase):
             b.fetchall()
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_bool_insert(self):
-        print("Running test_bool_insert: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table boolt (c1 BOOLEAN) in testbank")
@@ -1353,10 +1155,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         b.execute("select * from boolt")
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_insert_parametermarkers_different_types(self):
-        print("Running test_insert_parametermarkers_different_types: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bob176(c1 NVARCHAR(128)) in testbank")
@@ -1369,10 +1169,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         self.assertEqual(b.fetchall(), [("bar",),("bar",),("bar",),("bar",)])
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_insert_bigint(self):
-        print("Running test_insert_bigint: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bobbig17(c1 BIGINT) in testbank")
@@ -1381,7 +1179,6 @@ class TestScrollCursorMethods(unittest.TestCase):
         a.commit()
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     @unittest.skip
     def test_help(self):
@@ -1396,23 +1193,18 @@ class TestScrollCursorMethods(unittest.TestCase):
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table boberror (c1 INTEGER,  c2 NVARCHAR(10)) in testbank")
-        print("table created --------------- ")
         b.execute("inser into boberror values (:a, :b)", (3, 'bob'))
         a.close()
-        print("------------------------\nTest complete: \n")
 
     #ScrollCursor specific tests
 
     def test_create_scrollcursor(self):
-      print("Running test_create_scrollcursor: \n------------------------")
       a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
       b = a.cursor(scrollable = 'True')
       b.close()
       #a.close()
-      print("------------------------\nTest complete: \n")
 
     def test_fetchone_2(self):
-      print("Running test_fetchone_2: \n------------------------")
       a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
       b = a.cursor(scrollable = 'True')
       b.execute("create table bob853 (c1 INTEGER, c2 NVARCHAR(10)) in testbank")
@@ -1429,10 +1221,8 @@ class TestScrollCursorMethods(unittest.TestCase):
       self.assertEqual(b.fetchone(), [])
       b.close()
       a.close()
-      print("------------------------\nTest complete: \n")
 
     def test_fetchone_rownumber(self):
-      print("Running test_fetchone_rownumber: \n------------------------")
       a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
       b = a.cursor(scrollable = 'True')
       b.execute("create table bobrow (c1 INTEGER, c2 NVARCHAR(10)) in testbank")
@@ -1454,10 +1244,8 @@ class TestScrollCursorMethods(unittest.TestCase):
       self.assertEqual(b.rownumber, 3)
       b.close()
       a.close()
-      print("------------------------\nTest complete: \n")
 
     def test_fetchmany_rownumber(self):
-      print("Running test_fetchmany_rownumber: \n------------------------")
       a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
       b = a.cursor(scrollable = 'True')
       b.execute("create table bobrow2(c1 INTEGER, c2 NVARCHAR(100)) in testbank")
@@ -1478,10 +1266,8 @@ class TestScrollCursorMethods(unittest.TestCase):
       self.assertEqual(b.fetchmany(2), [])
       b.close()
       a.close()
-      print("------------------------\nTest complete: \n")
 
     def test_fetchall_rownumber(self):
-      print("Running test_fetchall_rownumber: \n------------------------")
       a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
       b = a.cursor(scrollable = 'True')
       b.execute("create table bobrow3(c1 INTEGER, c2 NVARCHAR(100)) in testbank")
@@ -1499,10 +1285,8 @@ class TestScrollCursorMethods(unittest.TestCase):
       self.assertEqual(b.fetchall(), [])
       b.close()
       a.close()
-      print("------------------------\nTest complete: \n")
 
     def test_mixfetch_rownumber(self):
-      print("Running test_mixfetch_rownumber: \n------------------------")
       a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
       b = a.cursor(scrollable = 'True')
       b.execute("create table bobrow4(c1 INTEGER, c2 NVARCHAR(100)) in testbank")
@@ -1528,10 +1312,8 @@ class TestScrollCursorMethods(unittest.TestCase):
       self.assertEqual(b.fetchall(), [])
       b.close()
       a.close()
-      print("------------------------\nTest complete: \n")
 
     def test_mixfetch_rowcount(self):
-      print("Running test_mixfetch_rowcount: \n------------------------")
       a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
       b = a.cursor(scrollable = 'True')
       b.execute("create table bobrow5(c1 INTEGER) in testbank")
@@ -1549,10 +1331,8 @@ class TestScrollCursorMethods(unittest.TestCase):
       self.assertEqual(b.rowcount, 9)
       b.close()
       a.close()
-      print("------------------------\nTest complete: \n")
 
     def test_scroll(self):
-      print("Running test_scroll: \n------------------------")
       a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
       b = a.cursor(scrollable = 'True')
       b.execute("create table bobrow6(c1 INTEGER) in testbank")
@@ -1575,10 +1355,8 @@ class TestScrollCursorMethods(unittest.TestCase):
       self.assertEqual(b.rownumber, 8)
       b.close()
       a.close()
-      print("------------------------\nTest complete: \n")
 
     def test_scroll_error(self):
-      print("Running test_scroll: \n------------------------")
       a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
       b = a.cursor(scrollable = 'True')
       b.execute("create table bobrow7(c1 INTEGER) in testbank")
@@ -1595,10 +1373,8 @@ class TestScrollCursorMethods(unittest.TestCase):
           b.scroll(101,mode='absolute')
       b.close()
       a.close()
-      print("------------------------\nTest complete: \n")
 
     def test_next(self):
-      print("Running test_next: \n------------------------")
       a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
       b = a.cursor(scrollable = 'True')
       b.execute("create table bobrow8(c1 INTEGER, c2 NVARCHAR(100)) in testbank")
@@ -1612,10 +1388,8 @@ class TestScrollCursorMethods(unittest.TestCase):
       b.scroll(9, mode='absolute')
       b.close()
       a.close()
-      print("------------------------\nTest complete: \n")
 
     def test_next_fetch(self):
-      print("Running test_next_fetch: \n------------------------")
       a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
       b = a.cursor(scrollable = 'True')
       b.execute("create table bobrow10(c1 INTEGER, c2 NVARCHAR(100)) in testbank")
@@ -1632,10 +1406,8 @@ class TestScrollCursorMethods(unittest.TestCase):
                                           (10, 'bob10')])
       b.close()
       a.close()
-      print("------------------------\nTest complete: \n")
 
     def test_next_error(self):
-      print("Running test_next_error: \n------------------------")
       a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
       b = a.cursor(scrollable = 'True')
       b.execute("create table bobrow9(c1 INTEGER, c2 NVARCHAR(100)) in testbank")
@@ -1649,10 +1421,8 @@ class TestScrollCursorMethods(unittest.TestCase):
           b.next()
       b.close()
       a.close()
-      print("------------------------\nTest complete: \n")
 
     def test_fetchall_IndexError(self):
-      print("Running test_fetchall_IndexError: \n------------------------")
       a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
       b = a.cursor(scrollable = 'True')
       b.execute("create table indexerror (c1 INTEGER) in testbank")
@@ -1662,10 +1432,8 @@ class TestScrollCursorMethods(unittest.TestCase):
       c = b.fetchmany(9)
       c = b.fetchall()
       a.close()
-      print("------------------------\nTest complete: \n")
 
     def test_fetchall_Scroll_outside(self):
-      print("Running test_fetchall_Scroll_outside: \n------------------------")
       a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
       b = a.cursor(scrollable = 'True')
       b.execute("create table scrolloutside (c1 INTEGER) in testbank")
@@ -1675,10 +1443,8 @@ class TestScrollCursorMethods(unittest.TestCase):
       with self.assertRaises(IndexError):
           c = b.scroll(100)
       a.close()
-      print("------------------------\nTest complete: \n")
 
     def test_no_select(self):
-        print("Running test_no_select: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bobnoselect(c1 INTEGER) in testbank")
@@ -1693,10 +1459,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         self.assertEqual(len(c), 0)
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_no_select2(self):
-        print("Running test_no_select2: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bobnoselect2(c1 INTEGER) in testbank")
@@ -1711,10 +1475,8 @@ class TestScrollCursorMethods(unittest.TestCase):
         self.assertEqual(len(c), 0)
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_no_select3(self):
-        print("Running test_no_select3: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         b.execute("create table bobnoselect3(c1 INTEGER) in testbank")
@@ -1729,17 +1491,14 @@ class TestScrollCursorMethods(unittest.TestCase):
         self.assertEqual(len(c), 0)
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_next_noselect(self):
-        print("Running test_next_noselect: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor(scrollable = 'True')
         with self.assertRaises(ProgrammingError):
             b.next()
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
 
 if __name__ == '__main__':

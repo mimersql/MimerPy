@@ -25,8 +25,6 @@ class TestConnectionMethods(unittest.TestCase):
         a.commit()
         a.close()
 
-        print("set up up complete \n------------------------")
-
     @classmethod
     def tearDownClass(self):
         a = mimerpy.connect(dsn = self.dbName, user = self.sysadmName, password = self.sysadmpsw)
@@ -35,33 +33,25 @@ class TestConnectionMethods(unittest.TestCase):
         b.execute("DROP IDENT TEST_IDENT CASCADE")
         b.close()
         a.close()
-        print("Tear down complete")
 
     def test_connect(self):
-        print("Running test_connect: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         a.close()
-        print("------------------------\nTest complete: \n")
 
 
     def test_connect_many(self):
-        print("Running test_connect_many: \n------------------------")
         for a in range(100):
             con = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
             con.close()
-        print("------------------------\nTest complete: \n")
 
     # Ran with 1000 before, but with current version it is very slow
     # Mimer now uses fancy new password encryption, this is slower than before
     def test_connect_many_no_close(self):
-        print("Running test_connect_many_no_close: \n------------------------")
         for a in range(100):
             con = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
-        print("------------------------\nTest complete: \n")
 
 
     def os_user(self):
-        print("Running os_user: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.sysadmName, password = self.sysadmpsw)
         b = a.cursor()
         b.execute("CREATE IDENT ergu AS OS_USER USING 'mimerPass'")
@@ -69,11 +59,9 @@ class TestConnectionMethods(unittest.TestCase):
             con = mimerpy.connect(dsn = self.dbName, user = "ergu", password = self.psw)
             con.close()
         b.execute("DROP IDENT ergu CASCADE")
-        print("------------------------\nTest complete: \n")
 
     # Make sure you allow more than the user than the number_of_connections or problems occur
     def test_condis(self):
-        print("Running test_condis: \n------------------------")
         mylist = []
         number_of_connections = 20
         for a in range(number_of_connections):
@@ -94,41 +82,29 @@ class TestConnectionMethods(unittest.TestCase):
             if (a[1]):
                 a[0].close()
 
-        print("------------------------\nTest complete: \n")
-
     def test_connect_2(self):
-        print("Running test_connect_2: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         a.close()
         b.close()
-        print("------------------------\nTest complete: \n")
 
     def test_connect_close(self):
-        print("Running test_connect_close: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         a.close()
         with self.assertRaises(ProgrammingError):
             a.commit()
-        print("------------------------\nTest complete: \n")
 
     def test_connect_invalid_login(self):
-        print("Running test_connect_invalid_login: \n------------------------")
         with self.assertRaises(DatabaseError):
             a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = "InvalidPass")
-        print("------------------------\nTest complete: \n")
 
     def test_connect_invalid_login_2(self):
-        print("Running test_connect_invalid_login_2: \n------------------------")
         with self.assertRaises(IntegrityError):
             a = mimerpy.connect("self.d", "du","där")
-        print("------------------------\nTest complete: \n")
 
     def test_connect_invalid_login_3(self):
-        print("Running test_connect_invalid_login_3: \n------------------------")
         with self.assertRaises(IntegrityError):
             a = mimerpy.connect()
-        print("------------------------\nTest complete: \n")
 
     def test_weakref(self):
         # Tagen från postgres tester
@@ -142,41 +118,32 @@ class TestConnectionMethods(unittest.TestCase):
         self.assertTrue(w() is None)
 
     def test_connect_cursor(self):
-        print("Running test_connect_cursor: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor()
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_connect_cursor_close(self):
-        print("Running test_connect_cursor_close: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor()
         b.close()
         with self.assertRaises(ProgrammingError):
             b.execute("Hello")
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_connect_cursor_close_connection_only(self):
-        print("Running test_connect_cursor_close_mimerpy.connect_only: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_connect_cursor_close_connection_only_2(self):
-        print("Running test_connect_cursor_close_mimerpy.connect_only_2: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor()
         a.close()
         with self.assertRaises(ProgrammingError):
             b.execute("Hello")
-        print("------------------------\nTest complete: \n")
 
     def test_mutiple_cursors(self):
-        print("Running test_mutiple_cursors: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.cursor()
         b = a.cursor()
@@ -187,29 +154,23 @@ class TestConnectionMethods(unittest.TestCase):
         b = a.cursor()
         b = a.cursor()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_with(self):
-        print("Running test_with: \n------------------------")
         with mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw) as a:
             b = a.cursor()
             c = a.cursor()
-        print("------------------------\nTest complete: \n")
 
     def test_with_close(self):
-        print("Running test_with_close: \n------------------------")
         with mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw) as a:
             b = a.cursor()
             c = a.cursor()
             b.execute("create table cbob2(c1 INTEGER, c2 NVARCHAR(10)) in testbank");
         with self.assertRaises(ProgrammingError):
             b.execute("select * from cbob2")
-        print("------------------------\nTest complete: \n")
 
     @unittest.skip
     #There is no rollback with DDL statements
     def test_with_no_commit(self):
-        print("Running test_with_close: \n------------------------")
         with mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw) as a:
             b = a.cursor()
             c = a.cursor()
@@ -218,11 +179,9 @@ class TestConnectionMethods(unittest.TestCase):
             b = a.cursor()
             with self.assertRaises(ProgrammingError):
                 b.execute("select * from cbob")
-        print("------------------------\nTest complete: \n")
 
 
     def test_with_no_commit_insert(self):
-        print("Running test_with_close: \n------------------------")
         with mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw) as a:
             b = a.cursor()
             c = a.cursor()
@@ -233,10 +192,8 @@ class TestConnectionMethods(unittest.TestCase):
             b = a.cursor()
             b.execute("select * from cbobc")
             self.assertEqual(b.fetchall(), [])
-        print("------------------------\nTest complete: \n")
 
     def test_with_commit(self):
-        print("Running test_with_close: \n------------------------")
         with mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw) as a:
             b = a.cursor()
             c = a.cursor()
@@ -245,10 +202,8 @@ class TestConnectionMethods(unittest.TestCase):
         with mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw) as a:
             b = a.cursor()
             b.execute("select * from cbob33")
-        print("------------------------\nTest complete: \n")
 
     def test_with_commit_insert(self):
-        print("Running test_with_close: \n------------------------")
         with mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw) as a:
             b = a.cursor()
             c = a.cursor()
@@ -260,10 +215,8 @@ class TestConnectionMethods(unittest.TestCase):
             b = a.cursor()
             b.execute("select * from cbob373")
             self.assertEqual(b.fetchall(), [(11, 'aaa')])
-        print("------------------------\nTest complete: \n")
 
     def test_operate_after_closed(self):
-        print("Running test_operate_after_closed: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         a.close()
         a.close()
@@ -271,19 +224,15 @@ class TestConnectionMethods(unittest.TestCase):
             a.execute("Kalle")
         with self.assertRaises(ProgrammingError):
             a.executemany("Kalle", ("Kula"))
-        print("------------------------\nTest complete: \n")
 
     def test_execute(self):
-        print("Running test_execute: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.execute("create table bob(c1 INTEGER, c2 NVARCHAR(10)) in testbank")
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
 
     def test_executemany(self):
-        print("Running test_executemany: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.execute("create table bob2(c1 INTEGER, c2 NVARCHAR(10)) in testbank")
         b = a.executemany("insert into bob2 values (:a, :b)", ((11, 'aaa'),
@@ -294,12 +243,10 @@ class TestConnectionMethods(unittest.TestCase):
                             (22, 'bb'),(33, 'cc'),(44, 'dd')])
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
 
 
     def test_executemany_simple(self):
-        print("Running test_executemany: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.execute("create table bob2_simple(c1 INTEGER) in testbank")
         b = a.executemany("insert into bob2_simple values (:a)", ((11,),
@@ -310,11 +257,9 @@ class TestConnectionMethods(unittest.TestCase):
                             (22,),(33,),(44,)])
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
 
     def test_executemany_no_closing(self):
-        print("Running test_executemany_no_closing: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.execute("create table bob3(c1 INTEGER, c2 NVARCHAR(10)) in testbank")
         b.executemany("insert into bob3 values (:a, :b)", ((11, 'aaa'),
@@ -324,10 +269,8 @@ class TestConnectionMethods(unittest.TestCase):
         self.assertEqual(b.fetchall(), [(11, 'aaa'),
                             (22, 'bb'),(33, 'cc'),(44, 'dd')])
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_executemany_no_closing_dummy(self):
-        print("Running test_executemany_no_closing_dummy: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.execute("create table bob4(c1 INTEGER, c2 NVARCHAR(10)) in testbank")
         b = a.executemany("insert into bob4 values (:a, :b)", ((11, 'aaa'),
@@ -337,10 +280,8 @@ class TestConnectionMethods(unittest.TestCase):
         self.assertEqual(b.fetchall(), [(11, 'aaa'),
                             (22, 'bb'),(33, 'cc'),(44, 'dd')])
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_commit(self):
-        print("Running test_commit: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.execute("create table bob5(c1 INTEGER) in testbank")
         b.execute("insert into bob5 values (:a)", (11))
@@ -349,10 +290,8 @@ class TestConnectionMethods(unittest.TestCase):
         self.assertEqual(b.fetchone(), (11,))
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_rollback(self):
-        print("Running test_rollback: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.execute("create table bob6(c1 INTEGER) in testbank")
         a.close()
@@ -367,10 +306,8 @@ class TestConnectionMethods(unittest.TestCase):
         self.assertEqual(b.fetchone(), [])
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_autocommit(self):
-        print("Running test_autocommit: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.execute("create table bob66(c1 INTEGER) in testbank")
         a.close()
@@ -385,10 +322,8 @@ class TestConnectionMethods(unittest.TestCase):
         self.assertEqual(b.fetchone(), (1133,))
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_autocommit_2(self):
-        print("Running test_autocommit_2: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.execute("create table bobr66(c1 INTEGER) in testbank")
         a.close()
@@ -408,10 +343,8 @@ class TestConnectionMethods(unittest.TestCase):
         self.assertEqual(b.fetchone(), (23885,))
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_autocommit_3(self):
-        print("Running test_autocommit_2: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.execute("create table bob63(c1 INTEGER) in testbank")
         a.close()
@@ -425,10 +358,8 @@ class TestConnectionMethods(unittest.TestCase):
         self.assertEqual(b.fetchone(), (1133,))
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
     def test_autocommit_4(self):
-        print("Running test_autocommit_2: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.execute("create table bob64(c1 INTEGER) in testbank")
         a.close()
@@ -443,11 +374,9 @@ class TestConnectionMethods(unittest.TestCase):
         self.assertEqual(b.fetchone(), [])
         b.close()
         a.close()
-        print("------------------------\nTest complete: \n")
 
 
     def test_threads(self):
-        print("Running test_threads: \n------------------------")
 
         def thread_test(self):
             try:
@@ -473,10 +402,8 @@ class TestConnectionMethods(unittest.TestCase):
                print("Error: unable to start thread: ", e)
                """ """
 
-        print("------------------------\nTest complete: \n")
 
     def test_threads_2(self):
-        print("Running test_threads_2: \n------------------------")
 
         def thread_test(self):
             try:
@@ -516,10 +443,7 @@ class TestConnectionMethods(unittest.TestCase):
         # Need to change this for a _thread.join() later
         time.sleep(2)
 
-    #print("------------------------\nTest complete: \n")
-
     def test_xid(self):
-        print("Running test_xid: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         with self.assertRaises(NotSupportedError):
             a.xid()
@@ -533,13 +457,11 @@ class TestConnectionMethods(unittest.TestCase):
             a.tpc_rollback()
         with self.assertRaises(NotSupportedError):
             a.tpc_recover()
-        print("------------------------\nTest complete: \n")
 
     @unittest.skip
     # Not working atm. cant mix ddl and dml statements in one transaction
     # When DDL and DML statements are mixed the behavior is not super clear
     def test_rollback_not_working(self):
-        print("Running test_rollback: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         b = a.execute("create table bob7(c1 INTEGER) in testbank")
         b.execute("insert into bob7 values (:a)", (1133))
@@ -553,17 +475,13 @@ class TestConnectionMethods(unittest.TestCase):
         b = a.execute("select * from bob6")
         print(b.fetchone())
         a.close()
-        print("------------------------\nTest complete: \n")
 
     @unittest.skip
     def test_help(self):
         """ Enters help mode. Only suited for manual testing"""
-        print("Running test_help: \n------------------------")
         a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
         help(a)
         a.close()
-        print("------------------------\nTest complete: \n")
-
 
 if __name__ == '__main__':
     unittest.main()

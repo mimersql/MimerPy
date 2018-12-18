@@ -30,11 +30,9 @@ class TestMonkey(unittest.TestCase):
         b = a.cursor()
         b.execute("create table monkeyTable (c1 INTEGER, c2 BIGINT, c3 SMALLINT, c4 NVARCHAR(256), c5 BLOB, c6 NCLOB, c7 BOOLEAN, c8 FLOAT) in testbank")
         a.close()
-        print("set up up complete \n------------------------")
 
     @classmethod
     def tearDownClass(self):
-        print("Tear down begun")
         a = mimerpy.connect(dsn = self.dbName, user = self.sysadmName, password = self.sysadmpsw)
         b = a.cursor()
         b.execute("DROP DATABANK testbank CASCADE")
@@ -42,7 +40,6 @@ class TestMonkey(unittest.TestCase):
         b.close()
         a.commit()
         a.close()
-        print("Tear down complete")
 
     def test_cursor_dml(self):
         conn = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
@@ -160,7 +157,6 @@ class TestMonkey(unittest.TestCase):
                     """ Ok """
 
     def test_condis(self):
-        print("Running test_connect_many_no_close: \n------------------------")
 
         def condis(self):
             mylist = []
@@ -187,7 +183,6 @@ class TestMonkey(unittest.TestCase):
             t.start()
         while(threading.active_count() > 1):
             time.sleep(1)
-        print("------------------------\nTest complete: \n")
 
     def cursor_insert(self, cur):
         a = random.randint(-2**31, 2**31 - 1)
