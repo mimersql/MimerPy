@@ -14,175 +14,187 @@ class TestMonkey(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        self.dbName = db_config.DB_INFO['DBNAME']
-        self.usrName = "TEST_IDENT"
-        self.psw = "mimerPass"
-        self.sysadmName = db_config.DB_INFO['SYSADM']
-        self.sysadmpsw = db_config.DB_INFO['SYADMPSW']
-        a = mimerpy.connect(dsn = self.dbName, user = self.sysadmName, password = self.sysadmpsw)
-        b = a.cursor()
-        b.execute("CREATE IDENT TEST_IDENT AS USER USING 'mimerPass'")
-        b.execute("create databank testbank")
-        b.execute("Grant TABLE on databank testbank to TEST_IDENT")
-        a.close()
-
-        a = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
-        b = a.cursor()
-        b.execute("create table monkeyTable (c1 INTEGER, c2 BIGINT, c3 SMALLINT, c4 NVARCHAR(256), c5 BLOB, c6 NCLOB, c7 BOOLEAN, c8 FLOAT) in testbank")
-        a.close()
+        (self.syscon, self.tstcon) = db_config.setup()
 
     @classmethod
     def tearDownClass(self):
-        a = mimerpy.connect(dsn = self.dbName, user = self.sysadmName, password = self.sysadmpsw)
-        b = a.cursor()
-        b.execute("DROP DATABANK testbank CASCADE")
-        b.execute("DROP IDENT TEST_IDENT CASCADE")
-        b.close()
-        a.commit()
-        a.close()
+        self.tstcon.close()
+        with self.syscon.cursor() as c:
+            c.execute("DROP IDENT MIMERPY CASCADE")
+        self.syscon.commit()
+        self.syscon.close()
+
+    def setUp(self):
+        self.tstcon.rollback()
+        with self.tstcon.cursor() as c:
+            c.execute("""
+create table monkeyTable (c1 INTEGER,
+                          c2 BIGINT,
+                          c3 SMALLINT,
+                          c4 NVARCHAR(256),
+                          c5 BLOB,
+                          c6 NCLOB,
+                          c7 BOOLEAN,
+                          c8 FLOAT) in pybank""")
+        self.tstcon.commit()
+
+    def tearDown(self):
+        self.tstcon.rollback()
+        with self.tstcon.cursor() as c:
+            c.execute("drop table monkeyTable")
+        self.tstcon.commit()
+
+########################################################################
+## Tests below
+########################################################################
 
     def test_cursor_dml(self):
-        conn = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
-        cur = conn.cursor()
-
+        cur = self.tstcon.cursor()
         for nu in range(0,2000):
             apa = random.randint(0,10)
-            if(apa == 0):
+            if (apa == 0):
                 self.cursor_select(cur)
-            elif(apa == 1):
+            elif (apa == 1):
                 self.cursor_select_and_fetchone(cur)
-            elif(apa == 2):
+            elif (apa == 2):
                 self.cursor_select_and_fetchmany(cur, nu)
-            elif(apa == 3):
+            elif (apa == 3):
                 self.cursor_select_and_fetchall(cur)
-            elif(apa == 4):
+            elif (apa == 4):
                 self.cursor_insert_executemany(cur)
-            elif(apa == 5):
+            elif (apa == 5):
                 self.cursor_insert(cur)
-            elif(apa == 6):
+            elif (apa == 6):
                 self.cursor_insert_many(cur)
-            elif(apa == 7):
+            elif (apa == 7):
                 try:
                     self.cursor_next(cur)
                 except StopIteration:
                     """Caught exception"""
-            elif(apa == 8):
-                self.cursor_commit(conn)
-            elif(apa == 9):
-                self.cursor_rollback(conn)
-            elif(apa == 10):
+            elif (apa == 8):
+                self.cursor_commit(self.tstcon)
+            elif (apa == 9):
+                self.cursor_rollback(self.tstcon)
+            elif (apa == 10):
                 self.cursor_description_all(cur)
-
+        cur.close()
 
     def test_cursor_ddl_and_dml(self):
-        conn = mimerpy.connect(dsn = self.dbName, user = self.usrName, password = self.psw)
-        cur = conn.cursor()
+        cur = self.tstcon.cursor()
         for nu in range(0,1000):
             apa = random.randint(0,15)
-            if(apa == 0):
+            if (apa == 0):
                 try:
                     self.cursor_select(cur)
                 except Exception:
                     """ Ok """
-            elif(apa == 1):
+            elif (apa == 1):
                 try:
                     self.cursor_select_and_fetchone(cur)
                 except Exception:
                     """ Ok """
-            elif(apa == 2):
+            elif (apa == 2):
                 try:
                     self.cursor_select_and_fetchmany(cur, nu)
                 except Exception:
                     """ Ok """
 
-            elif(apa == 3):
+            elif (apa == 3):
                 try:
                     self.cursor_select_and_fetchall(cur)
                 except Exception:
                     """ Ok """
-            elif(apa == 4):
+            elif (apa == 4):
                 try:
                     self.cursor_insert_executemany(cur)
                 except Exception:
                     """ Ok """
-            elif(apa == 5):
+            elif (apa == 5):
                 try:
                     self.cursor_insert(cur)
                 except Exception:
                     """ Ok """
-            elif(apa == 6):
+            elif (apa == 6):
                 try:
                     self.cursor_insert_many(cur)
                 except Exception:
                     """ Ok """
-            elif(apa == 7):
+            elif (apa == 7):
                 try:
                     self.cursor_next(cur)
                 except Exception:
                     """Caught exception"""
-            elif(apa == 8):
+            elif (apa == 8):
                 try:
                     self.cursor_update(cur)
                 except Exception:
                     """ Ok """
-            elif(apa == 9):
+            elif (apa == 9):
                 try:
                     self.monkey_insert(cur)
                 except Exception:
                     """ Ok """
-            elif(apa == 11):
+            elif (apa == 11):
                 try:
                     self.monkey_select_and_fetchone(cur)
                 except Exception:
                     """ Ok """
-            elif(apa == 12):
+            elif (apa == 12):
                 try:
                     self.cursor_delete(cur)
                 except Exception:
                     """ Ok """
-            elif(apa == 13):
+            elif (apa == 13):
                 try:
-                    self.cursor_commit(conn)
+                    self.cursor_commit(self.tstcon)
                 except Exception:
                     """ Ok """
-            elif(apa == 14):
+            elif (apa == 14):
                 try:
-                    self.cursor_rollback(conn)
+                    self.cursor_rollback(self.tstcon)
                 except Exception:
                     """ Ok """
-            elif(apa == 15):
+            elif (apa == 15):
                 try:
                     self.cursor_description_all(cur)
                 except Exception:
                     """ Ok """
+        cur.close()
 
     def test_condis(self):
 
         def condis(self):
             mylist = []
             for ac in range(5):
-                con = mimerpy.connect(dsn = "testDB11", user = "SYSADM", password = "SYSADM")
+                con = mimerpy.connect(**db_config.TSTUSR)
                 mylist.append([con, True])
 
-            for a in range(10000):
+            for a in range(100):
                 rand = random.randint(0,4)
-                if(not mylist[rand][1]):
+                if (not mylist[rand][1]):
                     mylist.pop(rand)
-                    conn = mimerpy.connect(dsn = "testDB11", user = "SYSADM", password = "SYSADM")
+                    conn = mimerpy.connect(**db_config.TSTUSR)
                     mylist.append([conn, True])
                 else:
                     mylist[rand][0].close()
                     mylist[rand][1] = False
 
             for ab in mylist:
-                if(ab[1]):
+                if (ab[1]):
                     ab[0].close()
 
         for i in range(9):
             t = threading.Thread(target = condis, args = (self,))
             t.start()
-        while(threading.active_count() > 1):
+        while (threading.active_count() > 1):
             time.sleep(1)
+
+
+########################################################################
+## No Tests below
+## Support routines follow
+########################################################################
+
 
     def cursor_insert(self, cur):
         a = random.randint(-2**31, 2**31 - 1)
