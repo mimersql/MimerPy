@@ -928,7 +928,7 @@ class TestCursorMethods(unittest.TestCase):
             self.assertEqual(r, ablob)
 
     # Bug in mimerAPI - Erik 2018-08
-    # Still there?? &&&
+    # Still there?? &&&&
     def test_insert_nclob(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jonnclob (c1 NCLOB(50000)) in pybank")
