@@ -813,7 +813,7 @@ class TestCursorMethods(unittest.TestCase):
             c.execute("create table jonisolated2 (c1 INTEGER) in pybank")
             self.tstcon.commit()
 
-        cred = db_config.TSTUSR
+        cred = db_config.TSTUSR.copy()
         cred['autocommit'] = True
         a1 = mimerpy.connect(**cred)
         a2 = mimerpy.connect(**cred)
@@ -1198,7 +1198,7 @@ class TestCursorMethods(unittest.TestCase):
             con.execute("INSERT INTO with_table_connection1 VALUES (?,?)",
                         (4, "Commit forgotten"))
 
-        cred = db_config.TSTUSR
+        cred = db_config.TSTUSR.copy()
         cred['autocommit'] = True
         with mimerpy.connect(**cred) as con:
             con.execute("INSERT INTO with_table_connection1 VALUES (?,?)",
