@@ -72,11 +72,12 @@ class Connection:
                 Password to chosen ident
 
         """
-        dsn = kwargs.pop('dsn', '')
-        user = kwargs.pop('user', '')
-        password = kwargs.pop('password', '')
+        dsn = kwargs.pop('dsn', '') or ''
+        user = kwargs.pop('user', '') or ''
+        password = kwargs.pop('password', '') or ''
         self.autocommitmode = kwargs.pop('autocommit', False)
-        self.errorhandler = kwargs.pop('errorhandler', defaulterrorhandler)
+        self.errorhandler = (kwargs.pop('errorhandler', defaulterrorhandler)
+                             or defaulterrorhandler)
         self.messages = []
         self.__session = None
         rc_value = None
