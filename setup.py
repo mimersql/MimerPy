@@ -18,19 +18,14 @@ elif plat == 'Windows':
 else:
     raise Exception('Unsupported platform: ' + plat)
 
-sources = ["src/connection.c", "src/cursor.c"]
+sources = ["src/mimerapi.c"]
 
 extensions = [
-    Extension('connection',
+    Extension('mimerapi',
               include_dirs = incDirs,
               library_dirs = libDirs,
               libraries = ['mimerapi'],
               sources = sources),
-    Extension('cursor',
-              include_dirs = incDirs,
-              library_dirs = libDirs,
-              libraries = ['mimerapi'],
-              sources = sources)
     ]
 
 long_description = """

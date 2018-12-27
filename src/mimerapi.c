@@ -38,6 +38,8 @@
  */
 /* *********************************************************************/
 
+// #define Py_LIMITED_API  ???
+
 #include "Python.h"
 #include "mimerapi.h"
 
@@ -48,20 +50,156 @@
 typedef long long pyptr;
 
 
-
 /**
- *  Default buffer size when getting something from MimerAPI.
- *  If the object is larger, the get will fail, we will learn the correct
- *  size, and malloc it.
- *  We have a reasonable size that is small.
+ *  Size of default buffer that is allocated on stack. If the buffer is not
+ *  enough, a larger buffer will be allocated with malloc().
+ *  The size is large enough to be usable in most cases and small enough to not
+ *  waste cycles filling a too small buffer.
  */
 #define BUFLEN 128
 
 
 
-/* Internal constant to document that something is done because of the size of
- * the terminating NUL, rather than using an ambiguous numerical value. */
+/**
+ *  Internal constant to document that something is done because of the size of
+ *  the terminating NUL, rather than using an ambiguous numerical value.
+ */
 static const int lengthof_Terminating_NUL = 1;
+
+
+
+static PyObject* mimerBeginSession8(PyObject* self, PyObject* args)
+/* *********************************************************************/
+/**
+ *  @brief      Starts a session with the database.
+ *
+ *  @author     Erik Gunne & Magdalena Boström
+ *  @date       2017-06-16
+ *  @param[in]     self       Pointer to python object that function is
+ *                            called from.
+ *  @param[in]     args       Arguments.
+ *                 args 1:    Name of database.
+ *                 args 2:    Name of ident.
+ *                 args 3:    Password.
+ *
+ *  @returns    Return code 0 = OK, < 0 if error.
+ */
+/* *********************************************************************/
+{
+    int rc;
+    char *db_name, *user, *password;
+    MimerSession session;
+
+    if (!PyArg_ParseTuple(args, "sss", &db_name, &user, &password)) {
+        return NULL;
+    }
+
+    rc = MimerBeginSession8(db_name, user, password, &session);
+
+    return Py_BuildValue("Li", (pyptr)session, rc);
+}
+
+
+
+static PyObject* mimerEndSession(PyObject* self, PyObject* args)
+/* *********************************************************************/
+/**
+ *  @brief      Ends a database session.
+ *
+ *  @author     Erik Gunne & Magdalena Boström
+ *  @date       2017-06-16
+ *
+ *  @param[in]     self       Pointer to python object that function is
+ *                            called from.
+ *  @param[in,out] args       Arguments.
+ *                 args 1:    Sessionhandle.
+ *
+ *  @returns    Return code 0 = OK, < 0 if error.
+ *
+ *  @remarks    If there are any active transactions, these are
+ *              rollbacked.
+ */
+/* *********************************************************************/
+{
+    int rc;
+    pyptr session;
+
+    if (!PyArg_ParseTuple(args, "L", &session)) {
+        return NULL;
+    }
+
+    rc = MimerEndSession((MimerSession*)&session);
+
+    return Py_BuildValue("i", rc);
+}
+
+
+
+static PyObject* mimerBeginTransaction(PyObject* self, PyObject* args)
+/* *********************************************************************/
+/**
+ *  @brief      Starts a transaction.
+ *
+ *  @author     Erik Gunne & Magdalena Boström
+ *  @date       2017-06-16
+ *
+ *  @param[in]     self       Pointer to python object that function is
+ *                            called from.
+ *  @param[in,out] args       Arguments.
+ *                 args 1:    Sessionhandle.
+ *
+ *  @returns    Return code 0 = OK, < 0 if error.
+ *
+ *  @remarks    This routine only needs to be called if two or more
+ *              database operations should participate in the
+ *              transaction.
+ */
+/* *********************************************************************/
+{
+    int rc;
+    pyptr session;
+
+    if (!PyArg_ParseTuple(args, "L", &session)){
+        return NULL;
+    }
+
+    rc = MimerBeginTransaction((MimerSession)session, 0);
+    return Py_BuildValue("i", rc);
+}
+
+
+
+static PyObject* mimerEndTransaction(PyObject* self, PyObject* args)
+/* *********************************************************************/
+/**
+ *  @brief      Commmits or rollbacks a transaction.
+ *
+ *  @author     Erik Gunne & Magdalena Boström
+ *  @date       2017-06-16
+ *
+ *  @param[in]     self       Pointer to python object that function is
+ *                            called from.
+ *  @param[in,out] args       Arguments.
+ *                 args 1:    Sessionhandle.
+ *                 args 2:    Integer specifying transaction operation.
+ *                            0 for commit or 1 for rollback.
+ *
+ *  @returns    Return code 0 = OK, < 0 if error.
+ *
+ *  @remarks    Open cursors are automatically closed.
+ */
+/* *********************************************************************/
+{
+    int rc, commit_rollback;
+    pyptr session;
+
+    if (!PyArg_ParseTuple(args, "Li", &session, &commit_rollback)) {
+        return NULL;
+    }
+
+    rc = MimerEndTransaction((MimerSession)session, commit_rollback);
+    return Py_BuildValue("i", rc);
+}
 
 
 
@@ -600,7 +738,7 @@ static PyObject* mimerGetInt32(PyObject* self, PyObject* args)
 /* *********************************************************************/
 {
     pyptr statement;
-    int rc, return_value, column_number;
+    int rc, value, column_number;
 
     if (!PyArg_ParseTuple(args, "Li", &statement, &column_number)) {
         return NULL;
@@ -610,8 +748,8 @@ static PyObject* mimerGetInt32(PyObject* self, PyObject* args)
         return Py_BuildValue("is", 0, NULL);
     }
 
-    rc = MimerGetInt32((MimerStatement)statement, column_number, &return_value);
-    return Py_BuildValue("ii", rc, return_value);
+    rc = MimerGetInt32((MimerStatement)statement, column_number, &value);
+    return Py_BuildValue("ii", rc, value);
 }
 
 
@@ -641,7 +779,7 @@ static PyObject* mimerGetInt64(PyObject* self, PyObject* args)
 {
     pyptr statement;
     int rc, column_number;
-    int64_t return_value;
+    int64_t value;
 
     if (!PyArg_ParseTuple(args, "Li", &statement, &column_number)) {
         return NULL;
@@ -651,8 +789,8 @@ static PyObject* mimerGetInt64(PyObject* self, PyObject* args)
         return Py_BuildValue("is", 0, NULL);
     }
 
-    rc = MimerGetInt64((MimerStatement)statement, column_number, &return_value);
-    return Py_BuildValue("iL", rc, return_value);
+    rc = MimerGetInt64((MimerStatement)statement, column_number, &value);
+    return Py_BuildValue("iL", rc, value);
 }
 
 
@@ -697,8 +835,6 @@ static PyObject* mimerGetString8(PyObject* self, PyObject* args)
     rc = MimerGetString8((MimerStatement)statement, column_number,
                          value, BUFLEN);
 
-    // If MimerGetString8 returns a value bigger than BUFLEN, memory has to
-    // be allocated.
     if (rc >= BUFLEN) {
         int buffer_size = rc + 1;
         PyObject* return_object;
@@ -782,12 +918,12 @@ static PyObject* mimerSetInt32(PyObject* self, PyObject* args)
 {
     pyptr statement;
     int rc, parameter_number;
-    int32_t value;
+    int32_t val;
 
-    if (!PyArg_ParseTuple(args, "Lii", &statement, &parameter_number, &value)) {
+    if (!PyArg_ParseTuple(args, "Lii", &statement, &parameter_number, &val)) {
         return NULL;
     }
-    rc = MimerSetInt32((MimerStatement)statement, parameter_number, value);
+    rc = MimerSetInt32((MimerStatement)statement, parameter_number, val);
     return Py_BuildValue("i", rc);
 }
 
@@ -817,13 +953,13 @@ static PyObject* mimerSetInt64(PyObject* self, PyObject* args)
 {
     pyptr statement;
     int rc, parameter_number;
-    int64_t value;
+    int64_t val;
 
-    if (!PyArg_ParseTuple(args, "LiL", &statement, &parameter_number, &value)) {
+    if (!PyArg_ParseTuple(args, "LiL", &statement, &parameter_number, &val)) {
         return NULL;
     }
 
-    rc = MimerSetInt64((MimerStatement)statement, parameter_number, value);
+    rc = MimerSetInt64((MimerStatement)statement, parameter_number, val);
     return Py_BuildValue("i", rc);
 }
 
@@ -855,13 +991,13 @@ static PyObject* mimerSetString8(PyObject* self, PyObject* args)
 {
     pyptr statement;
     int rc, parameter_number;
-    char* value;
+    char* val;
 
-    if (!PyArg_ParseTuple(args, "Lis", &statement, &parameter_number, &value)) {
+    if (!PyArg_ParseTuple(args, "Lis", &statement, &parameter_number, &val)) {
         return NULL;
     }
 
-    rc = MimerSetString8((MimerStatement)statement, parameter_number, value);
+    rc = MimerSetString8((MimerStatement)statement, parameter_number, val);
     return Py_BuildValue("i", rc);
 }
 
@@ -890,13 +1026,13 @@ static PyObject* mimerSetDouble(PyObject* self, PyObject* args)
 {
     pyptr statement;
     int rc, parameter_number;
-    double value;
+    double val;
 
-    if (!PyArg_ParseTuple(args, "Lid", &statement, &parameter_number, &value)) {
+    if (!PyArg_ParseTuple(args, "Lid", &statement, &parameter_number, &val)) {
         return NULL;
     }
 
-    rc = MimerSetDouble((MimerStatement)statement, parameter_number, value);
+    rc = MimerSetDouble((MimerStatement)statement, parameter_number, val);
 
     return Py_BuildValue("i", rc);
 }
@@ -968,7 +1104,6 @@ static PyObject* mimerSetBlobData(PyObject* self, PyObject* args)
     MimerLob lobhandle;
     const char *data;
 
-    // parse_length is a outparameter returing the length of the string data
     if (!PyArg_ParseTuple(args, "Liz#", &statement, &parameter_number, &data,
                           &parse_length)) {
         return NULL;
@@ -982,7 +1117,6 @@ static PyObject* mimerSetBlobData(PyObject* self, PyObject* args)
     rc = MimerSetLob((MimerStatement)statement,
                      parameter_number, parse_length, &lobhandle);
 
-    // Checking for possible errors after MimerSetLob
     if (rc < 0) {
         return Py_BuildValue("i", rc);
     }
@@ -1090,7 +1224,6 @@ static PyObject* mimerGetBlobData(PyObject* self, PyObject* args)
     rc = MimerGetLob((MimerStatement)statement, parameter_number, &length,
                      &lobhandle);
 
-    // Checking for possible errors after MimerSetLob
     if (rc < 0) {
         return Py_BuildValue("i", rc);
     }
@@ -1145,7 +1278,6 @@ static PyObject* mimerGetNclobData8(PyObject* self, PyObject* args)
     rc = MimerGetLob((MimerStatement)statement, parameter_number, &length,
                      &lobhandle);
 
-    // Checking for possible errors after MimerSetLob
     if (rc < 0) {
         return Py_BuildValue("i", rc);
     }
@@ -1233,8 +1365,6 @@ static PyObject* mimerGetBinary(PyObject* self, PyObject* args)
     rc = MimerGetBinary((MimerStatement)statement, parameter_number,
                         value, BUFLEN);
 
-    // If MimerGetBinary returns a value bigger than BUFLEN, memory has to
-    // be allocated.
     if (rc > BUFLEN) {
         PyObject* return_object;
         char *bigvalue = malloc(rc);
@@ -1273,13 +1403,13 @@ static PyObject* mimerSetBoolean(PyObject* self, PyObject* args)
 /* *********************************************************************/
 {
     pyptr statement;
-    int rc, value, parameter_number;
+    int rc, val, parameter_number;
 
-    if (!PyArg_ParseTuple(args, "Lip", &statement, &parameter_number, &value)) {
+    if (!PyArg_ParseTuple(args, "Lip", &statement, &parameter_number, &val)) {
         return NULL;
     }
 
-    rc = MimerSetBoolean((MimerStatement)statement, parameter_number, value);
+    rc = MimerSetBoolean((MimerStatement)statement, parameter_number, val);
     return Py_BuildValue("i", rc);
 }
 
@@ -1320,7 +1450,7 @@ static PyObject* mimerGetBoolean(PyObject* self, PyObject* args)
 
     rc = MimerGetBoolean((MimerStatement)statement, parameter_number);
 
-    // Expected output from get funtions is always two values.
+    /* Expected output from get funtions is always two values. */
     return Py_BuildValue("ii", rc, rc);
 }
 
@@ -1347,9 +1477,9 @@ static PyObject* mimerSetNull(PyObject* self, PyObject* args)
 {
     pyptr statement;
     int rc, parameter_number;
-    char *dummy;
+    char *dum;
 
-    if (!PyArg_ParseTuple(args, "Liz", &statement, &parameter_number, &dummy)) {
+    if (!PyArg_ParseTuple(args, "Liz", &statement, &parameter_number, &dum)) {
         return NULL;
     }
 
@@ -1360,89 +1490,97 @@ static PyObject* mimerSetNull(PyObject* self, PyObject* args)
 
 
 /**
-* Describes all methods of cursor extension.
+* Describes all methods of the mimerapi extension.
 */
-static PyMethodDef cursorMethods[] =
+static PyMethodDef mimerapiMethods[] =
 {
-  {"mimerBeginStatement8", (PyCFunction)mimerBeginStatement8, METH_VARARGS,
-    "Prepares an SQL statement for execution"},
-  {"mimerEndStatement", (PyCFunction)mimerEndStatement, METH_VARARGS,
-    "Closes a prepared statement."},
-  {"mimerOpenCursor", (PyCFunction)mimerOpenCursor, METH_VARARGS,
-    "Opens a cursor."},
-  {"mimerCloseCursor", (PyCFunction)mimerCloseCursor, METH_VARARGS,
-    "Closes an open cursor."},
+    {"mimerBeginSession8", (PyCFunction)mimerBeginSession8, METH_VARARGS,
+     "Starts a session with the database."},
+    {"mimerEndSession", (PyCFunction)mimerEndSession, METH_VARARGS,
+     "End the database session."},
+    {"mimerBeginTransaction", (PyCFunction)mimerBeginTransaction, METH_VARARGS,
+     "Starts a transaction."},
+    {"mimerEndTransaction", (PyCFunction)mimerEndTransaction, METH_VARARGS,
+     "Ends a transaction."},
+    {"mimerBeginStatement8", (PyCFunction)mimerBeginStatement8, METH_VARARGS,
+     "Prepares an SQL statement for execution"},
+    {"mimerEndStatement", (PyCFunction)mimerEndStatement, METH_VARARGS,
+     "Closes a prepared statement."},
+    {"mimerOpenCursor", (PyCFunction)mimerOpenCursor, METH_VARARGS,
+     "Opens a cursor."},
+    {"mimerCloseCursor", (PyCFunction)mimerCloseCursor, METH_VARARGS,
+     "Closes an open cursor."},
     {"mimerAddBatch", (PyCFunction)mimerAddBatch, METH_VARARGS,
-      "Adds a batch to load more parameters before execute."},
-  {"mimerExecuteStatement8", (PyCFunction)mimerExecuteStatement8, METH_VARARGS,
-    "Executes a statement directly without parameters."},
-  {"mimerExecute", (PyCFunction)mimerExecute, METH_VARARGS,
-    "Executes a statement that does not return a result set."},
-  {"mimerParameterCount", (PyCFunction)mimerParameterCount, METH_VARARGS,
-    "Returns the number of parameters of a statement."},
-  {"mimerParameterName8", (PyCFunction)mimerParameterName8, METH_VARARGS,
-    "Returns the name of a parameter."},
-  {"mimerParameterType", (PyCFunction)mimerParameterType, METH_VARARGS,
-    "Obtains the data type of a parameter"},
-  {"mimerColumnCount", (PyCFunction)mimerColumnCount, METH_VARARGS,
-    "Obtains the number of columns in a result set."},
-  {"mimerColumnType", (PyCFunction)mimerColumnType, METH_VARARGS,
-    "Returns the type of a column."},
-  {"mimerFetch", (PyCFunction)mimerFetch, METH_VARARGS,
-    "Advances to the next row of the result set."},
-  {"mimerGetInt32", (PyCFunction)mimerGetInt32, METH_VARARGS,
-    "Get int32 data from a result set or output pararmeter."},
-  {"mimerGetInt64", (PyCFunction)mimerGetInt64, METH_VARARGS,
-    "Get int64 data from a result set or output pararmeter."},
-  {"mimerGetString8", (PyCFunction)mimerGetString8, METH_VARARGS,
-    "Get character data from a result set or output pararmeter."},
-  {"mimerGetDouble", (PyCFunction)mimerGetDouble, METH_VARARGS,
-    "Get double precision float data from a result set or output pararmeter."},
-  {"mimerSetInt32", (PyCFunction)mimerSetInt32, METH_VARARGS,
-    "Sets an int32 parameter."},
-  {"mimerSetInt64", (PyCFunction)mimerSetInt64, METH_VARARGS,
-    "Sets an int64 parameter."},
-  {"mimerSetString8", (PyCFunction)mimerSetString8, METH_VARARGS,
-    "Sets an string parameter."},
-  {"mimerSetDouble", (PyCFunction)mimerSetDouble, METH_VARARGS,
-    "Sets an double folating point parameter."},
-  {"mimerGetError8", (PyCFunction)mimerGetError8, METH_VARARGS,
-    "Returns error message."},
-  {"mimerSetBlobData", (PyCFunction)mimerSetBlobData, METH_VARARGS,
-  "Sets blob data."},
-  {"mimerGetBlobData", (PyCFunction)mimerGetBlobData, METH_VARARGS,
-  "Gets blob data."},
-  {"mimerSetNclobData8", (PyCFunction)mimerSetNclobData8, METH_VARARGS,
-  "sets Nclob data."},
-  {"mimerGetNclobData8", (PyCFunction)mimerGetNclobData8, METH_VARARGS,
-  "Gets Nclob data."},
-  {"mimerSetBinary", (PyCFunction)mimerSetBinary, METH_VARARGS,
-  "Sets binary data."},
-  {"mimerSetBoolean", (PyCFunction)mimerSetBoolean, METH_VARARGS,
-  "Sets boolean data."},
-  {"mimerGetBoolean", (PyCFunction)mimerGetBoolean, METH_VARARGS,
-  "Gets boolean data."},
-  {"mimerSetNull", (PyCFunction)mimerSetNull, METH_VARARGS,
-  "Sets parameter to null."},
-  {"mimerColumnName8", (PyCFunction)mimerColumnName8, METH_VARARGS,
-  "Obtains name of a column."},
-  {"mimerGetBinary", (PyCFunction)mimerGetBinary, METH_VARARGS,
-  "Obtains name of a column."},
-  {NULL, NULL, 0, NULL}
+     "Adds a batch to load more parameters before execute."},
+    {"mimerExecuteStatement8", (PyCFunction)mimerExecuteStatement8, METH_VARARGS,
+     "Executes a statement directly without parameters."},
+    {"mimerExecute", (PyCFunction)mimerExecute, METH_VARARGS,
+     "Executes a statement that does not return a result set."},
+    {"mimerParameterCount", (PyCFunction)mimerParameterCount, METH_VARARGS,
+     "Returns the number of parameters of a statement."},
+    {"mimerParameterName8", (PyCFunction)mimerParameterName8, METH_VARARGS,
+     "Returns the name of a parameter."},
+    {"mimerParameterType", (PyCFunction)mimerParameterType, METH_VARARGS,
+     "Obtains the data type of a parameter"},
+    {"mimerColumnCount", (PyCFunction)mimerColumnCount, METH_VARARGS,
+     "Obtains the number of columns in a result set."},
+    {"mimerColumnType", (PyCFunction)mimerColumnType, METH_VARARGS,
+     "Returns the type of a column."},
+    {"mimerFetch", (PyCFunction)mimerFetch, METH_VARARGS,
+     "Advances to the next row of the result set."},
+    {"mimerGetInt32", (PyCFunction)mimerGetInt32, METH_VARARGS,
+     "Get int32 data from a result set or output parameter."},
+    {"mimerGetInt64", (PyCFunction)mimerGetInt64, METH_VARARGS,
+     "Get int64 data from a result set or output parameter."},
+    {"mimerGetString8", (PyCFunction)mimerGetString8, METH_VARARGS,
+     "Get character data from a result set or output parameter."},
+    {"mimerGetDouble", (PyCFunction)mimerGetDouble, METH_VARARGS,
+     "Get double precision float data from a result set or output parameter."},
+    {"mimerSetInt32", (PyCFunction)mimerSetInt32, METH_VARARGS,
+     "Sets an int32 parameter."},
+    {"mimerSetInt64", (PyCFunction)mimerSetInt64, METH_VARARGS,
+     "Sets an int64 parameter."},
+    {"mimerSetString8", (PyCFunction)mimerSetString8, METH_VARARGS,
+     "Sets an string parameter."},
+    {"mimerSetDouble", (PyCFunction)mimerSetDouble, METH_VARARGS,
+     "Sets an double folating point parameter."},
+    {"mimerGetError8", (PyCFunction)mimerGetError8, METH_VARARGS,
+     "Returns error message."},
+    {"mimerSetBlobData", (PyCFunction)mimerSetBlobData, METH_VARARGS,
+     "Sets blob data."},
+    {"mimerGetBlobData", (PyCFunction)mimerGetBlobData, METH_VARARGS,
+     "Gets blob data."},
+    {"mimerSetNclobData8", (PyCFunction)mimerSetNclobData8, METH_VARARGS,
+     "sets Nclob data."},
+    {"mimerGetNclobData8", (PyCFunction)mimerGetNclobData8, METH_VARARGS,
+     "Gets Nclob data."},
+    {"mimerSetBinary", (PyCFunction)mimerSetBinary, METH_VARARGS,
+     "Sets binary data."},
+    {"mimerSetBoolean", (PyCFunction)mimerSetBoolean, METH_VARARGS,
+     "Sets boolean data."},
+    {"mimerGetBoolean", (PyCFunction)mimerGetBoolean, METH_VARARGS,
+     "Gets boolean data."},
+    {"mimerSetNull", (PyCFunction)mimerSetNull, METH_VARARGS,
+     "Sets parameter to null."},
+    {"mimerColumnName8", (PyCFunction)mimerColumnName8, METH_VARARGS,
+     "Obtains name of a column."},
+    {"mimerGetBinary", (PyCFunction)mimerGetBinary, METH_VARARGS,
+     "Obtains name of a column."},
+    {NULL, NULL, 0, NULL}
 };
 
 /**
 * Module defintion struct.
 */
-static struct PyModuleDef cursor = {
+static struct PyModuleDef mimerapi = {
     PyModuleDef_HEAD_INIT,
-    "cursor",
-    "cursor module",
+    "mimerapi",
+    "mimerapi module",
     -1,
-    cursorMethods
+    mimerapiMethods
 };
 
-PyMODINIT_FUNC PyInit_cursor(void)
+PyMODINIT_FUNC PyInit_mimerapi(void)
 {
-     return PyModule_Create(&cursor);
+     return PyModule_Create(&mimerapi);
 }

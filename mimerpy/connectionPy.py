@@ -20,7 +20,7 @@
 #
 # See license for more details.
 
-import connection
+import mimerapi
 import weakref
 from mimerpy.cursorPy import *
 from mimerpy.mimPyExceptionHandler import *
@@ -83,7 +83,7 @@ class Connection:
         self.__cursors = weakref.WeakSet()
         self._transaction = False
 
-        session_tuple = connection.mimerBeginSession8(dsn, user, password)
+        session_tuple = mimerapi.mimerBeginSession8(dsn, user, password)
         self.__session = session_tuple[0]
         rc_value = session_tuple[1]
         self.__check_for_exception(rc_value, self.__session)
@@ -129,10 +129,10 @@ class Connection:
                 cur.close()
 
             if(self._transaction):
-                rc_value = connection.mimerEndTransaction(self.__session, 1)
+                rc_value = mimerapi.mimerEndTransaction(self.__session, 1)
                 self.__check_for_exception(rc_value, self.__session)
                 self._transaction = False
-            rc_value = connection.mimerEndSession(self.__session)
+            rc_value = mimerapi.mimerEndSession(self.__session)
             self.__check_for_exception(rc_value, self.__session)
             self.__session = None
 
@@ -146,14 +146,14 @@ class Connection:
 
         """
         self.__check_if_open()
-        rc_value = connection.mimerEndTransaction(self.__session, 1)
+        rc_value = mimerapi.mimerEndTransaction(self.__session, 1)
         self.__check_for_exception(rc_value, self.__session)
         self._transaction = False
 
     def commit(self):
         """Commits any pending transaction."""
         self.__check_if_open()
-        rc_value = connection.mimerEndTransaction(self.__session, 0)
+        rc_value = mimerapi.mimerEndTransaction(self.__session, 0)
         self.__check_for_exception(rc_value, self.__session)
         self._transaction = False
 
