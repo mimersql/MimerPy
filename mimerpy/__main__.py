@@ -20,8 +20,7 @@ SQL statement).
                         help="Display MimerPy version number",
                         action="store_true")
     parser.add_argument("-t", "--tag",
-                        help="Display MimerPy tag number in short form",
-                        action="store_true")
+                        help=argparse.SUPPRESS, action="store_true")
     parser.add_argument("sql", default=None, nargs='?',
                         help="A SQL command to execute")
     args = parser.parse_args()
@@ -30,11 +29,11 @@ SQL statement).
 
     if args.tag:
         something = True
-        tags = re.findall(r'\d+\.\d+\.\d+', mimerpy.__version__)
+        tags = re.findall(r'^\d+\.\d+\.\d+$', mimerpy.__version__)
         if len(tags):
             print(tags[0])
         else:
-            print("No tag found")
+            print("No-clean-tag")
 
     if args.version:
         something = True
