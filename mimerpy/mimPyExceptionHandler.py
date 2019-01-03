@@ -21,7 +21,7 @@
 # See license for more details.
 
 from mimerpy.mimPyExceptions import *
-import cursor
+import mimerapi
 import math
 
 py_error = {10:DataError, 11:OperationalError, 12:ProgrammingError, 14:ProgrammingError,
@@ -46,4 +46,4 @@ def check_for_exception(*arg):
         if(key >= 25):
             return (py_error[key],arg[1])
         else:
-            return (py_error[key],(cursor.mimerGetError8(arg[1])[2]))
+            return (py_error[key],(mimerapi.mimerGetError8(arg[1])[2]))
