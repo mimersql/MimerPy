@@ -3,6 +3,7 @@ from distutils.core import Extension
 import platform
 
 plat = platform.system()
+bits = platform.architecture()[0][0:2]
 
 incDirs = []
 libDirs = []
@@ -14,7 +15,7 @@ elif plat == 'Darwin':
     incDirs = ['/usr/local/include']
     libDirs = ['/usr/local/lib']
 elif plat == 'Windows':
-    libs = ['mimapi64']
+    libs = ['mimapi' + bits]
 else:
     raise Exception('Unsupported platform: ' + plat)
 
@@ -28,21 +29,11 @@ extensions = [
               sources = sources),
     ]
 
-long_description = """
-MimerPy - Python database interface for MimerSQL
-=================================================
-MimerPy is an adapter for `Mimer SQL`_ in Python which implements the
-[PEP-0249]_ database interface.  It allows the user to access the powerful
-tools and advantages of Mimer SQL through Python.  MimerPy is implemented as
-a Cpython wrapper of the native MimerAPI interface.  A successfull install
-requires that Mimer V11 is installed.
-.. _[PEP-0249] https://www.python.org/dev/peps/pep-0249/
-.. _`Mimer SQL` https://www.mimer.com
-"""
+with open("README.rst", "r") as f:
+    long_description = f.read()
 
 setup (
     name='mimerpy',
-#    version='1.0.11',
     use_scm_version = True,
     setup_requires = ['setuptools_scm'],
     url='https://www.mimer.com',
