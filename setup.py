@@ -25,7 +25,7 @@ extensions = [
     Extension('mimerapi',
               include_dirs = incDirs,
               library_dirs = libDirs,
-              libraries = ['mimerapi'],
+              libraries = libs,
               sources = sources),
     ]
 
