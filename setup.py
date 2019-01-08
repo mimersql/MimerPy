@@ -63,6 +63,6 @@ setup (
     ext_modules = extensions,
     packages=['mimerpy'],
     package_dir={'mimerpy': 'mimerpy', 'mimerpy.tests': 'tests'},
-    python_requires='>=3.6',
+    python_requires='>=3.5',
     #install_requires=['Mimer>=11.0']
     )
