@@ -24,26 +24,27 @@ from mimerpy.mimPyExceptions import *
 import mimerapi
 import math
 
-py_error = {10:DataError, 11:OperationalError, 12:ProgrammingError, 14:ProgrammingError,
- 16:OperationalError, 18:DatabaseError, 19:InternalError, 21:IntegrityError,
- 23:InternalError, 24:ProgrammingError, 25:ProgrammingError, 26:InterfaceError,
- 27:DataError, 28: NotSupportedError}
+py_error = {10:DataError, 11:OperationalError, 12:ProgrammingError,
+            14:ProgrammingError, 16:OperationalError, 18:DatabaseError,
+            19:InternalError, 21:IntegrityError, 23:InternalError,
+            24:ProgrammingError, 25:ProgrammingError, 26:InterfaceError,
+            27:DataError, 28: NotSupportedError}
 
 def check_for_exception(*arg):
     """
-        Maps Mimer Micro C API error codes to corresponding
+        Maps MimerAPI error codes to corresponding
         Python exception.
 
     """
-    if(arg[0] == 90):
+    if (arg[0] == 90):
         return (py_error[18],"Login failure")
-    elif(arg[1] == 0):
+    elif (arg[1] == 0):
         return 0
-    elif(arg[0] >= 0):
+    elif (arg[0] >= 0):
         return 0
-    elif(arg[0] < -10000):
-        key = math.floor(abs(arg[0]/1000))
-        if(key >= 25):
+    elif (arg[0] < -10000):
+        key = -arg[0] // 1000
+        if (key >= 25):
             return (py_error[key],arg[1])
         else:
-            return (py_error[key],(mimerapi.mimerGetError8(arg[1])[2]))
+            return (py_error[key], mimerapi.mimerGetError8(arg[1])[2])
