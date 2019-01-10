@@ -1073,6 +1073,10 @@ static PyObject* mimerGetError8(PyObject* self, PyObject* args)
 
     rc = MimerGetError8((MimerStatement)statement, &evalue, message, BUFLEN);
     /* TODO &&&& What if BUFLEN is not enough? */
+    if (rc) {
+        /* No error returned */
+        message[0] = '\0';
+    }
     return Py_BuildValue("iis", rc, evalue, message);
 }
 

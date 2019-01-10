@@ -47,4 +47,9 @@ def check_for_exception(*arg):
         if (key >= 25):
             return (py_error[key],arg[1])
         else:
-            return (py_error[key], mimerapi.mimerGetError8(arg[1])[2])
+            r = mimerapi.mimerGetError8(arg[1])
+            if (r[0] != 0):
+                msg = "Unknown error %d" % arg[0]
+            else:
+                msg = r[2]
+            return (py_error[key], msg)
