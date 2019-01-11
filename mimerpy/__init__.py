@@ -59,11 +59,3 @@ paramstyle = 'qmark'
 _ = re.findall(r'^\d+\.\d+\.\d+$', __version__)
 version = _[0] if len(_) else ''
 version_info = tuple([int(x) for x in version.split(".")]) if len(version) else ()
-
-def _mimerpy_trace():
-    def trace_calls(frame, event, arg):
-        if event != 'call':
-            return
-        co = frame.f_code
-        print(co)
-    return trace_calls
