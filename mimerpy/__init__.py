@@ -22,6 +22,7 @@
 
 from pkg_resources import get_distribution, DistributionNotFound
 from mimerpy.connectionPy import Connection
+import re
 
 #
 #  Set version number from tag in git
@@ -55,5 +56,14 @@ def connect(*args, **kwargs):
 apilevel = '2.0'
 threadsafety = '1'
 paramstyle = 'qmark'
-version = __version__
-version_info = tuple([int(x) for x in version.split(".")])
+_ = re.findall(r'^\d+\.\d+\.\d+$', __version__)
+version = _[0] if len(_) else ''
+version_info = tuple([int(x) for x in version.split(".")]) if len(version) else ()
+
+def _mimerpy_trace():
+    def trace_calls(frame, event, arg):
+        if event != 'call':
+            return
+        co = frame.f_code
+        print(co)
+    return trace_calls

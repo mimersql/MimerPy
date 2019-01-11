@@ -1,6 +1,5 @@
 import mimerpy
 import argparse
-import re
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog = "mimerpy", description="""
@@ -29,11 +28,7 @@ SQL statement).
 
     if args.tag:
         something = True
-        tags = re.findall(r'^\d+\.\d+\.\d+$', mimerpy.__version__)
-        if len(tags):
-            print(tags[0])
-        else:
-            print("No-clean-tag")
+        print(mimerpy.version if mimerpy.version != '' else "No-clean-tag")
 
     if args.version:
         something = True
