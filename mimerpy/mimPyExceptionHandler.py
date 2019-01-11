@@ -22,7 +22,6 @@
 
 from mimerpy.mimPyExceptions import *
 import mimerapi
-import math
 
 py_error = {10:DataError, 11:OperationalError, 12:ProgrammingError,
             14:ProgrammingError, 16:OperationalError, 18:DatabaseError,
@@ -32,9 +31,8 @@ py_error = {10:DataError, 11:OperationalError, 12:ProgrammingError,
 
 def check_for_exception(*arg):
     """
-        Maps MimerAPI error codes to corresponding
-        Python exception.
-
+        Maps a MimerAPI error code to an exception class and look up
+        an error message text.
     """
     if (arg[0] == 90):
         return (py_error[18],"Login failure")

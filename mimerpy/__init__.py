@@ -55,3 +55,5 @@ def connect(*args, **kwargs):
 apilevel = '2.0'
 threadsafety = '1'
 paramstyle = 'qmark'
+version = __version__
+version_info = tuple([int(x) for x in version.split(".")])
