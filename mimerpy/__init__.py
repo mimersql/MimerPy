@@ -23,6 +23,8 @@
 from pkg_resources import get_distribution, DistributionNotFound
 from mimerpy.connectionPy import Connection
 import re
+import mimerapi
+import functools
 
 #
 #  Set version number from tag in git
@@ -59,3 +61,25 @@ paramstyle = 'qmark'
 _ = re.findall(r'^\d+\.\d+\.\d+$', __version__)
 version = _[0] if len(_) else ''
 version_info = tuple([int(x) for x in version.split(".")]) if len(version) else ()
+
+def _tracefunc(func, prefix=''):
+    @functools.wraps(func)
+    def tracer(*args, **kwargs):
+        r_args = [repr(a) for a in args]
+        r_kwargs = [f"{k}={v!r}" for k, v in kwargs.items()]
+        signature = ", ".join(r_args + r_kwargs)
+        print(f"{prefix}Call {func.__name__}({signature})")
+        try:
+            value = func(*args, **kwargs)
+            print(f"{prefix}Ret: {value!r}")
+            return value
+        except Exception as e:
+            print(f"EXCEPTION: {e!r}")
+            raise e
+    return tracer
+
+def _apitrace(prefix=''):
+    for fn in dir(mimerapi):
+        f = mimerapi.__getattribute__(fn)
+        if callable(f):
+            setattr(mimerapi, fn, _tracefunc(f, prefix))
