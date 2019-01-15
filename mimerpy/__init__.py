@@ -58,8 +58,8 @@ def connect(*args, **kwargs):
 apilevel = '2.0'
 threadsafety = '1'
 paramstyle = 'qmark'
-_ = re.findall(r'^\d+\.\d+\.\d+$', __version__)
-version = _[0] if len(_) else ''
+_v = re.findall(r'^\d+\.\d+\.\d+$', __version__)
+version = _v[0] if len(_v) else ''
 version_info = tuple([int(x) for x in version.split(".")]) if len(version) else ()
 
 def _tracefunc(func, prefix=''):
