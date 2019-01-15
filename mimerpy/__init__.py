@@ -39,9 +39,7 @@ except DistributionNotFound:
 
 def connect(*args, **kwargs):
     """
-
-        Creates a database connection. For more information please visit
-        http://developer.mimer.com/python.
+        Creates a database connection.
 
         dsn
             Data source name
