@@ -28,7 +28,7 @@ SQL statement).
 
     if args.tag:
         something = True
-        print(mimerpy.version if mimerpy.version != '' else "No-clean-tag")
+        print(mimerpy.version)
 
     if args.version:
         something = True
