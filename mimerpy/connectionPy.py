@@ -123,13 +123,11 @@ class Connection:
             if any operations are attempted on the connection.
 
         """
-        if(not self.__session == None):
-            #for x in self.__cursors: x.close()
-            for i in range(len(self.__cursors)):
-                cur = self.__cursors.pop()
+        if (not self.__session == None):
+            for cur in self.__cursors:
                 cur.close()
 
-            if(self._transaction):
+            if (self._transaction):
                 rc_value = mimerapi.mimerEndTransaction(self.__session, 1)
                 self.__check_for_exception(rc_value, self.__session)
                 self._transaction = False
@@ -223,7 +221,7 @@ class Connection:
             Boolean
 
         """
-        if(mode):
+        if (mode):
             self.autocommitmode = True
             if (self._transaction):
                 self.rollback()
@@ -231,13 +229,13 @@ class Connection:
             self.autocommitmode = False
 
     def __check_if_open(self):
-        if(self.__session == None):
+        if (self.__session == None):
             self.__check_for_exception(-25000, "Connection not open")
 
     def __check_for_exception(self, *arg):
         error_tuple = check_for_exception(arg[0], arg[1])
-        if(isinstance(error_tuple,tuple)):
-            if(error_tuple[0]):
+        if (isinstance(error_tuple,tuple)):
+            if (error_tuple[0]):
                 self.errorhandler(self, None, error_tuple[0], (error_tuple[1]))
 
     def xid(self):
