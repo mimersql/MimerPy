@@ -66,15 +66,16 @@ def _tracefunc(func, prefix=''):
     @functools.wraps(func)
     def tracer(*args, **kwargs):
         r_args = [repr(a) for a in args]
-        r_kwargs = [f"{k}={v!r}" for k, v in kwargs.items()]
+        r_kwargs = ["%s=%s" % (k, repr(v)) for k, v in kwargs.items()]
         signature = ", ".join(r_args + r_kwargs)
-        print(f"{prefix}Call {func.__name__}({signature})")
+        print("%sCall %s(%s)"
+              % (prefix, func.__name__, signature))
         try:
             value = func(*args, **kwargs)
-            print(f"{prefix}Ret: {value!r}")
+            print("%sRet: %s" % (prefix, repr(value)))
             return value
         except Exception as e:
-            print(f"EXCEPTION: {e!r}")
+            print("EXCEPTION: %s" % repr(e))
             raise e
     return tracer
 
