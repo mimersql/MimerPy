@@ -43,7 +43,8 @@ class TestConnectionMethods(unittest.TestCase):
 
     # &&&& Fixme
     def os_user(self):
-        a = mimerpy.connect(dsn = self.dbName, user = self.sysadmName, password = self.sysadmpsw)
+        a = mimerpy.connect(dsn = self.dbName, user = self.sysadmName, 
+                            password = self.sysadmpsw)
         b = a.cursor()
         b.execute("CREATE IDENT ergu AS OS_USER USING 'mimerPass'")
         for aa in range(1000):
@@ -51,7 +52,8 @@ class TestConnectionMethods(unittest.TestCase):
             con.close()
         b.execute("DROP IDENT ergu CASCADE")
 
-    # Make sure you allow more than the user than the number_of_connections or problems occur
+    # Make sure you allow more than the user than the number_of_connections
+    # or problems occur
     def test_condis(self):
         mylist = []
         number_of_connections = 20
@@ -85,17 +87,21 @@ class TestConnectionMethods(unittest.TestCase):
         with self.assertRaises(ProgrammingError):
             a.commit()
 
-    @unittest.skip("Connection cleanup failure")
     def test_connect_invalid_login(self):
         with self.assertRaises(DatabaseError):
-            wrong = db_config.TSTUSR
+            wrong = db_config.TSTUSR.copy()
             wrong['password'] = 'wrong'
             a = mimerpy.connect(**wrong)
 
-    @unittest.skip("Connection cleanup failure")
     def test_connect_invalid_login_2(self):
-        with self.assertRaises(IntegrityError):
+        with self.assertRaises(DatabaseError):
             a = mimerpy.connect("self.d", "du", "där")
+
+    def test_connect_invalid_option(self):
+        with self.assertRaises(TypeError):
+            wrong = db_config.TSTUSR.copy()
+            wrong['warpspeed'] = 'extra'
+            a = mimerpy.connect(**wrong)
 
     @unittest.skip("Connection cleanup failure")
     def test_connect_invalid_login_3(self):
