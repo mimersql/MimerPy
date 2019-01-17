@@ -40,17 +40,22 @@ class TestConnectionMethods(unittest.TestCase):
         for a in range(100):
             con = mimerpy.connect(**db_config.TSTUSR)
 
+    def test_os_user1(self):
+        con = mimerpy.connect(db_config.DBNAME)
+        con.execute("select 1+1 from system.onerow")
+        con.close()
 
-    # &&&& Fixme
-    def os_user(self):
-        a = mimerpy.connect(dsn = self.dbName, user = self.sysadmName, 
-                            password = self.sysadmpsw)
-        b = a.cursor()
-        b.execute("CREATE IDENT ergu AS OS_USER USING 'mimerPass'")
-        for aa in range(1000):
-            con = mimerpy.connect(dsn = self.dbName, user = "ergu", password = self.psw)
-            con.close()
-        b.execute("DROP IDENT ergu CASCADE")
+    def test_os_user2(self):
+        con = mimerpy.connect(db_config.DBNAME, user = db_config.OSUSER)
+        con.execute("select 1+1 from system.onerow")
+        con.close()
+
+    def test_os_user3(self):
+        con = mimerpy.connect(db_config.DBNAME,
+                              user = db_config.OSUSER,
+                              password = 'wrong')
+        con.execute("select 1+1 from system.onerow")
+        con.close()
 
     # Make sure you allow more than the user than the number_of_connections
     # or problems occur
