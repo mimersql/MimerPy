@@ -8,18 +8,13 @@ SYSADM_USR = 'SYSADM'
 SYSADM_PWD = 'SYSADM'
 
 
-DB_INFO = {
-    'DBNAME': '',
-    'SYSADM': 'SYSADM',
-    'SYADMPSW': 'SYSADM',
-}
-
 #################################################################
 ## Stuff below defines routines for all tests.
 ## Do not change for configuration purposes
 #################################################################
 
 import mimerpy
+import os
 
 # Connection arguments for SYSADM
 SYSUSR = dict(dsn      = DBNAME,
@@ -31,15 +26,18 @@ TSTUSR = dict(dsn      = DBNAME,
               user     = 'MIMERPY',
               password = 'PySecret')
 
+OSUSER = os.getlogin()
 
 def setup():
     syscon = mimerpy.connect(**SYSUSR)
     with syscon.cursor() as c:
         c.execute("CREATE IDENT MIMERPY AS USER USING 'PySecret'")
-        c.execute("GRANT DATABANK TO MIMERPY")
+        c.execute("GRANT DATABANK,IDENT TO MIMERPY")
     syscon.commit()
     tstcon = mimerpy.connect(**TSTUSR)
     with tstcon.cursor() as c:
         c.execute("CREATE DATABANK PYBANK")
+        c.execute("CREATE IDENT %s AS USER" % OSUSER)
+        c.execute("ALTER IDENT %s ADD OS_USER '%s'" % (OSUSER, OSUSER))
     tstcon.commit()
     return (syscon, tstcon)
