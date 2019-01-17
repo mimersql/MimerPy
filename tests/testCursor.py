@@ -32,7 +32,7 @@ class TestCursorMethods(unittest.TestCase):
     def test_privilege(self):
         with self.tstcon.cursor() as c:
             with self.assertRaises(DatabaseError):
-                c.execute("create ident gurra as user using '123'")
+                c.execute("drop ident sysadm cascade")
 
     def test_createTable(self):
         with self.tstcon.cursor() as c:

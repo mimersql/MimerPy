@@ -20,13 +20,7 @@
 #
 # See license for more details.
 
-try:
-    from exceptions import Exception, StandardError, Warning
-except ImportError:
-    # for Python3 
-    StandardError = Exception
-
-class Warning(StandardError):
+class Warning(Exception):
 
     """
         Exception raised for important warnings like data truncations
@@ -36,7 +30,7 @@ class Warning(StandardError):
     def __init__(self, message):
         self.message = message
 
-class Error(StandardError):
+class Error(Exception):
 
     """
         Exception that is the base class of all other error exceptions.
