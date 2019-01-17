@@ -56,28 +56,17 @@ class Connection:
 
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, dsn='', user='', password='',
+                 autocommit=False, errorhandler=None):
         """
+        Creates a database connection.
 
-            Creates a database connection. For more information please visit
-            http://developer.mimer.com/python.
-
-            dsn
-                Data source name
-
-            user
-                Name of the ident to use
-
-            password
-                Password to chosen ident
-
+        Use the mimerpy.connect() function to create a connection rather than
+        calling this function.
         """
-        dsn = kwargs.pop('dsn', '') or ''
-        user = kwargs.pop('user', '') or ''
-        password = kwargs.pop('password', '') or ''
-        self.autocommitmode = kwargs.pop('autocommit', False)
-        self.errorhandler = (kwargs.pop('errorhandler', defaulterrorhandler)
-                             or defaulterrorhandler)
+        self.autocommitmode = autocommit
+        self.errorhandler = (errorhandler if errorhandler
+                             else defaulterrorhandler)
         self.messages = []
         self.__session = None
         rc_value = None

@@ -37,21 +37,35 @@ except DistributionNotFound:
 
 
 
-def connect(*args, **kwargs):
+def connect(dsn='', user='', password='',
+            autocommit=False, errorhandler=None):
     """
-        Creates a database connection.
+    Create a database connection.
 
-        dsn
-            Data source name
+    dsn         Data source name.
+                If empty, the environment variable MIMER_DATABASE is consulted.
+                If that variable is unavailable, the default database as
+                specified in /etc/sqlhosts (UNIX) or in the Mimer Administrator
+                (Windows) is used.
 
-        user
-            Name of the ident to use
+    user        Name of the ident to use.
+                If empty, the database server will perform an OS_USER login
+                using the OS-level username. This does not work if the database
+                server is remote.
 
-        password
-            Password to chosen ident
+    password    Password to chosen ident.
+                Leave this empty if performing an OS_USER login.
 
+    autocommit  Autocommit mode.
+                The default behaviour according to PEP-0249 is False, meaning
+                that all transactions have to be explicitly committed.
+                If autocommit is enabled, each statement is committed
+                automatically when executed.
+
+    errorhandler A handler for errors according to the Optional Error Handling
+                Extension described in PEP-0249.
     """
-    return Connection(*args, **kwargs)
+    return Connection(dsn, user, password, autocommit, errorhandler)
 
 apilevel = '2.0'
 threadsafety = '1'
