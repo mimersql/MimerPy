@@ -14,11 +14,6 @@ DB_INFO = {
     'SYADMPSW': 'SYSADM',
 }
 
-DB_IDENT = {
-    'NAME': 'TEST_IDENT',
-    'PSW': 'mimerPass',
-}
-
 #################################################################
 ## Stuff below defines routines for all tests.
 ## Do not change for configuration purposes
