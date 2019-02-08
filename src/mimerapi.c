@@ -68,6 +68,30 @@ static const int lengthof_Terminating_NUL = 1;
 
 
 
+static PyObject* mimerAPIVersion(PyObject* self, PyObject* args)
+/* *********************************************************************/
+/**
+ *  @brief      Starts a session with the database.
+ *
+ *  @author     Erik Gunne & Magdalena Boström
+ *  @date       2017-06-16
+ *  @param[in]     self       Pointer to python object that function is
+ *                            called from.
+ *  @param[in]     args       Arguments. We don't read any...
+ *
+ *  @returns    Version string
+ */
+/* *********************************************************************/
+{
+    const char *version;
+
+    version = MimerAPIVersion();
+
+    return Py_BuildValue("s", version);
+}
+
+
+
 static PyObject* mimerBeginSession8(PyObject* self, PyObject* args)
 /* *********************************************************************/
 /**
@@ -1498,6 +1522,8 @@ static PyObject* mimerSetNull(PyObject* self, PyObject* args)
 */
 static PyMethodDef mimerapiMethods[] =
 {
+    {"mimerAPIVersion", (PyCFunction)mimerAPIVersion, METH_VARARGS,
+     "Get version number of the MimerAPI dynamic library."},
     {"mimerBeginSession8", (PyCFunction)mimerBeginSession8, METH_VARARGS,
      "Starts a session with the database."},
     {"mimerEndSession", (PyCFunction)mimerEndSession, METH_VARARGS,
