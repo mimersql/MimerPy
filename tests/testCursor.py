@@ -259,6 +259,13 @@ class TestCursorMethods(unittest.TestCase):
                              [(1, 'продиктованной ангелом', 14.345),
                               (2, '安排他們參‱', 14.345)])
 
+    def test_insert_parametermarkers_illchar(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table bobz14(c1 char(10)) in pybank");
+            self.tstcon.commit()
+            with self.assertRaises(ProgrammingError):
+                c.execute("insert into bobz14 values (?)", '安排')
+
     def test_insert_parametermarkers_too_long(self):
         with self.tstcon.cursor() as c:
             c.execute("create table bob15 (c1 NVARCHAR(10)) in pybank")
