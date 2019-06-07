@@ -22,6 +22,7 @@
 
 from pkg_resources import get_distribution, DistributionNotFound
 from mimerpy.connectionPy import Connection
+from mimerpy.cursorPy import define_funcs
 import re
 import mimerapi
 import functools
@@ -97,3 +98,4 @@ def _apitrace(prefix=''):
         f = mimerapi.__getattribute__(fn)
         if callable(f):
             setattr(mimerapi, fn, _tracefunc(f, prefix))
+    define_funcs()

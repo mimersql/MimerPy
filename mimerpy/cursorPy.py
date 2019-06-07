@@ -24,26 +24,60 @@ from mimerpy.mimPyExceptionHandler import *
 import mimerapi
 import collections
 
-get_funcs = {1: mimerapi.mimerGetString8, 2: mimerapi.mimerGetString8, 3: mimerapi.mimerGetString8, 6: mimerapi.mimerGetInt32,
-             10: mimerapi.mimerGetDouble,
-             11: mimerapi.mimerGetString8, 12: mimerapi.mimerGetString8, 13: mimerapi.mimerGetString8,
-             14: mimerapi.mimerGetString8, 34: mimerapi.mimerGetBinary, 35: mimerapi.mimerGetBinary,
-             39: mimerapi.mimerGetString8, 40: mimerapi.mimerGetString8,
-             42: mimerapi.mimerGetBoolean, 48: mimerapi.mimerGetInt32, 50: mimerapi.mimerGetInt32, 52: mimerapi.mimerGetInt64,
-             63: mimerapi.mimerGetString8,
-             56: mimerapi.mimerGetDouble, 54: mimerapi.mimerGetDouble, 57: mimerapi.mimerGetBlobData,
-             58: mimerapi.mimerGetNclobData8, 59: mimerapi.mimerGetNclobData8}
-set_funcs = {1: mimerapi.mimerSetString8, 2: mimerapi.mimerSetString8, 3: mimerapi.mimerSetString8, 6: mimerapi.mimerSetInt32,
-             10: mimerapi.mimerSetDouble,
-             11: mimerapi.mimerSetString8, 12: mimerapi.mimerSetString8, 13: mimerapi.mimerSetString8,
-             14: mimerapi.mimerSetString8, 34: mimerapi.mimerSetBinary, 35: mimerapi.mimerSetBinary,
-             39: mimerapi.mimerSetString8,
-             40: mimerapi.mimerSetString8, 42: mimerapi.mimerSetBoolean, 48: mimerapi.mimerSetInt32,
-             50: mimerapi.mimerSetInt32, 52: mimerapi.mimerSetInt64, 63: mimerapi.mimerSetString8, 56: mimerapi.mimerSetDouble,
-             54: mimerapi.mimerSetDouble,
-             57: mimerapi.mimerSetBlobData, 58: mimerapi.mimerSetNclobData8, 59: mimerapi.mimerSetNclobData8,
-             501: mimerapi.mimerSetNull}
+def define_funcs():
+    global get_funcs
+    global set_funcs
 
+    get_funcs = {1: mimerapi.mimerGetString8,
+                 2: mimerapi.mimerGetString8,
+                 3: mimerapi.mimerGetString8,
+                 6: mimerapi.mimerGetInt32,
+                 10: mimerapi.mimerGetDouble,
+                 11: mimerapi.mimerGetString8,
+                 12: mimerapi.mimerGetString8,
+                 13: mimerapi.mimerGetString8,
+                 14: mimerapi.mimerGetString8,
+                 34: mimerapi.mimerGetBinary,
+                 35: mimerapi.mimerGetBinary,
+                 39: mimerapi.mimerGetString8,
+                 40: mimerapi.mimerGetString8,
+                 42: mimerapi.mimerGetBoolean,
+                 48: mimerapi.mimerGetInt32,
+                 50: mimerapi.mimerGetInt32,
+                 52: mimerapi.mimerGetInt64,
+                 63: mimerapi.mimerGetString8,
+                 56: mimerapi.mimerGetDouble,
+                 54: mimerapi.mimerGetDouble,
+                 57: mimerapi.mimerGetBlobData,
+                 58: mimerapi.mimerGetNclobData8,
+                 59: mimerapi.mimerGetNclobData8}
+
+    set_funcs = {1: mimerapi.mimerSetString8,
+                 2: mimerapi.mimerSetString8,
+                 3: mimerapi.mimerSetString8,
+                 6: mimerapi.mimerSetInt32,
+                 10: mimerapi.mimerSetDouble,
+                 11: mimerapi.mimerSetString8,
+                 12: mimerapi.mimerSetString8,
+                 13: mimerapi.mimerSetString8,
+                 14: mimerapi.mimerSetString8,
+                 34: mimerapi.mimerSetBinary,
+                 35: mimerapi.mimerSetBinary,
+                 39: mimerapi.mimerSetString8,
+                 40: mimerapi.mimerSetString8,
+                 42: mimerapi.mimerSetBoolean,
+                 48: mimerapi.mimerSetInt32,
+                 50: mimerapi.mimerSetInt32,
+                 52: mimerapi.mimerSetInt64,
+                 63: mimerapi.mimerSetString8,
+                 56: mimerapi.mimerSetDouble,
+                 54: mimerapi.mimerSetDouble,
+                 57: mimerapi.mimerSetBlobData,
+                 58: mimerapi.mimerSetNclobData8,
+                 59: mimerapi.mimerSetNclobData8,
+                 501: mimerapi.mimerSetNull}
+
+define_funcs()
 
 class Cursor:
     """
