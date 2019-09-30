@@ -709,7 +709,8 @@ class TestCursorMethods(unittest.TestCase):
             nvar = 2 ** 15
             with self.assertRaises(ProgrammingError):
                 c.execute("insert INTO jonwas173 VALUES (?)", (nvar))
-            self.assertEqual(c.messages[0][1], 'MicroAPI error -24010')
+            self.assertEqual(c.messages[0][1],
+                             'Value was too large to fit in destination')
 
     def test_None_is_returned(self):
         with self.tstcon.cursor() as c:
