@@ -23,6 +23,7 @@
 from pkg_resources import get_distribution, DistributionNotFound
 from mimerpy.connectionPy import Connection
 from mimerpy.cursorPy import define_funcs
+from mimerpy.mimPyExceptions import *
 import re
 import mimerapi
 import functools
