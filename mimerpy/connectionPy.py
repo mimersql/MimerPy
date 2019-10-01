@@ -35,7 +35,7 @@ def defaulterrorhandler(connection, cursor, errorclass, errorvalue):
     You can override this with your own error handler by assigning it
     to the instance.
     """
-    sys.tracebacklimit = 1
+#    sys.tracebacklimit = 1
     error = errorclass, errorvalue
     if cursor:
         cursor.messages.append(error)
@@ -69,14 +69,22 @@ class Connection:
                              else defaulterrorhandler)
         self.messages = []
         self.__session = None
-        rc_value = None
         self.__cursors = weakref.WeakSet()
         self._transaction = False
 
-        session_tuple = mimerapi.mimerBeginSession8(dsn, user, password)
-        self.__session = session_tuple[0]
-        rc_value = session_tuple[1]
-        self.__check_for_exception(rc_value, self.__session)
+        dsn = dsn if dsn else ""
+        user = user if user else ""
+        password = password if password else ""
+
+        (self.__session, rc) = mimerapi.mimerBeginSession8(dsn, user, password)
+        if rc:
+#            if rc == 90:
+#                (ec, ev) = (DatabaseError, (90, "Login Failure"))
+#            else:
+            (ec, ev) = get_mimerapi_exception(self.__session, rc)
+            mimerapi.mimerEndSession(self.__session)
+            self.__session = None
+            self.errorhandler(self, None, ec, ev)
 
 
     def __enter__(self):
