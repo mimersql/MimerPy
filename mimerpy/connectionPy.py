@@ -225,30 +225,34 @@ class Connection:
         else:
             self.autocommitmode = False
 
+    def __raise_exception(self, rc):
+        self.errorhandler(self, None, get_error_class(rc),
+                          (rc, mimerpy_error[rc]))
+
     def __check_if_open(self):
         if (self.__session == None):
-            self.__check_for_exception(-25000, "Connection not open")
+            self.__raise_exception(-25010)
 
     def __check_for_exception(self, *arg):
         error_tuple = check_for_exception(arg[0], arg[1])
         if (isinstance(error_tuple,tuple)):
             if (error_tuple[0]):
-                self.errorhandler(self, None, error_tuple[0], (error_tuple[1]))
+                self.errorhandler(self, None, error_tuple[0], error_tuple[1])
 
     def xid(self):
-        self.__check_for_exception(-28001, "TPC transaction IDs not supported")
+        self.__raise_exception(-25001)
 
     def tpc_begin(self):
-        self.__check_for_exception(-28001, "TPC transaction IDs not supported")
+        self.__raise_exception(-25001)
 
     def tpc_prepare(self):
-        self.__check_for_exception(-28001, "TPC transaction IDs not supported")
+        self.__raise_exception(-25001)
 
     def tpc_commit(self):
-        self.__check_for_exception(-28001, "TPC transaction IDs not supported")
+        self.__raise_exception(-25001)
 
     def tpc_rollback(self):
-        self.__check_for_exception(-28001, "TPC transaction IDs not supported")
+        self.__raise_exception(-25001)
 
     def tpc_recover(self):
-        self.__check_for_exception(-28001, "TPC transaction IDs not supported")
+        self.__raise_exception(-25001)

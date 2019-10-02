@@ -24,10 +24,21 @@ from mimerpy.mimPyExceptions import *
 import mimerapi
 
 mimerpy_error = {
-    -25001:(NotSupportedError, "Operation is unsupported"),
+    -25000:"Unsupported method",
+    -25001:"TPC is unsupported",
+    -25010:"Connection not open",
+    -25011:"Invalid number of parameters",
+    -25012:"KeyError in parameters, key: %s does not exist in dictionary",
+    -25013:"Invalid parameter format",
+    -25014:"Previous execute did not produce a result set",
+    -25015:"Cursor not open",
+    -25016:"Illegal scroll mode",
 }
 
-py_error_xxxxx = {}
+py_error_nnnnn = {}
+
+py_error_nnnnx = {2500:NotSupportedError, 2501:ProgrammingError,
+}
 
 py_error_nnxxx = {10:DataError, 11:OperationalError, 12:ProgrammingError,
                   14:ProgrammingError, 16:OperationalError, 18:DatabaseError,
@@ -39,11 +50,17 @@ py_error_nnxxx = {10:DataError, 11:OperationalError, 12:ProgrammingError,
 def get_error_class(rc):
     """
     Return a suitable error class from an error number.
-    Mimerpy internal errors (-25xxx) are not recognized here.
     """
     rc = -rc;
-    return py_error_xxxxx.get(rc,
-                              py_error_nnxxx.get(rc//1000, InternalError))
+    if rc in py_error_nnnnn:
+        return py_error_nnnnn[rc]
+    rc = rc // 10
+    if rc in py_error_nnnnx:
+        return py_error_nnnnx[rc]
+    rc = rc // 100
+    if rc in py_error_nnxxx:
+        return py_error_nnxxx[rc]
+    return InternalError
 
 
 def get_mimerapi_exception(mimerapi_handle, rc):
@@ -68,11 +85,11 @@ def check_for_exception(*arg):
     elif (arg[0] < -10000):
         key = -arg[0] // 1000
         if (key >= 25):
-            return (py_error_nnxxx[key],arg[1])
+            return (py_error_nnxxx[key],(arg[0],arg[1]))
         else:
             r = mimerapi.mimerGetError8(arg[1])
             if (r[0] != 0):
                 msg = "Unknown error %d" % arg[0]
             else:
                 msg = r[2]
-            return (py_error_nnxxx[key], msg)
+            return (py_error_nnxxx[key], (arg[0],msg))

@@ -204,7 +204,7 @@ class Cursor:
                 try:
 
                     if (len(parameter_markers) != self._number_of_parameters):
-                        self.__check_for_exception(-25103, "Invalid number of parameters")
+                        self.__raise_exception(-25013)
 
                     # Column number starts a 1
                     for cur_column in range(1, self._number_of_parameters + 1):
@@ -220,8 +220,8 @@ class Cursor:
                                     parameter_type = 501
                                 rc_value = set_funcs[parameter_type](self.__statement, cur_column, parameter)
                             else:
-                                self.__check_for_exception(-25108, "KeyError in parameters, key: " + str(parameter_name)
-                                                           + " does not exist in dictionary")
+                                self.__raise_exception(-25012,
+                                                       str(parameter_name))
                         else:
                             # If the parameter marker is None, we use mimerSetNull
                             if (parameter_markers[cur_column - 1] == None):
@@ -232,13 +232,13 @@ class Cursor:
 
                 # Catching error for errorhandler
                 except KeyError as e:
-                    self.__check_for_exception(-28100, e)
+                    self.__check_for_exception(-28100, e) # &&&&
                 # Catching error for errorhandler
                 except TypeError as e:
-                    self.__check_for_exception(-25107, e)
+                    self.__check_for_exception(-25107, e) # &&&&
                 # Catching error for errorhandler
                 except OverflowError as e:
-                    self.__check_for_exception(-25107, e)
+                    self.__check_for_exception(-25107, e) # &&&&
 
             self.__check_for_exception(rc_value, self.__statement)
             rc_value = mimerapi.mimerColumnCount(self.__statement)
@@ -302,11 +302,10 @@ class Cursor:
         # I would like to look over this at some point
         # Checking for invalid parameter structure
         if (not isinstance(params, tuple) and not isinstance(params, list)):
-            self.__check_for_exception(-26001, "Invalid parameter format")
-
+            self.__raise_exception(-25013)
         else:
             if (not isinstance(params[0], tuple) and not isinstance(params[0], dict)):
-                self.__check_for_exception(-26001, "Invalid parameter format")
+                self.__raise_exception(-25013)
 
         self.__close_statement()
         values = mimerapi.mimerBeginStatement8(self.__session, query, 0)
@@ -340,8 +339,7 @@ class Cursor:
                                 parameter_type = 501
                             rc_value = set_funcs[parameter_type](self.__statement, cur_column, parameter)
                         else:
-                            self.__check_for_exception(-25108, "KeyError in parameters, key: " + str(parameter_name)
-                                                       + ", does not exist in dictionary")
+                            self.__raise_exception(-25012, str(parameter_name))
                     else:
                         # If the parameter marker is None, we use mimerSetNull
                         if (cur_param[cur_column - 1] == None):
@@ -361,10 +359,10 @@ class Cursor:
 
         # Catching error for errorhandler
         except TypeError as e:
-            self.__check_for_exception(-25107, e)
+            self.__check_for_exception(-25107, e)  # &&&&
         # Catching error for errorhandler
         except OverflowError as e:
-            self.__check_for_exception(-25107, e)
+            self.__check_for_exception(-25107, e)  # &&&&
 
     def fetchone(self):
         """
@@ -380,7 +378,7 @@ class Cursor:
         self.__check_for_transaction()
 
         if (not self.__mimcursor):
-            self.__check_for_exception(-25107, "Previous execute did not produce any result set")
+            self.__raise_exception(-25014)
 
         rc_value = mimerapi.mimerFetch(self.__statement)
         self.__check_for_exception(rc_value, self.__statement)
@@ -428,7 +426,7 @@ class Cursor:
         self.__check_for_transaction()
 
         if (not self.__mimcursor):
-            self.__check_for_exception(-25107, "Previous execute did not produce any result set")
+            self.__raise_exception(-25014)
 
         # If arg is provided, arraysize is set
         if (len(arg) > 0):
@@ -474,7 +472,7 @@ class Cursor:
         self.__check_if_open()
         self.__check_for_transaction()
         if (not self.__mimcursor):
-            self.__check_for_exception(-25107, "Previous execute did not produce any result set")
+            self.__raise_exception(-25014)
         values = []
         rc_value = mimerapi.mimerFetch(self.__statement)
         fetch_value = rc_value
@@ -530,13 +528,19 @@ class Cursor:
 
     def __check_if_open(self):
         if (self.__session == None):
-            self.__check_for_exception(-25000, "Cursor not open")
+            self.__raise_exception(-25015)
 
     def __check_for_transaction(self):
         if (not self.connection._transaction and not self.connection.autocommitmode):
             rc_value = mimerapi.mimerBeginTransaction(self.__session)
             self.__check_for_exception(rc_value, self.__session)
             self.connection._transaction = True
+
+    def __raise_exception(self, rc, val=None):
+        msg = mimerpy_error[rc]
+        if val is not None:
+            msg = msg % val
+        self.errorhandler(None, self, get_error_class(rc), (rc, msg))
 
     def __check_for_exception(self, *arg):
         error_tuple = check_for_exception(arg[0], arg[1])
@@ -545,10 +549,10 @@ class Cursor:
                 self.errorhandler(None, self, error_tuple[0], (error_tuple[1]))
 
     def nextset(self):
-        self.__check_for_exception(-28002, "Not suppported")
+        self.__raise_exception(-25000)
 
     def callproc(self):
-        self.__check_for_exception(-28003, "Not suppported")
+        self.__raise_exception(-25000)
 
 
 class ScrollCursor(Cursor):
@@ -597,7 +601,7 @@ class ScrollCursor(Cursor):
         self._Cursor__check_for_transaction()
 
         if (self.__result_set == None):
-            self._Cursor__check_for_exception(-25000, "Last execute did not produce a result set")
+            self._Cursor__raise_exception(-25014)
         values = ()
         try:
             values = values + self.__result_set[self.rownumber]
@@ -625,7 +629,7 @@ class ScrollCursor(Cursor):
         self._Cursor__check_for_transaction()
 
         if (self.__result_set == None):
-            self._Cursor__check_for_exception(-25000, "Last execute did not produce a result set")
+            self._Cursor__raise_exception(-25014)
 
         if (len(arg) > 0):
             self.arraysize = arg[0]
@@ -656,7 +660,7 @@ class ScrollCursor(Cursor):
         self._Cursor__check_for_transaction()
         values = []
         if (self.__result_set == None):
-            self._Cursor__check_for_exception(-25000, "Last execute did not produce a result set")
+            self._Cursor__raise_exception(-25014)
         if (not self.rownumber):
             self.rownumber = len(self.__result_set)
             return self.__result_set
@@ -676,7 +680,7 @@ class ScrollCursor(Cursor):
         self._Cursor__check_for_transaction()
 
         if (self.__result_set == None):
-            self._Cursor__check_for_exception(-25000, "Last execute did not produce a result set")
+            self._Cursor__raise_exception(-25014)
         if (self.__result_set == []):
             return self.__result_set
 
@@ -718,4 +722,4 @@ class ScrollCursor(Cursor):
             else:
                 self.rownumber = value
         else:
-            self._Cursor__check_for_exception(-25000, "Not a possible scroll mode")
+            self._Cursor__raise_exception(-25016)

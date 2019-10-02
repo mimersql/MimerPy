@@ -24,6 +24,7 @@ from pkg_resources import get_distribution, DistributionNotFound
 from mimerpy.connectionPy import Connection
 from mimerpy.cursorPy import define_funcs
 from mimerpy.mimPyExceptions import *
+from mimerpy.mimPyExceptionHandler import mimerpy_error
 import re
 import mimerapi
 import functools

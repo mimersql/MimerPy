@@ -278,11 +278,11 @@ class TestScrollCursorMethods(unittest.TestCase):
         with self.tstcon.cursor(scrollable = True) as c:
             c.execute("create table bob4 (c1 INTEGER) in pybank")
             c.executemany("insert into bob4 values (:a)", [(1,)])
-            with self.assertRaises(InterfaceError):
+            with self.assertRaises(ProgrammingError):
                 c.executemany("insert into bob4 values (:a)", [(1)])
-            with self.assertRaises(InterfaceError):
+            with self.assertRaises(ProgrammingError):
                 c.executemany("insert into bob4 values (:a)", (1))
-            with self.assertRaises(InterfaceError):
+            with self.assertRaises(ProgrammingError):
                 c.executemany("insert into bob4 values (:a)", [1])
 
     def test_executemany_one_tuple(self):
@@ -507,7 +507,7 @@ class TestScrollCursorMethods(unittest.TestCase):
             self.tstcon.rollback()
 
     def test_executemany_DDL(self):
-        with self.assertRaises(InterfaceError):
+        with self.assertRaises(ProgrammingError):
             c = self.tstcon.executemany("create table bob6(c1 INTEGER)", (3))
         with self.tstcon.cursor(scrollable = True) as c:
             with self.assertRaises(ProgrammingError):
@@ -639,7 +639,8 @@ class TestScrollCursorMethods(unittest.TestCase):
             with self.assertRaises(ProgrammingError):
                 c.execute("insert INTO jonwas173 VALUES (?)", (nvar))
             self.assertEqual(c.messages[0][1],
-                             'Value was too large to fit in destination')
+                             (-24010,
+                              'Value was too large to fit in destination'))
 
     def test_None_is_returned(self):
         with self.tstcon.cursor(scrollable = True) as c:
