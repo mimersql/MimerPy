@@ -298,7 +298,7 @@ class TestCursorMethods(unittest.TestCase):
         with self.tstcon.cursor() as c:
             c.execute("create table bob33 (c1 INTEGER, c2 NVARCHAR(10))"
                       " in pybank")
-            with self.assertRaises(ProgrammingError):
+            with self.assertRaises(DataError):
                 c.executemany("insert into bob33 values (:a, :b)",
                               ((3, 'pi', 14), (3)))
 
@@ -473,7 +473,7 @@ class TestCursorMethods(unittest.TestCase):
     def test_insert_wrong_type_parametermarkers(self):
         with self.tstcon.cursor() as c:
             c.execute("create table bob1337 (c1 INTEGER, c2 INTEGER) in pybank")
-            with self.assertRaises(ProgrammingError):
+            with self.assertRaises(DataError):
                 c.execute("insert into bob1337  values (:a, :b)", (3, 3.14))
 
     def test_operate_after_closed(self):
@@ -563,7 +563,7 @@ class TestCursorMethods(unittest.TestCase):
         with self.tstcon.cursor() as c:
             b = c.execute("create table bob16(c1 BIGINT) in pybank")
             big = pow(2, 100)
-            with self.assertRaises(ProgrammingError):
+            with self.assertRaises(DataError):
                 c.execute("insert into bob16 values (?)", big)
 
     def test_insert_too_long(self):
@@ -586,14 +586,14 @@ class TestCursorMethods(unittest.TestCase):
         with self.tstcon.cursor() as c:
             c.execute("create table jon31 (c1 INTEGER) in pybank")
             nvar = -2 ** 31 - 1
-            with self.assertRaises(ProgrammingError):
+            with self.assertRaises(DataError):
                 c.execute("insert INTO jon31 VALUES (?)", (nvar))
 
     def test_invalid_int32_insert_too_big(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jon33 (c1 INTEGER) in pybank")
             var = 2 ** 31
-            with self.assertRaises(ProgrammingError):
+            with self.assertRaises(DataError):
                 c.execute("insert INTO jon33 VALUES (?)", (var))
 
     def test_valid_int64_insert(self):
@@ -608,7 +608,7 @@ class TestCursorMethods(unittest.TestCase):
             c.execute("create table intjon4 (c1 BIGINT, c2 BIGINT) in pybank")
             nvar = -2 ** 633
             var = 2 ** 63 - 1
-            with self.assertRaises(ProgrammingError):
+            with self.assertRaises(DataError):
                 c.executemany("insert INTO intjon4 VALUES (?,?)",
                               ((nvar, var), (nvar, var)))
 
@@ -616,14 +616,14 @@ class TestCursorMethods(unittest.TestCase):
         with self.tstcon.cursor() as c:
             c.execute("create table jon63 (c1 BIGINT) in pybank")
             nvar = -2 ** 63 - 1
-            with self.assertRaises(ProgrammingError):
+            with self.assertRaises(DataError):
                 c.execute("insert INTO jon63 VALUES (?)", (nvar))
 
     def test_invalid_int64_insert_too_big(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jon65 (c1 BIGINT) in pybank")
             var = 2 ** 63
-            with self.assertRaises(ProgrammingError):
+            with self.assertRaises(DataError):
                 c.execute("insert INTO jon65 VALUES (?)", (var))
 
     def test_valid_int16_insert(self):
@@ -637,14 +637,14 @@ class TestCursorMethods(unittest.TestCase):
         with self.tstcon.cursor() as c:
             c.execute("create table jon15 (c1 SMALLINT) in pybank")
             nvar = -2 ** 15 - 1
-            with self.assertRaises(ProgrammingError):
+            with self.assertRaises(DataError):
                 c.execute("insert INTO jon15 VALUES (?)", (nvar))
 
     def test_invalid_int16_insert_too_small(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jon17 (c1 SMALLINT) in pybank")
             nvar = 2 ** 15
-            with self.assertRaises(ProgrammingError):
+            with self.assertRaises(DataError):
                 c.execute("insert INTO jon17 VALUES (?)", (nvar))
 
     # &&&& Gives a Warning we dont catch atm
@@ -666,7 +666,7 @@ class TestCursorMethods(unittest.TestCase):
         f = self.tstcon.cursor()
         b.execute("create table jondd (c1 FLOAT) in pybank")
         var = 10 ** 309
-        with self.assertRaises(ProgrammingError):
+        with self.assertRaises(DataError):
             b.execute("insert INTO jondd VALUES (?)", (var))
 
         with self.assertRaises(ProgrammingError):
@@ -697,7 +697,7 @@ class TestCursorMethods(unittest.TestCase):
         with self.tstcon.cursor() as c:
             c.execute("create table jonwas17 (c1 SMALLINT) in pybank")
             nvar = 2 ** 15
-            with self.assertRaises(ProgrammingError):
+            with self.assertRaises(DataError):
                 c.execute("insert INTO jonwas17 VALUES (?)", (nvar))
             c.execute("insert INTO jonwas17 VALUES (?)", (5))
             self.assertEqual(c.messages, [])
@@ -706,7 +706,7 @@ class TestCursorMethods(unittest.TestCase):
         with self.tstcon.cursor() as c:
             c.execute("create table jonwas173 (c1 SMALLINT) in pybank")
             nvar = 2 ** 15
-            with self.assertRaises(ProgrammingError):
+            with self.assertRaises(DataError):
                 c.execute("insert INTO jonwas173 VALUES (?)", (nvar))
             self.assertEqual(c.messages[0][1],
                              (-24010,

@@ -232,13 +232,13 @@ class Cursor:
 
                 # Catching error for errorhandler
                 except KeyError as e:
-                    self.__check_for_exception(-28100, e) # &&&&
+                    self.__raise_exception(-25020, exception=e) # &&&& ??
                 # Catching error for errorhandler
                 except TypeError as e:
-                    self.__check_for_exception(-25107, e) # &&&&
+                    self.__raise_exception(-25020, exception=e)
                 # Catching error for errorhandler
                 except OverflowError as e:
-                    self.__check_for_exception(-25107, e) # &&&&
+                    self.__raise_exception(-25020, exception=e)
 
             self.__check_for_exception(rc_value, self.__statement)
             rc_value = mimerapi.mimerColumnCount(self.__statement)
@@ -359,10 +359,10 @@ class Cursor:
 
         # Catching error for errorhandler
         except TypeError as e:
-            self.__check_for_exception(-25107, e)  # &&&&
+            self.__raise_exception(-25020, exception=e)
         # Catching error for errorhandler
         except OverflowError as e:
-            self.__check_for_exception(-25107, e)  # &&&&
+            self.__raise_exception(-25020, exception=e)
 
     def fetchone(self):
         """
@@ -536,11 +536,15 @@ class Cursor:
             self.__check_for_exception(rc_value, self.__session)
             self.connection._transaction = True
 
-    def __raise_exception(self, rc, val=None):
+    def __raise_exception(self, rc, val=None, exception=None):
         msg = mimerpy_error[rc]
         if val is not None:
             msg = msg % val
-        self.errorhandler(None, self, get_error_class(rc), (rc, msg))
+        if exception is None:
+            etup = (rc, msg)
+        else:
+            etup = (rc, msg, exception)
+        self.errorhandler(None, self, get_error_class(rc), etup)
 
     def __check_for_exception(self, *arg):
         error_tuple = check_for_exception(arg[0], arg[1])

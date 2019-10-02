@@ -33,11 +33,15 @@ mimerpy_error = {
     -25014:"Previous execute did not produce a result set",
     -25015:"Cursor not open",
     -25016:"Illegal scroll mode",
+    -25020:"Data conversion error",
 }
 
-py_error_nnnnn = {}
+py_error_nnnnn = {24010:DataError,
+}
 
-py_error_nnnnx = {2500:NotSupportedError, 2501:ProgrammingError,
+py_error_nnnnx = {2500:NotSupportedError,
+                  2501:ProgrammingError,
+                  2502:DataError,
 }
 
 py_error_nnxxx = {10:DataError, 11:OperationalError, 12:ProgrammingError,
@@ -85,11 +89,11 @@ def check_for_exception(*arg):
     elif (arg[0] < -10000):
         key = -arg[0] // 1000
         if (key >= 25):
-            return (py_error_nnxxx[key],(arg[0],arg[1]))
+            return (get_error_class(arg[0]),(arg[0],arg[1]))
         else:
             r = mimerapi.mimerGetError8(arg[1])
             if (r[0] != 0):
                 msg = "Unknown error %d" % arg[0]
             else:
                 msg = r[2]
-            return (py_error_nnxxx[key], (arg[0],msg))
+            return (get_error_class(arg[0]), (arg[0],msg))
