@@ -75,25 +75,3 @@ def get_mimerapi_exception(rc, mimerapi_handle):
     if rc0:
         msg = "Unknown error %d" % rc
     return (get_error_class(rc), (rc, msg))
-
-
-def check_for_exception(*arg):
-    """
-        Maps a MimerAPI error code to an exception class and look up
-        an error message text.
-    """
-    if (arg[1] == 0):
-        return 0
-    elif (arg[0] >= 0):
-        return 0
-    elif (arg[0] < -10000):
-        key = -arg[0] // 1000
-        if (key >= 25):
-            return (get_error_class(arg[0]),(arg[0],arg[1]))
-        else:
-            r = mimerapi.mimerGetError8(arg[1])
-            if (r[0] != 0):
-                msg = "Unknown error %d" % arg[0]
-            else:
-                msg = r[2]
-            return (get_error_class(arg[0]), (arg[0],msg))
