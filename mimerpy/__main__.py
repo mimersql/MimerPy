@@ -1,4 +1,5 @@
 import mimerpy
+import mimerapi
 import argparse
 
 if __name__ == '__main__':
@@ -16,7 +17,7 @@ SQL statement).
     parser.add_argument("-p", "--password",
                         help="Password for the user")
     parser.add_argument("-v", "--version",
-                        help="Display MimerPy version number",
+                        help="Display MimerPy and MimerAPI version numbers",
                         action="store_true")
     parser.add_argument("-t", "--tag",
                         help=argparse.SUPPRESS, action="store_true")
@@ -32,7 +33,8 @@ SQL statement).
 
     if args.version:
         something = True
-        print("Mimerpy version %s" % mimerpy.__version__)
+        print("Mimerpy  version %s" % mimerpy.__version__)
+        print("MimerAPI version %s" % mimerapi.__version__)
 
     if args.sql:
         something = True
