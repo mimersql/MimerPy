@@ -81,7 +81,7 @@ class Connection:
 #            if rc == 90:
 #                (ec, ev) = (DatabaseError, (90, "Login Failure"))
 #            else:
-            (ec, ev) = get_mimerapi_exception(self.__session, rc)
+            (ec, ev) = get_mimerapi_exception(rc, self.__session)
             mimerapi.mimerEndSession(self.__session)
             self.__session = None
             self.errorhandler(self, None, ec, ev)

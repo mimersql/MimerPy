@@ -67,7 +67,7 @@ def get_error_class(rc):
     return InternalError
 
 
-def get_mimerapi_exception(mimerapi_handle, rc):
+def get_mimerapi_exception(rc, mimerapi_handle):
     """
     Return (errorclass, errorvalue) from a failed MimerAPI call.
     """
