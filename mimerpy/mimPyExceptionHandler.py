@@ -51,6 +51,8 @@ py_error_nnxxx = {10:DataError, 11:OperationalError, 12:ProgrammingError,
                   25:ProgrammingError, 26:InterfaceError,
                   27:DataError, 28: NotSupportedError}
 
+py_error_xxxxx = InternalError
+
 def get_error_class(rc):
     """
     Return a suitable error class from an error number.
@@ -64,7 +66,7 @@ def get_error_class(rc):
     rc = rc // 100
     if rc in py_error_nnxxx:
         return py_error_nnxxx[rc]
-    return InternalError
+    return py_error_xxxxx
 
 
 def get_mimerapi_exception(rc, mimerapi_handle):
