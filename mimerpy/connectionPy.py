@@ -126,10 +126,10 @@ class Connection:
 
             if (self._transaction):
                 rc_value = mimerapi.mimerEndTransaction(self.__session, 1)
-                self.__check_for_exception(rc_value, self.__session)
+                self.__check_mimerapi_error(rc_value, self.__session)
                 self._transaction = False
             rc_value = mimerapi.mimerEndSession(self.__session)
-            self.__check_for_exception(rc_value, self.__session)
+            self.__check_mimerapi_error(rc_value, self.__session)
             self.__session = None
 
     def rollback(self):
@@ -143,14 +143,14 @@ class Connection:
         """
         self.__check_if_open()
         rc_value = mimerapi.mimerEndTransaction(self.__session, 1)
-        self.__check_for_exception(rc_value, self.__session)
+        self.__check_mimerapi_error(rc_value, self.__session)
         self._transaction = False
 
     def commit(self):
         """Commits any pending transaction."""
         self.__check_if_open()
         rc_value = mimerapi.mimerEndTransaction(self.__session, 0)
-        self.__check_for_exception(rc_value, self.__session)
+        self.__check_mimerapi_error(rc_value, self.__session)
         self._transaction = False
 
     def cursor(self, **kwargs):
@@ -233,11 +233,10 @@ class Connection:
         if (self.__session == None):
             self.__raise_exception(-25010)
 
-    def __check_for_exception(self, *arg):
-        error_tuple = check_for_exception(arg[0], arg[1])
-        if (isinstance(error_tuple,tuple)):
-            if (error_tuple[0]):
-                self.errorhandler(self, None, error_tuple[0], error_tuple[1])
+    def __check_mimerapi_error(self, rc, handle):
+        if rc < 0:
+            (ec, ev) = get_mimerapi_exception(rc, handle)
+            self.errorhandler(self, None, ec, ev)
 
     def xid(self):
         self.__raise_exception(-25001)

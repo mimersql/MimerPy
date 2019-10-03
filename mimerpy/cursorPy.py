@@ -181,7 +181,7 @@ class Cursor:
 
             # -24005 indicates a DDL statement
             if (self._DDL_rc_value != -24005):
-                self.__check_for_exception(rc_value, self.__session)
+                self.__check_mimerapi_error(rc_value, self.__session)
                 self.__statement = values[1]
 
         self._last_query = query
@@ -192,10 +192,10 @@ class Cursor:
             self.connection.transaction = False
             self.messages = []
             rc_value = mimerapi.mimerExecuteStatement8(self.__session, query)
-            self.__check_for_exception(rc_value, self.__session)
+            self.__check_mimerapi_error(rc_value, self.__session)
         else:
             rc_value = mimerapi.mimerParameterCount(self.__statement)
-            self.__check_for_exception(rc_value, self.__statement)
+            self.__check_mimerapi_error(rc_value, self.__statement)
 
             # Return value of mimerParameterCount = 0 implies a query with no
             # parameters.
@@ -209,11 +209,11 @@ class Cursor:
                     # Column number starts a 1
                     for cur_column in range(1, self._number_of_parameters + 1):
                         parameter_type = mimerapi.mimerParameterType(self.__statement, cur_column)
-                        self.__check_for_exception(parameter_type, self.__statement)
+                        self.__check_mimerapi_error(parameter_type, self.__statement)
 
                         if (isinstance(parameter_markers, dict)):
                             rc_value, parameter_name = mimerapi.mimerParameterName8(self.__statement, cur_column)
-                            self.__check_for_exception(rc_value, self.__statement)
+                            self.__check_mimerapi_error(rc_value, self.__statement)
                             if parameter_name in parameter_markers:
                                 parameter = parameter_markers.get(parameter_name)
                                 if (parameter == None):
@@ -228,7 +228,7 @@ class Cursor:
                                 parameter_type = 501
                             rc_value = set_funcs[parameter_type](self.__statement,
                                                                        cur_column, parameter_markers[cur_column - 1])
-                        self.__check_for_exception(rc_value, self.__statement)
+                        self.__check_mimerapi_error(rc_value, self.__statement)
 
                 # Catching error for errorhandler
                 except KeyError as e:
@@ -240,16 +240,16 @@ class Cursor:
                 except OverflowError as e:
                     self.__raise_exception(-25020, exception=e)
 
-            self.__check_for_exception(rc_value, self.__statement)
+            self.__check_mimerapi_error(rc_value, self.__statement)
             rc_value = mimerapi.mimerColumnCount(self.__statement)
 
             # Return value of mimerColumnCount <= 0 implies a query with no
             # result set.
             if (rc_value <= 0):
-                self.__check_for_exception(rc_value, self.__statement)
+                self.__check_mimerapi_error(rc_value, self.__statement)
                 self.messages = []
                 rc_value = mimerapi.mimerExecute(self.__statement)
-                self.__check_for_exception(rc_value, self.__statement)
+                self.__check_mimerapi_error(rc_value, self.__statement)
                 self.rowcount = rc_value
             else:
                 # Return value of mimerColumnCount > 0 implies a query with a
@@ -257,7 +257,7 @@ class Cursor:
                 self.rowcount = rc_value
                 self._number_of_columns = rc_value
                 rc_value = mimerapi.mimerOpenCursor(self.__statement)
-                self.__check_for_exception(rc_value, self.__statement)
+                self.__check_mimerapi_error(rc_value, self.__statement)
                 self.__mimcursor = True
                 description = collections.namedtuple('Column_description',
                                                      'name type_code display_size internal_size precision scale null_ok')
@@ -266,10 +266,10 @@ class Cursor:
                 for cur_column in range(1, self._number_of_columns + 1):
                     func_tuple = mimerapi.mimerColumnName8(self.__statement, cur_column)
                     rc_value = func_tuple[0]
-                    self.__check_for_exception(rc_value, self.__statement)
+                    self.__check_mimerapi_error(rc_value, self.__statement)
                     name = func_tuple[1]
                     rc_value = mimerapi.mimerColumnType(self.__statement, cur_column)
-                    self.__check_for_exception(rc_value, self.__statement)
+                    self.__check_mimerapi_error(rc_value, self.__statement)
                     type_code = rc_value
                     self.description = self.description + (description(name=name,
                                                                        type_code=type_code,
@@ -311,15 +311,15 @@ class Cursor:
         values = mimerapi.mimerBeginStatement8(self.__session, query, 0)
         rc_value = values[0]
 
-        self.__check_for_exception(rc_value, self.__session)
+        self.__check_mimerapi_error(rc_value, self.__session)
         self.__statement = values[1]
-        self.__check_for_exception(rc_value, self.__statement)
+        self.__check_mimerapi_error(rc_value, self.__statement)
 
         rc_value = mimerapi.mimerParameterCount(self.__statement)
         self._number_of_parameters = rc_value
 
         self.rowcount = 0
-        self.__check_for_exception(rc_value, self.__statement)
+        self.__check_mimerapi_error(rc_value, self.__statement)
 
         try:
             for laps in range(0, len(params)):
@@ -328,11 +328,11 @@ class Cursor:
                 # Column number starts a 1
                 for cur_column in range(1, self._number_of_parameters + 1):
                     parameter_type = mimerapi.mimerParameterType(self.__statement, cur_column)
-                    self.__check_for_exception(parameter_type, self.__statement)
+                    self.__check_mimerapi_error(parameter_type, self.__statement)
 
                     if (isinstance(cur_param, dict)):
                         rc_value, parameter_name = mimerapi.mimerParameterName8(self.__statement, cur_column)
-                        self.__check_for_exception(rc_value, self.__statement)
+                        self.__check_mimerapi_error(rc_value, self.__statement)
                         if parameter_name in cur_param:
                             parameter = cur_param.get(parameter_name)
                             if (parameter == None):
@@ -351,11 +351,11 @@ class Cursor:
                 # Batching after all parameters are set
                 if (laps != len(params) - 1):
                     rc_value = mimerapi.mimerAddBatch(self.__statement)
-                    self.__check_for_exception(rc_value, self.__statement)
+                    self.__check_mimerapi_error(rc_value, self.__statement)
                 self.rowcount = self.rowcount + rc_value
 
             rc_value = mimerapi.mimerExecute(self.__statement)
-            self.__check_for_exception(rc_value, self.__statement)
+            self.__check_mimerapi_error(rc_value, self.__statement)
 
         # Catching error for errorhandler
         except TypeError as e:
@@ -381,7 +381,7 @@ class Cursor:
             self.__raise_exception(-25014)
 
         rc_value = mimerapi.mimerFetch(self.__statement)
-        self.__check_for_exception(rc_value, self.__statement)
+        self.__check_mimerapi_error(rc_value, self.__statement)
         return_tuple = ()
 
         # Return value of mimerFetch == 100 implies end of result set
@@ -390,9 +390,9 @@ class Cursor:
 
         for cur_column in range(1, self._number_of_columns + 1):
             rc_value = mimerapi.mimerColumnType(self.__statement, cur_column)
-            self.__check_for_exception(rc_value, self.__statement)
+            self.__check_mimerapi_error(rc_value, self.__statement)
             func_tuple = get_funcs[rc_value](self.__statement, cur_column)
-            self.__check_for_exception(func_tuple[0], self.__statement)
+            self.__check_mimerapi_error(func_tuple[0], self.__statement)
 
             # Conversion from C int to Python boolean
             if (rc_value == 42 and not func_tuple[1] == None):
@@ -436,14 +436,14 @@ class Cursor:
         rc_value = mimerapi.mimerFetch(self.__statement)
         fetch_value = rc_value
         while (fetch_value != 100 and fetch_length > 0):
-            self.__check_for_exception(fetch_value, self.__statement)
+            self.__check_mimerapi_error(fetch_value, self.__statement)
             return_tuple = ()
             # Column number starts a 1
             for cur_column in range(1, self._number_of_columns + 1):
                 rc_value = mimerapi.mimerColumnType(self.__statement, cur_column)
-                self.__check_for_exception(rc_value, self.__statement)
+                self.__check_mimerapi_error(rc_value, self.__statement)
                 func_tuple = get_funcs[rc_value](self.__statement, cur_column)
-                self.__check_for_exception(func_tuple[0], self.__statement)
+                self.__check_mimerapi_error(func_tuple[0], self.__statement)
 
                 # Conversion from C int to Python boolean
                 if (rc_value == 42 and not func_tuple[1] == None):
@@ -477,14 +477,14 @@ class Cursor:
         rc_value = mimerapi.mimerFetch(self.__statement)
         fetch_value = rc_value
         while (fetch_value != 100):
-            self.__check_for_exception(fetch_value, self.__statement)
+            self.__check_mimerapi_error(fetch_value, self.__statement)
             return_tuple = ()
             # Column number starts a 1
             for cur_column in range(1, self._number_of_columns + 1):
                 rc_value = mimerapi.mimerColumnType(self.__statement, cur_column)
-                self.__check_for_exception(rc_value, self.__statement)
+                self.__check_mimerapi_error(rc_value, self.__statement)
                 func_tuple = get_funcs[rc_value](self.__statement, cur_column)
-                self.__check_for_exception(func_tuple[0], self.__statement)
+                self.__check_mimerapi_error(func_tuple[0], self.__statement)
 
                 # Conversion from C int to Python boolean
                 if (rc_value == 42 and not func_tuple[1] == None):
@@ -524,7 +524,7 @@ class Cursor:
             rc_value = mimerapi.mimerEndStatement(self.__statement)
             self.__statement = None
             self.__mimcursor = False
-            self.__check_for_exception(rc_value, self.__statement)
+            self.__check_mimerapi_error(rc_value, self.__statement)
 
     def __check_if_open(self):
         if (self.__session == None):
@@ -533,7 +533,7 @@ class Cursor:
     def __check_for_transaction(self):
         if (not self.connection._transaction and not self.connection.autocommitmode):
             rc_value = mimerapi.mimerBeginTransaction(self.__session)
-            self.__check_for_exception(rc_value, self.__session)
+            self.__check_mimerapi_error(rc_value, self.__session)
             self.connection._transaction = True
 
     def __raise_exception(self, rc, val=None, exception=None):
@@ -546,11 +546,10 @@ class Cursor:
             etup = (rc, msg, exception)
         self.errorhandler(None, self, get_error_class(rc), etup)
 
-    def __check_for_exception(self, *arg):
-        error_tuple = check_for_exception(arg[0], arg[1])
-        if (isinstance(error_tuple, tuple)):
-            if (error_tuple[0]):
-                self.errorhandler(None, self, error_tuple[0], (error_tuple[1]))
+    def __check_mimerapi_error(self, rc, handle):
+        if rc < 0:
+            (ec, ev) = get_mimerapi_exception(rc, handle)
+            self.errorhandler(None, self, ec, ev)
 
     def nextset(self):
         self.__raise_exception(-25000)
