@@ -68,7 +68,7 @@ class Connection:
         self.errorhandler = (errorhandler if errorhandler
                              else defaulterrorhandler)
         self.messages = []
-        self.__session = None
+        self._session = None
         self.__cursors = weakref.WeakSet()
         self._transaction = False
 
@@ -76,14 +76,14 @@ class Connection:
         user = user if user else ""
         password = password if password else ""
 
-        (self.__session, rc) = mimerapi.mimerBeginSession8(dsn, user, password)
+        (self._session, rc) = mimerapi.mimerBeginSession8(dsn, user, password)
         if rc:
 #            if rc == 90:
 #                (ec, ev) = (DatabaseError, (90, "Login Failure"))
 #            else:
-            (ec, ev) = get_mimerapi_exception(rc, self.__session)
-            mimerapi.mimerEndSession(self.__session)
-            self.__session = None
+            (ec, ev) = get_mimerapi_exception(rc, self._session)
+            mimerapi.mimerEndSession(self._session)
+            self._session = None
             self.errorhandler(self, None, ec, ev)
 
 
@@ -95,7 +95,7 @@ class Connection:
         self.close()
 
     def __del__(self):
-        if (not self.__session == None):
+        if (not self._session == None):
             self.close()
 
     def close(self):
@@ -120,17 +120,17 @@ class Connection:
             if any operations are attempted on the connection.
 
         """
-        if (not self.__session == None):
+        if (not self._session == None):
             for cur in self.__cursors:
                 cur.close()
 
             if (self._transaction):
-                rc_value = mimerapi.mimerEndTransaction(self.__session, 1)
-                self.__check_mimerapi_error(rc_value, self.__session)
+                rc_value = mimerapi.mimerEndTransaction(self._session, 1)
+                self.__check_mimerapi_error(rc_value, self._session)
                 self._transaction = False
-            rc_value = mimerapi.mimerEndSession(self.__session)
-            self.__check_mimerapi_error(rc_value, self.__session)
-            self.__session = None
+            rc_value = mimerapi.mimerEndSession(self._session)
+            self.__check_mimerapi_error(rc_value, self._session)
+            self._session = None
 
     def rollback(self):
         """
@@ -142,15 +142,15 @@ class Connection:
 
         """
         self.__check_if_open()
-        rc_value = mimerapi.mimerEndTransaction(self.__session, 1)
-        self.__check_mimerapi_error(rc_value, self.__session)
+        rc_value = mimerapi.mimerEndTransaction(self._session, 1)
+        self.__check_mimerapi_error(rc_value, self._session)
         self._transaction = False
 
     def commit(self):
         """Commits any pending transaction."""
         self.__check_if_open()
-        rc_value = mimerapi.mimerEndTransaction(self.__session, 0)
-        self.__check_mimerapi_error(rc_value, self.__session)
+        rc_value = mimerapi.mimerEndTransaction(self._session, 0)
+        self.__check_mimerapi_error(rc_value, self._session)
         self._transaction = False
 
     def cursor(self, **kwargs):
@@ -166,9 +166,9 @@ class Connection:
         kwargs2 = kwargs.copy()
         mode = kwargs2.pop('scrollable', False)
         if (mode):
-             curs = ScrollCursor(self, self.__session)
+             curs = ScrollCursor(self, self._session)
         else:
-             curs = Cursor(self, self.__session)
+             curs = Cursor(self, self._session)
 
         self.__cursors.add(curs)
         return curs
@@ -185,7 +185,7 @@ class Connection:
 
         """
         self.__check_if_open()
-        curs = Cursor(self, self.__session)
+        curs = Cursor(self, self._session)
         self.__cursors.add(curs)
         curs.execute(*arg)
         return curs
@@ -203,7 +203,7 @@ class Connection:
 
         """
         self.__check_if_open()
-        curs = Cursor(self, self.__session)
+        curs = Cursor(self, self._session)
         self.__cursors.add(curs)
         curs.executemany(*arg)
         return curs
@@ -230,7 +230,7 @@ class Connection:
                           (rc, mimerpy_error[rc]))
 
     def __check_if_open(self):
-        if (self.__session == None):
+        if (self._session == None):
             self.__raise_exception(-25010)
 
     def __check_mimerapi_error(self, rc, handle):

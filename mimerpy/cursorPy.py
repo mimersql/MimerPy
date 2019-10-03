@@ -520,11 +520,12 @@ class Cursor:
 
     def __close_statement(self):
         # Private method for closing MimerStatement.
-        if (self.__statement != None):
+        if (self.__statement is not None and
+            self.connection._session is not None):
             rc_value = mimerapi.mimerEndStatement(self.__statement)
-            self.__statement = None
-            self.__mimcursor = False
             self.__check_mimerapi_error(rc_value, self.__statement)
+        self.__statement = None
+        self.__mimcursor = False
 
     def __check_if_open(self):
         if (self.__session == None):
