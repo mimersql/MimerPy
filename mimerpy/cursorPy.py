@@ -24,7 +24,7 @@ from mimerpy.mimPyExceptionHandler import *
 import mimerapi
 import collections
 
-def define_funcs():
+def _define_funcs():
     global get_funcs
     global set_funcs
 
@@ -77,7 +77,7 @@ def define_funcs():
                  59: mimerapi.mimerSetNclobData8,
                  501: mimerapi.mimerSetNull}
 
-define_funcs()
+_define_funcs()
 
 class Cursor:
     """

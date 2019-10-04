@@ -22,11 +22,12 @@
 
 from pkg_resources import get_distribution, DistributionNotFound
 from mimerpy.connectionPy import Connection
-from mimerpy.cursorPy import define_funcs
+from mimerpy.cursorPy import _define_funcs
 from mimerpy.mimPyExceptions import *
 from mimerpy.mimPyExceptionHandler import mimerpy_error
 import re
 import mimerapi
+import mimerpy
 import functools
 import logging
 
@@ -96,13 +97,40 @@ def _tracefunc(func, prefix, logger):
             raise e
     return tracer
 
-def _apitrace(prefix='', setLogLevel=True):
-    if setLogLevel:
-        logging.basicConfig(level=logging.INFO)
+def _alterfuncs(d, prefix, logger):
+    for fn in dir(d):
+        f = d.__getattribute__(fn)
+        if fn[0] != '_' and fn[0] >= 'a' and callable(f):
+            setattr(d, fn, _tracefunc(f, prefix, logger))
+
+def _apitrace(prefix=''):
     logger = logging.getLogger("MimerAPI")
     logger.setLevel(logging.INFO)
-    for fn in dir(mimerapi):
-        f = mimerapi.__getattribute__(fn)
-        if callable(f):
-            setattr(mimerapi, fn, _tracefunc(f, prefix, logger))
-    define_funcs()
+    _alterfuncs(mimerapi, prefix, logger)
+    _define_funcs()
+
+def _altermeths(d, prefix, logger):
+    for fn in dir(d):
+        if fn[0] != '_' and fn[0] >= 'a':
+            try:
+                f = d.__getattribute__(d, fn)
+                if callable(f):
+                    setattr(d, fn, _tracefunc(f, prefix, logger))
+            except AttributeError:
+                pass
+
+def _pytrace(prefix=''):
+    logger = logging.getLogger("MimerPy")
+    logger.setLevel(logging.INFO)
+    _alterfuncs(mimerpy, prefix, logger)
+    _altermeths(mimerpy.connectionPy.Connection, prefix, logger)
+    _altermeths(mimerpy.cursorPy.Cursor, prefix, logger)
+    _altermeths(mimerpy.cursorPy.ScrollCursor, prefix, logger)
+
+def _trace(things=255, prefix='', setLogLevel=True):
+    if setLogLevel:
+        logging.basicConfig(level=logging.INFO)
+    if things & 1:
+        _pytrace(prefix)
+    if things & 2:
+        _apitrace(prefix)
