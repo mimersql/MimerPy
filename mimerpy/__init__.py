@@ -28,6 +28,7 @@ from mimerpy.mimPyExceptionHandler import mimerpy_error
 import re
 import mimerapi
 import functools
+import logging
 
 #
 #  Set version number from tag in git
@@ -78,26 +79,30 @@ version = _v[0] if len(_v) else ''
 version_info = tuple([int(x) for x in version.split(".")]) if len(version) else ()
 mimerapi.__version__ = mimerapi.mimerAPIVersion().rstrip()
 
-def _tracefunc(func, prefix=''):
+def _tracefunc(func, prefix, logger):
     @functools.wraps(func)
     def tracer(*args, **kwargs):
         r_args = [repr(a) for a in args]
         r_kwargs = ["%s=%s" % (k, repr(v)) for k, v in kwargs.items()]
         signature = ", ".join(r_args + r_kwargs)
-        print("%sCall %s(%s)"
-              % (prefix, func.__name__, signature))
+        logger.info("%sCall %s(%s)"
+                    % (prefix, func.__name__, signature))
         try:
             value = func(*args, **kwargs)
-            print("%sRet: %s" % (prefix, repr(value)))
+            logger.info("%sRet: %s" % (prefix, repr(value)))
             return value
         except Exception as e:
-            print("EXCEPTION: %s" % repr(e))
+            logger.info("EXCEPTION: %s" % repr(e))
             raise e
     return tracer
 
-def _apitrace(prefix=''):
+def _apitrace(prefix='', setLogLevel=True):
+    if setLogLevel:
+        logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger("MimerAPI")
+    logger.setLevel(logging.INFO)
     for fn in dir(mimerapi):
         f = mimerapi.__getattribute__(fn)
         if callable(f):
-            setattr(mimerapi, fn, _tracefunc(f, prefix))
+            setattr(mimerapi, fn, _tracefunc(f, prefix, logger))
     define_funcs()
