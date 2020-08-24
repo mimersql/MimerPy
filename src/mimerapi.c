@@ -1310,8 +1310,8 @@ static PyObject* mimerGetNclobData8(PyObject* self, PyObject* args)
         return Py_BuildValue("i", rc);
     }
 
-    data = (char*) calloc(length + lengthof_Terminating_NUL, sizeof(char));
-    rc = MimerGetNclobData8(&lobhandle, data, length + lengthof_Terminating_NUL);
+    data = (char*) calloc(4*length + lengthof_Terminating_NUL, sizeof(char));
+    rc = MimerGetNclobData8(&lobhandle, data, 4*length + lengthof_Terminating_NUL);
     return_object = Py_BuildValue("is", rc, data);
     free(data);
     return return_object;
