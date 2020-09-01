@@ -1109,9 +1109,6 @@ static PyObject* mimerGetError8(PyObject* self, PyObject* args)
     memset(message,0,sizeof(message));
 
     rc = MimerGetError8((MimerStatement)statement, &evalue, message, BUFLEN);
-    
-
-    printf(" C mes1 is %s \n" , message);
 
     if (rc > BUFLEN) {
         /* TODO &&&& What if BUFLEN is not enough? */
