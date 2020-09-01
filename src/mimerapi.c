@@ -553,6 +553,10 @@ static PyObject* mimerParameterName8(PyObject* self, PyObject* args)
         int buffer_size = rc + 1;
         PyObject* return_object;
         char *bigvalue = (char*) calloc(buffer_size, sizeof(char));
+        if(bigvalue == NULL) {
+                return(Py_BuildValue("i", 101));
+        }
+
         rc = MimerParameterName8((MimerStatement)statement, parameter_number,
                                  bigvalue, buffer_size);
         return_object = Py_BuildValue("is", rc, bigvalue);
@@ -692,6 +696,9 @@ static PyObject* mimerColumnName8(PyObject* self, PyObject* args)
         int buffer_size = rc + 1;
         PyObject* return_object;
         char *bigvalue = (char*) calloc(buffer_size, sizeof(char));
+        if(bigvalue == NULL) {
+            return(Py_BuildValue("i", 101));
+        }
         rc = MimerColumnName8((MimerStatement)statement, column_number,
                               bigvalue, buffer_size);
         return_object = Py_BuildValue("is", rc, bigvalue);
@@ -863,6 +870,9 @@ static PyObject* mimerGetString8(PyObject* self, PyObject* args)
         int buffer_size = rc + 1;
         PyObject* return_object;
         char *bigvalue = (char*) calloc(buffer_size, sizeof(char));
+        if(bigvalue == NULL) {
+            return(Py_BuildValue("i", 101));
+        }
         rc = MimerGetString8((MimerStatement)statement, column_number,
                              bigvalue, buffer_size);
         return_object = Py_BuildValue("is", rc, bigvalue);
@@ -1095,9 +1105,17 @@ static PyObject* mimerGetError8(PyObject* self, PyObject* args)
         return NULL;
     }
 
+    /* Temp fix for mimer API BUG */
+    memset(message,0,sizeof(message));
+
     rc = MimerGetError8((MimerStatement)statement, &evalue, message, BUFLEN);
-    /* TODO &&&& What if BUFLEN is not enough? */
-    if (rc) {
+    
+
+    printf(" C mes1 is %s \n" , message);
+
+    if (rc > BUFLEN) {
+        /* TODO &&&& What if BUFLEN is not enough? */
+        /* rc is the length of the message, */
         /* No error returned */
         message[0] = '\0';
     }
@@ -1257,6 +1275,9 @@ static PyObject* mimerGetBlobData(PyObject* self, PyObject* args)
     }
 
     data = (char*) calloc(length, sizeof(char));
+    if(data == NULL) {
+        return(Py_BuildValue("i", 101));
+    }
     rc = MimerGetBlobData(&lobhandle, data, length);
     return_object = Py_BuildValue("iy#", rc, data,length);
     free(data);
@@ -1311,6 +1332,9 @@ static PyObject* mimerGetNclobData8(PyObject* self, PyObject* args)
     }
 
     data = (char*) calloc(4*length + lengthof_Terminating_NUL, sizeof(char));
+    if(data == NULL) {
+        return(Py_BuildValue("i", 101));
+    }
     rc = MimerGetNclobData8(&lobhandle, data, 4*length + lengthof_Terminating_NUL);
     return_object = Py_BuildValue("is", rc, data);
     free(data);
