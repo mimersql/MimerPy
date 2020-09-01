@@ -1417,6 +1417,9 @@ static PyObject* mimerGetBinary(PyObject* self, PyObject* args)
     if (rc > BUFLEN) {
         PyObject* return_object;
         char *bigvalue = malloc(rc);
+        if(bigvalue == NULL) {
+            return(Py_BuildValue("i", 101));
+        }
         rc = MimerGetBinary((MimerStatement)statement, parameter_number,
                             bigvalue, rc);
         return_object = Py_BuildValue("iy#", rc, bigvalue, rc);
