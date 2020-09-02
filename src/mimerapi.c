@@ -56,7 +56,7 @@ typedef long long pyptr;
  *  The size is large enough to be usable in most cases and small enough to not
  *  waste cycles filling a too small buffer.
  */
-#define BUFLEN 128
+#define BUFLEN 2
 
 
 
@@ -1105,18 +1105,23 @@ static PyObject* mimerGetError8(PyObject* self, PyObject* args)
         return NULL;
     }
 
-    /* Temp fix for mimer API BUG */
-    memset(message,0,sizeof(message));
-
     rc = MimerGetError8((MimerStatement)statement, &evalue, message, BUFLEN);
-
+    
     if (rc > BUFLEN) {
-        /* TODO &&&& What if BUFLEN is not enough? */
-        /* rc is the length of the message, */
-        /* No error returned */
-        message[0] = '\0';
+        PyObject* return_object;
+        int big_buff = 512;
+        char *long_message;
+        long_message = (char*) calloc(big_buff, sizeof(char));
+        if(long_message == NULL) {
+            return(Py_BuildValue("i", 101));
+        }
+        rc = MimerGetError8((MimerStatement)statement, &evalue, long_message, big_buff);
+        return_object = Py_BuildValue("iis", 0, evalue, long_message);
+        free(long_message);
+        return return_object;
     }
-    return Py_BuildValue("iis", rc, evalue, message);
+    
+    return Py_BuildValue("iis", 0, evalue, message);
 }
 
 
