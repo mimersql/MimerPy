@@ -1,6 +1,6 @@
 from setuptools import setup, Extension
 from distutils.core import Extension
-import platform
+import platform, os
 
 plat = platform.system()
 bits = platform.architecture()[0][0:2]
@@ -9,8 +9,6 @@ incDirs = []
 libDirs = []
 libs = ['mimerapi']
 
-print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-print(bit)
 if plat == 'Linux':
     pass
 elif plat == 'Darwin':
@@ -18,6 +16,7 @@ elif plat == 'Darwin':
     libDirs = ['/usr/local/lib']
 elif plat == 'Windows':
     libs = ['mimapi' + bits]
+    libDirs = os.getenv('LIB')
 else:
     raise Exception('Unsupported platform: ' + plat)
 
@@ -33,7 +32,8 @@ extensions = [
 
 setup (
     name='mimerpy',
-    use_scm_version = True,
+    #use_scm_version = True,
+    version="1.1.2",
     setup_requires = ['setuptools_scm'],
     url='https://www.mimer.com',
     description='Python database interface for Mimer SQL',
