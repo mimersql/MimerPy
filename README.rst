@@ -14,7 +14,7 @@ Requirements:
 
 The source code for MimerPy resides on GitHub_. Installable packets
 can be found on PyPi_. To install, use the command::
-  pip3 install mimerpy
+pip3 install mimerpy
 
 
 .. _Python: http://www.python.org/
