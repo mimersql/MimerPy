@@ -32,8 +32,7 @@ extensions = [
 
 setup (
     name='mimerpy',
-    #use_scm_version = True,
-    version="1.1.2",
+    use_scm_version = True,
     setup_requires = ['setuptools_scm'],
     url='https://www.mimer.com',
     description='Python database interface for Mimer SQL',
