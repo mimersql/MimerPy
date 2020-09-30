@@ -56,7 +56,7 @@ typedef long long pyptr;
  *  The size is large enough to be usable in most cases and small enough to not
  *  waste cycles filling a too small buffer.
  */
-#define BUFLEN 2
+#define BUFLEN 128
 
 
 
