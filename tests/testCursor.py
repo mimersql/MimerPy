@@ -966,6 +966,17 @@ class TestCursorMethods(unittest.TestCase):
             r = c.fetchall()[0]
             self.assertEqual(r[0], anclob)
 
+    def test_insert_nclob_unicode(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table unijonnclob (c1 NCLOB(50000)) in pybank")
+            uniclob = "安排他們參"
+            self.tstcon.commit()
+            c.execute("insert into unijonnclob values (:a)",(uniclob,))
+            self.tstcon.commit()
+            c.execute("select * from unijonnclob")
+            self.assertEqual(c.fetchall(),
+                             [(uniclob,)])
+
     def test_insert_binary(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jonbinary (c1 BINARY(3)) in pybank")
