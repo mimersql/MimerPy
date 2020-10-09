@@ -1,6 +1,6 @@
 # The database to run the tests on. Having it empty means that the
 # environment variable MIMER_DATABASE controls the database to connect to.
-DBNAME = ' '
+DBNAME = ''
 
 # The test connects to SYSADM_USR and creates a subident that is used for all
 # the tests. After testing, the subident is dropped and everything goes away.
