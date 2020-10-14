@@ -2,6 +2,7 @@ import unittest
 import time
 import math
 import mimerpy
+import random
 
 from mimerpy.mimPyExceptions import *
 import db_config
@@ -29,8 +30,6 @@ class TestCursorMethods(unittest.TestCase):
 ## Tests below
 ########################################################################
 
-    # Not working, will be fixed in the next version
-    @unittest.skip
     def test_fetchall_ts(self):
         with self.tstcon.cursor() as c:
             c.execute("select 'a', cast('2020-09-17 11:21:51' as timestamp(2)) from system.onerow")
@@ -609,6 +608,9 @@ class TestCursorMethods(unittest.TestCase):
             nvar = -2 ** 63
             var = 2 ** 63 - 1
             c.execute("insert INTO jon64 VALUES (?,?)", (nvar, var))
+            self.tstcon.commit()
+            c.execute("Select * from jon64")
+            self.assertEqual(c.fetchall(), [(nvar, var)])
 
     def test_overflow_int64_insert(self):
         with self.tstcon.cursor() as c:
@@ -639,6 +641,9 @@ class TestCursorMethods(unittest.TestCase):
             nvar = -2 ** 15
             var = 2 ** 15 - 1
             c.execute("insert INTO jon26 VALUES (?, ?)", (nvar, var))
+            self.tstcon.commit()
+            c.execute("SELECT * from jon26")
+            self.assertEqual(c.fetchall(), [(nvar,var)])
 
     def test_invalid_int16_insert_too_small(self):
         with self.tstcon.cursor() as c:
@@ -662,6 +667,9 @@ class TestCursorMethods(unittest.TestCase):
             var = 2 / 3
             c.execute("insert INTO jon16 VALUES (?, ?)", (var, var))
             self.tstcon.commit()
+            c.execute("select * from jon16")
+            self.assertEqual(c.fetchall(), [(0.6666666865348816, var)])
+
 
     # &&&& Works now, I will have to look at how the test looked in older version - Erik 2018-08
     # @unittest.skip
@@ -898,64 +906,28 @@ class TestCursorMethods(unittest.TestCase):
             with self.assertRaises(ProgrammingError):
                 c.fetchall()
 
-    @unittest.skip
-    # &&&& need to find a picture to put in the repo
-    # Nä, gör en psudorandom-blob
     def test_insert_blob(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jonblob (c1 BLOB(18389)) in pybank")
-            with open("../minikappa.jpg", 'rb') as input_file:
-                ablob = input_file.read()
-                c.execute("insert INTO jonblob VALUES (?)", (ablob))
-                self.tstcon.commit()
-                c.execute("select * from jonblob")
-                r = b.fetchall()[0]
-                self.assertEqual(r[0], ablob)
+            res = ''.join(format(i, 'b') for i in bytearray("Hello there", encoding ='utf-8')) 
+            ablob = res
+            c.execute("insert INTO jonblob VALUES (?)", (ablob))
+            self.tstcon.commit()
+            c.execute("select * from jonblob")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0].decode("utf-8"), ablob)
 
-    @unittest.skip
-    # &&&& need to find a picture to put in the repo
-    # Nä, gör en psudorandom-blob
     def test_insert_blob_2(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jonblob2 (c1 BLOB(64111)) in pybank")
-            with open("../mimerss.png", 'rb') as input_file:
-                ablob = input_file.read()
+            with open("testCursor.py", 'rb') as input_file:
+                ablob = input_file.read(200)
                 c.execute("insert INTO jonblob2 VALUES (?)", (ablob))
                 self.tstcon.commit()
                 c.execute("select * from jonblob2")
                 r = c.fetchall()[0]
                 self.assertEqual(r[0], ablob)
 
-    @unittest.skip
-    # &&&& need to find a picture to put in the repo
-    # Nä, gör en psudorandom-blob
-    def test_insert_blob_3(self):
-        with self.tstcon.cursor() as c:
-            c.execute("create table jonblob3 (c1 BLOB(3000000)) in pybank")
-            with open("../mimerd.jpg", 'rb') as input_file:
-                ablob = input_file.read()
-                c.execute("insert INTO jonblob3 VALUES (?)", (ablob))
-                self.tstcon.commit()
-                c.execute("select * from jonblob3")
-                r = c.fetchall()[0][0]
-            self.assertEqual(r, ablob)
-
-    @unittest.skip
-    # &&&& need to find a picture to put in the repo
-    # Nä, gör en psudorandom-blob
-    def test_insert_blob_4(self):
-        with self.tstcon.cursor() as c:
-            c.execute("create table jonblob4 (c1 BLOB(3000000)) in pybank")
-            with open("../kappa.jpg", 'rb') as input_file:
-                ablob = input_file.read()
-                c.execute("insert INTO jonblob4 VALUES (?)", (ablob))
-                self.tstcon.commit()
-                c.execute("select * from jonblob4")
-                r = c.fetchall()[0][0]
-            self.assertEqual(r, ablob)
-
-    # Bug in mimerAPI - Erik 2018-08
-    # Still there?? &&&&
     def test_insert_nclob(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jonnclob (c1 NCLOB(50000)) in pybank")
@@ -1020,6 +992,38 @@ class TestCursorMethods(unittest.TestCase):
             c.execute("select * from jonclob")
             r = c.fetchall()[0]
             self.assertEqual(r[0], aclob)
+
+    def test_insert_date(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table jondata (c1 DATE) in pybank")
+            data = "2020-09-24"
+            c.execute("insert INTO jondata VALUES (?)", (data))
+            self.tstcon.commit()
+            c.execute("select * from jondata")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], data)
+
+    def test_insert_time(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table jontime (c1 TIME(0)) in pybank")
+            time = "16:04:55"
+            c.execute("insert INTO jontime VALUES (?)", (time))
+            self.tstcon.commit()
+            c.execute("select * from jontime")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], time)
+    
+    @unittest.skip
+    # Currenntly not working...
+    def test_insert_decimal(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table jondecimal (c1 DECIMAL(5,2)) in pybank")
+            floatnum = '32423.234234'
+            c.execute("insert INTO jondecimal VALUES (?)", (floatnum))
+            self.tstcon.commit()
+            c.execute("select * from jondecimal")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], floatnum)
 
     def test_insert_bool(self):
         with self.tstcon.cursor() as c:
@@ -1159,7 +1163,6 @@ class TestCursorMethods(unittest.TestCase):
             self.tstcon.commit()
             c.execute("select * from invalidbob")
             r = c.fetchall()
-            #print(r)
 
     def test_varchar_table(self):
         with self.tstcon.cursor() as c:
