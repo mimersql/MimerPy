@@ -16,7 +16,7 @@ elif plat == 'Darwin':
     libDirs = ['/usr/local/lib']
 elif plat == 'Windows':
     libs = ['mimapi' + bits]
-    libDirs = os.getenv('LIB')
+    libDirs = [os.getenv('LIB')]
 else:
     raise Exception('Unsupported platform: ' + plat)
 
