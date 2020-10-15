@@ -228,14 +228,17 @@ class TestCursorMethods(unittest.TestCase):
             c.execute("create table bob13 (c1 INTEGER, c2 NVARCHAR(10),"
                       "                    c3 FLOAT) in pybank")
             self.tstcon.commit()
-            c.executemany("insert into bob13 values (:a, :b, :c)",
-                          ((1, 'pi', 14.345),
+            pmarkers = [(1, 'pi', 14.345),
                            (2, 'pii', 14.345),
                            (-3, 'piii', 14.345),
                            (7, 'piii', 14.345),
-                           (1121231, 'piiii', 14.345)))
+                           (1121231, 'piiii', 14.345)]
+            c.executemany("insert into bob13 values (:a, :b, :c)",
+                         pmarkers)
             self.tstcon.commit()
-            ## &&&& Fetch and test result?
+            c.execute("select * from bob13")
+            self.assertEqual(c.fetchall(),
+                            pmarkers)
 
     def test_insert_parametermarkers_russian(self):
         with self.tstcon.cursor() as c:
@@ -267,7 +270,7 @@ class TestCursorMethods(unittest.TestCase):
 
     def test_insert_parametermarkers_goodchar(self):
         with self.tstcon.cursor() as c:
-            c.execute("create table bobg14(c1 char(10)) in pybank");
+            c.execute("create table bobg14(c1 char(10)) in pybank")
             self.tstcon.commit()
             c.execute("insert into bobg14 values (?)", 'åååååååååå')
             self.tstcon.commit()
@@ -277,7 +280,7 @@ class TestCursorMethods(unittest.TestCase):
 
     def test_insert_parametermarkers_illchar(self):
         with self.tstcon.cursor() as c:
-            c.execute("create table bobz14(c1 char(10)) in pybank");
+            c.execute("create table bobz14(c1 char(10)) in pybank")
             self.tstcon.commit()
             with self.assertRaises(ProgrammingError):
                 c.execute("insert into bobz14 values (?)", '安排')
@@ -341,7 +344,6 @@ class TestCursorMethods(unittest.TestCase):
                           [(1, 'bob1'), (2, 'bob2'),
                            (3, 'bob3')])
 
-    ### &&&& Vad exakt testas nedan?
     def test_commit(self):
         with self.tstcon.cursor() as c:
             c.execute("create table bob7d (c1 INTEGER, c2 NVARCHAR(10))"
@@ -349,6 +351,7 @@ class TestCursorMethods(unittest.TestCase):
             c.executemany("insert into bob7d values (:a, :b)",
                           ((1, 'bob1'), (2, 'bob2'),
                            (3, 'bob3')))
+            self.tstcon.commit()
 
     ### &&&& Should fail since DDL has no commit
     def test_fetchone(self):
@@ -402,8 +405,7 @@ class TestCursorMethods(unittest.TestCase):
             c.execute("select * from bob12")
             self.assertEqual(c.fetchmany(2),
                              [(9, 'bob9'), (10, 'bob10')])
-## &&&& Fixme: The following should work !?!
-##            self.assertEqual(c.fetchmany(2), [(11, 'bob11')])
+            self.assertEqual(c.fetchmany(2), [(11, 'bob11')])
 
     def test_fetchall(self):
         with self.tstcon.cursor() as c:

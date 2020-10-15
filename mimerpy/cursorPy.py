@@ -456,7 +456,8 @@ class Cursor:
 
             values.append(return_tuple)
             fetch_length = fetch_length - 1
-            fetch_value = mimerapi.mimerFetch(self.__statement)
+            if(fetch_length > 0):
+                fetch_value = mimerapi.mimerFetch(self.__statement)
         return values
 
     def fetchall(self):
