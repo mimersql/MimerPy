@@ -1022,11 +1022,7 @@ class TestCursorMethods(unittest.TestCase):
             floatnum = '32423.23234'
             #with self.assertRaises(ProgrammingError):
             c.execute("insert INTO jondecimal2 VALUES (?)", (floatnum))
-            self.tstcon.commit()
-            c.execute("select * from jondecimal2")
-            r = c.fetchall()[0]
-            self.assertEqual(r[0], floatnum)
-
+            
     def test_insert_bool(self):
         with self.tstcon.cursor() as c:
             c.execute("create table bobybool (c1 boolean) in pybank")
