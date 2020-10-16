@@ -108,7 +108,6 @@ class TestCursorMethods(unittest.TestCase):
             for val in range(10):
                 c.execute("insert into description values (?)", val)
             c.execute("select * from description")
-            #print(c.description)
             self.assertEqual(c.description,
                              (('columnone', 50, None, None, None, None, None),))
 
@@ -547,7 +546,7 @@ class TestCursorMethods(unittest.TestCase):
             c.execute("insert into bob6567 values (3)")
             ## &&&& Should not fail
             with self.assertRaises(ProgrammingError):
-                c.execute("create table bob6566(c1 INTEGER) in pybank")
+                c.execute("create table bob65ss(c1 INTEGER) in pybank")
                 self.tstcon.rollback()
 
     def test_invalid_sequence_insert_parametermarkers(self):
@@ -560,7 +559,6 @@ class TestCursorMethods(unittest.TestCase):
                 c.execute("create table bob6566(c1 INTEGER) in pybank")
                 self.tstcon.rollback()
 
-    # Not 100% sure if InterfaceError is the correct error to be raised here
     def test_executemany_DDL(self):
         with self.tstcon.cursor() as c:
             with self.assertRaises(ProgrammingError):
@@ -654,7 +652,7 @@ class TestCursorMethods(unittest.TestCase):
             with self.assertRaises(DataError):
                 c.execute("insert INTO jon15 VALUES (?)", (nvar))
 
-    def test_invalid_int16_insert_too_small(self):
+    def test_invalid_int16_insert_too_big(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jon17 (c1 SMALLINT) in pybank")
             nvar = 2 ** 15
@@ -672,9 +670,6 @@ class TestCursorMethods(unittest.TestCase):
             c.execute("select * from jon16")
             self.assertEqual(c.fetchall(), [(0.6666666865348816, var)])
 
-
-    # &&&& Works now, I will have to look at how the test looked in older version - Erik 2018-08
-    # @unittest.skip
     def test_invalid_double_insert(self):
         b = self.tstcon.cursor()
         c = self.tstcon.cursor()
@@ -685,11 +680,13 @@ class TestCursorMethods(unittest.TestCase):
         var = 10 ** 309
         with self.assertRaises(DataError):
             b.execute("insert INTO jondd VALUES (?)", (var))
-
         with self.assertRaises(ProgrammingError):
             b.execute("insert INTO jondd VALUES (?, ?)", (-var, -var))
-
         b.close()
+        c.close()
+        d.close()
+        e.close()
+        f.close()
 
     def test_valid_double_insert_none(self):
         with self.tstcon.cursor() as c:
@@ -698,7 +695,8 @@ class TestCursorMethods(unittest.TestCase):
             var = None
             c.execute("insert INTO jon18 VALUES (?, ?)", (var, var))
             self.tstcon.commit()
-            ### &&&& Should fetch and check result
+            c.execute("select * from jon18")
+            self.assertEqual(c.fetchall(), [(None, None)])
 
     def test_valid_double_select_none(self):
         with self.tstcon.cursor() as c:
@@ -862,9 +860,6 @@ class TestCursorMethods(unittest.TestCase):
         c2 = b2.fetchall()
         self.assertEqual(len(c2), 2)
         self.assertEqual(c2, [(1,), (2,)])
-        # a1.commit()
-        # a2.commit()
-        # b3 = a2.cursor()
         b2.execute("SELECT * FROM jonisolated2")
         c3 = b2.fetchall()
         self.assertEqual(len(c3), 5)
@@ -885,7 +880,6 @@ class TestCursorMethods(unittest.TestCase):
             c.execute("SELECT * FROM jonisolated3")
             c1 = c.fetchall()
             self.assertEqual(c1, [(1,), (2,), (3,), (4,), (5,), ])
-            # self.tstcon.commit()
             c.execute("SELECT * FROM jonisolated3")
             c2 = c.fetchall()
             self.assertEqual(c2, [(1,), (2,), (3,), (4,), (5,), ])
@@ -971,19 +965,15 @@ class TestCursorMethods(unittest.TestCase):
             r = c.fetchall()[0]
             self.assertEqual(r[0], b'0x53')
 
-    @unittest.skip
-    # &&&& need to find a picture to put in the repo
-    # Nä, gör en psudorandom-blob
     def test_insert_nclob_2(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jonnclob2 (c1 Nclob(450000)) in pybank")
-            with open("../book2.txt", "r") as input_file:
-                anclob = input_file.read()
-                c.execute("insert INTO jonnclob2 VALUES (?)", (anclob))
-                self.tstcon.commit()
-                c.execute("select * from jonnclob2")
-                r = c.fetchall()[0]
-                self.assertEqual(r[0], anclob)
+            res = ''.join(format(i, 'b') for i in bytearray("Hello there", encoding ='utf-8')) 
+            c.execute("insert INTO jonnclob2 VALUES (?)", (res))
+            self.tstcon.commit()
+            c.execute("select * from jonnclob2")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], res)
 
     def test_insert_clob(self):
         with self.tstcon.cursor() as c:
@@ -1015,15 +1005,25 @@ class TestCursorMethods(unittest.TestCase):
             r = c.fetchall()[0]
             self.assertEqual(r[0], time)
     
-    @unittest.skip
-    # Currenntly not working...
     def test_insert_decimal(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jondecimal (c1 DECIMAL(5,2)) in pybank")
-            floatnum = '32423.234234'
+            floatnum = '32423.23'
             c.execute("insert INTO jondecimal VALUES (?)", (floatnum))
             self.tstcon.commit()
             c.execute("select * from jondecimal")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], floatnum)
+
+    # Works, but give an invalid error message
+    def test_insert_decimal_invalid(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table jondecimal2 (c1 DECIMAL(5,2)) in pybank")
+            floatnum = '32423.23234'
+            #with self.assertRaises(ProgrammingError):
+            c.execute("insert INTO jondecimal2 VALUES (?)", (floatnum))
+            self.tstcon.commit()
+            c.execute("select * from jondecimal2")
             r = c.fetchall()[0]
             self.assertEqual(r[0], floatnum)
 
@@ -1166,6 +1166,7 @@ class TestCursorMethods(unittest.TestCase):
             c.execute("select * from invalidbob")
             r = c.fetchall()
 
+
     def test_varchar_table(self):
         with self.tstcon.cursor() as c:
             c.execute("create table varcharbob(c1 VARCHAR(128)) in pybank")
@@ -1189,22 +1190,15 @@ class TestCursorMethods(unittest.TestCase):
             with self.assertRaises(NotSupportedError):
                 c.callproc()
 
-    # Blob's not working??? 2017-12-22
-    #  &&&& ?
-    @unittest.skip
     def test_test_test(self):
         with self.tstcon.cursor() as c:
             c.execute("CREATE TABLE blob_table (blobcolumn BLOB)")
-
-            # reading from the .jpg file in binary mode
-            with open("../sphinx/mimerhd.png", 'rb') as input_file:
-                insert_blob = input_file.read()
-            c.execute("INSERT INTO blob_table VALUES (?)", (insert_blob))
-
-            # committing and closing the cursor and connection
+            blob = ''.join(format(i, 'b') for i in bytearray("Hello there again", encoding ='utf-8')) 
+            c.execute("INSERT INTO blob_table VALUES (?)", (blob))
             self.tstcon.commit()
             c.execute("SELECT * FROM blob_table")
-            self.assertEqual(c.fetchall()[0], (insert_blob,))
+            r = c.fetchall()[0][0].decode("utf-8")
+            self.assertEqual(r, (blob,))
 
     def test_test_test2(self):
         with self.tstcon.cursor() as c:
