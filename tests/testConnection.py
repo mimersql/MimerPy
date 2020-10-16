@@ -15,11 +15,7 @@ class TestConnectionMethods(unittest.TestCase):
 
     @classmethod
     def tearDownClass(self):
-        self.tstcon.close()
-        with self.syscon.cursor() as c:
-            c.execute("DROP IDENT MIMERPY CASCADE")
-        self.syscon.commit()
-        self.syscon.close()
+        db_config.teardown(tstcon=self.tstcon, syscon=self.syscon)
 
     def tearDown(self):
         self.tstcon.commit()
