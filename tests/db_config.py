@@ -27,10 +27,17 @@ TSTUSR = dict(dsn      = DBNAME,
               password = 'PySecret')
 
 OSUSER = os.getlogin()
+KEEP_MIMERPY_IDENT = os.environ.get('MIMER_KEEP_MIMERPY_IDENT', 'false') == 'true'
 
 def setup():
     syscon = mimerpy.connect(**SYSUSR)
     with syscon.cursor() as c:
+        try:
+            c.execute("DROP IDENT MIMERPY CASCADE")
+        except mimerpy.DatabaseError as de:
+            if de.message[0] != -12517:
+                print(de)
+
         c.execute("CREATE IDENT MIMERPY AS USER USING 'PySecret'")
         c.execute("GRANT DATABANK,IDENT TO MIMERPY")
     syscon.commit()
@@ -41,3 +48,11 @@ def setup():
         c.execute("ALTER IDENT %s ADD OS_USER '%s'" % (OSUSER, OSUSER))
     tstcon.commit()
     return (syscon, tstcon)
+
+def teardown(tstcon, syscon):
+        tstcon.close()
+        if not KEEP_MIMERPY_IDENT:
+            with syscon.cursor() as c:
+                c.execute("DROP IDENT MIMERPY CASCADE")
+            syscon.commit()
+        syscon.close()
