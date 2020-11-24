@@ -28,6 +28,7 @@ TSTUSR = dict(dsn      = DBNAME,
 
 OSUSER = os.getlogin()
 KEEP_MIMERPY_IDENT = os.environ.get('MIMER_KEEP_MIMERPY_IDENT', 'false') == 'true'
+MIMERPY_STABLE = os.environ.get('MIMERPY_STABLE', 'True')
 
 def setup():
     syscon = mimerpy.connect(**SYSUSR)

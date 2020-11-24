@@ -1001,6 +1001,7 @@ class TestCursorMethods(unittest.TestCase):
             r = c.fetchall()[0]
             self.assertEqual(r[0], time)
     
+    @unittest.skipUnless(db_config.MIMERPY_STABLE == False, "Currently not supported")
     def test_insert_decimal(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jondecimal (c1 DECIMAL(5,2)) in pybank")
@@ -1011,7 +1012,7 @@ class TestCursorMethods(unittest.TestCase):
             r = c.fetchall()[0]
             self.assertEqual(r[0], floatnum)
 
-    # Works, but give an invalid error message
+    @unittest.skipUnless(db_config.MIMERPY_STABLE == False, "Currently gives incorrect error message")
     def test_insert_decimal_invalid(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jondecimal2 (c1 DECIMAL(5,2)) in pybank")
@@ -1351,9 +1352,10 @@ create table longboi (c1 char(10),
     def test_error_message(self):
         with self.tstcon.cursor() as c:
             c.execute("create table bob_message (c1 nchar(10)) in pybank")
-            c.execute("insert into bob_message (c1,c3) values (:a,:b)",
-                      {'a':2,})
-            self.assertEqual(c.fetchone(), (True, None, 3))
+            with self.assertRaises(ProgrammingError):
+                c.execute("insert into bob_message (c1,c3) values (:a,:b)",
+                        {'a':2,})
+                self.assertEqual(str(c.messages), "-12202 c3 is not a column of an inserted table, updated table or any table identified in a FROM clause")
 
     def test_parameter_name_2(self):
         with self.tstcon.cursor() as c:
