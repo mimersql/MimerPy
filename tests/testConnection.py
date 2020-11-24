@@ -368,7 +368,6 @@ class TestConnectionMethods(unittest.TestCase):
             try:
                 a = mimerpy.connect(**db_config.TSTUSR)
                 a.close()
-                #print("closing")
             except Exception as e:
                print("Error: in thread: ", e)
                """ """
@@ -398,7 +397,6 @@ class TestConnectionMethods(unittest.TestCase):
                 cur.execute("select * from threadbob")
                 cur.fetchone()
                 a.close()
-                #print("closing")
             except Exception as e:
                ###print("Error: in thread: ", e)
               """ """
@@ -454,7 +452,6 @@ class TestConnectionMethods(unittest.TestCase):
 
         a = mimerpy.connect(**db_config.TSTUSR)
         b = a.execute("select * from bob6")
-        print(b.fetchone())
         a.close()
 
 if __name__ == '__main__':

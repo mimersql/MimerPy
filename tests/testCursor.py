@@ -1186,7 +1186,7 @@ class TestCursorMethods(unittest.TestCase):
             with self.assertRaises(NotSupportedError):
                 c.callproc()
 
-    def test_test_test(self):
+    def test_insert_blob_2(self):
         with self.tstcon.cursor() as c:
             c.execute("CREATE TABLE blob_table (blobcolumn BLOB)")
             blob = ''.join(format(i, 'b') for i in bytearray("Hello there again", encoding ='utf-8')) 
@@ -1194,9 +1194,10 @@ class TestCursorMethods(unittest.TestCase):
             self.tstcon.commit()
             c.execute("SELECT * FROM blob_table")
             r = c.fetchall()[0][0].decode("utf-8")
-            self.assertEqual(r, (blob,))
+            self.assertEqual(r, blob)
 
-    def test_test_test2(self):
+    # these are the test examples for the documentaion
+    def test_for_doc_1(self):
         with self.tstcon.cursor() as c:
             c.execute("CREATE TABLE with_table_cursor1(c1 INTEGER,"
                       "                            c2 VARCHAR(32)) in pybank")
@@ -1206,13 +1207,12 @@ class TestCursorMethods(unittest.TestCase):
                       (2, "on how to use"))
             c.execute("INSERT INTO with_table_cursor1 VALUES (?,?)",
                       (3, "the with functionality."))
-
         with self.tstcon.cursor() as c:
             c.execute("SELECT * from with_table_cursor1")
 
     # these are the test examples for the documentaion
     @unittest.skip
-    def test_test_test3(self):
+    def test_for_doc_2(self):
         with self.tstcon.cursor() as c:
             c.execute("CREATE TABLE with_table_connection1(c1 INTEGER,"
                              " c2 VARCHAR(32)) in pybank")
@@ -1305,7 +1305,6 @@ create table longboi (c1 char(10),
                                             None, None, None, None, None,
                                             None, None, None, None, None, None))
 
-
     def test_data_type_varbinary(self):
         with self.tstcon.cursor() as c:
             long = "create table longboi_varbinary (c1 VARBINARY(10)) in pybank"
@@ -1351,6 +1350,13 @@ create table longboi (c1 char(10),
                       {'a':True, 'b':3})
 
             c.execute("SELECT * from bob_name")
+            self.assertEqual(c.fetchone(), (True, None, 3))
+
+    def test_error_message(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table bob_message (c1 nchar(10)) in pybank")
+            c.execute("insert into bob_message (c1,c3) values (:a,:b)",
+                      {'a':2,})
             self.assertEqual(c.fetchone(), (True, None, 3))
 
     def test_parameter_name_2(self):

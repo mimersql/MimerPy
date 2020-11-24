@@ -38,7 +38,12 @@ class Error(Exception):
 
     """
     def __init__(self, message):
-        self.message = message
+        self.errno = message[0]
+        self.message = message[1]
+
+    def __str__(self):
+        text = str(self.errno) + " " + self.message
+        return text
 
 class InterfaceError(Error):
 

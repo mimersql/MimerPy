@@ -68,7 +68,8 @@ class TestScrollCursorMethods(unittest.TestCase):
                 c.execute("insert into bob356 values (:a)", (val))
             for gal in range(100):
                 c.execute("select c1 from bob356 where c1 > (?)",(gal))
-                # &&&& fetchall and count rows
+                temp = c.fetchall()
+                self.assertEqual(len(temp), 99 - gal)
 
     def test_select_no_commit(self):
         with self.tstcon.cursor(scrollable = True) as c:
