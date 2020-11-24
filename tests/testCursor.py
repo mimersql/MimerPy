@@ -1001,10 +1001,9 @@ class TestCursorMethods(unittest.TestCase):
             r = c.fetchall()[0]
             self.assertEqual(r[0], time)
     
-    @unittest.skipUnless(db_config.MIMERPY_STABLE == False, "Currently not supported")
     def test_insert_decimal(self):
         with self.tstcon.cursor() as c:
-            c.execute("create table jondecimal (c1 DECIMAL(5,2)) in pybank")
+            c.execute("create table jondecimal (c1 DECIMAL(7,2)) in pybank")
             floatnum = '32423.23'
             c.execute("insert INTO jondecimal VALUES (?)", (floatnum))
             self.tstcon.commit()
