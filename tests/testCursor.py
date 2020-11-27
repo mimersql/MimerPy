@@ -1354,7 +1354,32 @@ create table longboi (c1 char(10),
             with self.assertRaises(ProgrammingError):
                 c.execute("insert into bob_message (c1,c3) values (:a,:b)",
                         {'a':2,})
-                self.assertEqual(str(c.messages), "-12202 c3 is not a column of an inserted table, updated table or any table identified in a FROM clause")
+            print()
+            self.assertEqual(c.messages[0][1], (-12202, 'c3 is not a column of an inserted table, updated table or any table identified in a FROM clause'))
+
+    def test_error_exception_errno(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table bob_message_1 (c1 nchar(10)) in pybank")
+            with self.assertRaises(ProgrammingError) as e:
+                c.execute("insert into bob_message_1 (c1,c3) values (:a,:b)",
+                        {'a':2,})
+            self.assertEqual(e.exception.errno, -12202)
+    
+    def test_error_exception_message(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table bob_message_2 (c1 nchar(10)) in pybank")
+            with self.assertRaises(ProgrammingError) as e:
+                c.execute("insert into bob_message_2 (c1,c3) values (:a,:b)",
+                        {'a':2,})
+            self.assertEqual(e.exception.message, "c3 is not a column of an inserted table, updated table or any table identified in a FROM clause")
+    
+    def test_error_exception_str(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table bob_message_3 (c1 nchar(10)) in pybank")
+            with self.assertRaises(ProgrammingError) as e:
+                c.execute("insert into bob_message_3 (c1,c3) values (:a,:b)",
+                        {'a':2,})
+            self.assertEqual(str(e.exception), "-12202 c3 is not a column of an inserted table, updated table or any table identified in a FROM clause")
 
     def test_parameter_name_2(self):
         with self.tstcon.cursor() as c:
