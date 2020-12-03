@@ -17,6 +17,14 @@ elif plat == 'Darwin':
 elif plat == 'Windows':
     libs = ['mimapi' + bits]
     libDirs = [os.getenv('LIB')]
+    if bits == '32':
+        from winreg import HKEY_LOCAL_MACHINE, KEY_READ, KEY_WOW64_64KEY, ConnectRegistry, OpenKeyEx, QueryValueEx, CloseKey
+        root = ConnectRegistry(None, HKEY_LOCAL_MACHINE)
+        mimer_key = OpenKeyEx(root, r"SOFTWARE\Mimer\Mimer SQL\11.0", 0,  KEY_READ | KEY_WOW64_64KEY)
+        path = QueryValueEx(mimer_key, 'PathName')[0]
+        CloseKey(root)
+        libDirs[0] = path + 'dev\\lib\\x86'
+    
 else:
     raise Exception('Unsupported platform: ' + plat)
 
@@ -32,7 +40,8 @@ extensions = [
 
 setup (
     name='mimerpy',
-    use_scm_version = True,
+    #use_scm_version = True,
+    version = "1.0.26",
     setup_requires = ['setuptools_scm'],
     url='https://www.mimer.com',
     description='Python database interface for Mimer SQL',
@@ -57,6 +66,7 @@ setup (
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
     ],
     keywords='Mimer MimerSQL Database SQL PEP249',
     ext_modules = extensions,
