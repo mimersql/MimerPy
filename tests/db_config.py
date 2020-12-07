@@ -37,7 +37,9 @@ def setup():
             c.execute("DROP IDENT MIMERPY CASCADE")
         except mimerpy.DatabaseError as de:
             if de.message[0] != -12517:
-                print(de)
+                pass
+            else:
+                pass
 
         c.execute("CREATE IDENT MIMERPY AS USER USING 'PySecret'")
         c.execute("GRANT DATABANK,IDENT TO MIMERPY")
