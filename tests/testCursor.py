@@ -437,12 +437,11 @@ class TestCursorMethods(unittest.TestCase):
             r = c.fetchall()
             self.assertEqual(len(r), 0)
 
-
-    @unittest.skip
     def test_fetchall_correct_number_of_rows3(self):
         with self.tstcon.cursor() as c:
             c.execute("create table bob103(c1 INTEGER, c2 NVARCHAR(100),"
                       "                    c3 FLOAT) in pybank")
+        with self.tstcon.cursor() as c:  
             for i in range(1, 101):
                 c.execute("insert into bob103 values (5,'ウィキペディ', 4.4543543)")
                 self.tstcon.rollback()
@@ -523,6 +522,7 @@ class TestCursorMethods(unittest.TestCase):
                 c.execute("create table bob6569(c1 INTEGER) in pybank")
 
     # &&&& borde bli fel men blir rätt....
+    # Blir inte rätt för att man blandar DDL och DML i samma transaktion
     @unittest.skip
     def test_invalid_sequence_select_2(self):
         with self.tstcon.cursor() as c:
@@ -1333,7 +1333,7 @@ create table longboi (c1 char(10),
         with self.tstcon.cursor() as c:
             long = "create table longboi_integer45(c1 INTEGER(45)) in pybank"
             c.execute(long)
-            c.execute("insert into longboi_integer45 values (?)", (str(2**140)))
+            c.execute("insert into longboi_integer45 values (?)", (str(2**145)))
 
             c.execute("SELECT * from longboi_integer45")
             self.assertEqual(c.fetchall(), [(str(2**140),)])

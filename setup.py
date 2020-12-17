@@ -16,14 +16,25 @@ elif plat == 'Darwin':
     libDirs = ['/usr/local/lib']
 elif plat == 'Windows':
     libs = ['mimapi' + bits]
+    from winreg import HKEY_LOCAL_MACHINE, KEY_READ, KEY_WOW64_64KEY, ConnectRegistry, OpenKeyEx, QueryValueEx, CloseKey, EnumKey, OpenKeyEx
+    root = ConnectRegistry(None, HKEY_LOCAL_MACHINE)
+    mimer_key = OpenKeyEx(root, r"SOFTWARE\Mimer\Mimer SQL", 0,  KEY_READ | KEY_WOW64_64KEY)
+    index = 0
+    while True:
+        try:
+            key = EnumKey(mimer_key,index)
+            if key != "License" and key != "SQLHosts":
+                version = key
+                break
+            index = index + 1
+        except OSError:
+            break
+    inner_key = OpenKeyEx(mimer_key, version)
+    path = QueryValueEx(inner_key, 'PathName')[0]
+    CloseKey(root)
     if bits == '64':
-        libDirs = [os.getenv('LIB')]
-    elif bits == '32':
-        from winreg import HKEY_LOCAL_MACHINE, KEY_READ, KEY_WOW64_64KEY, ConnectRegistry, OpenKeyEx, QueryValueEx, CloseKey
-        root = ConnectRegistry(None, HKEY_LOCAL_MACHINE)
-        mimer_key = OpenKeyEx(root, r"SOFTWARE\Mimer\Mimer SQL\11.0", 0,  KEY_READ | KEY_WOW64_64KEY)
-        path = QueryValueEx(mimer_key, 'PathName')[0]
-        CloseKey(root)
+        libDirs = [path + 'dev\\lib\\amd64']
+    elif bits == '32': 
         libDirs = [path + 'dev\\lib\\x86']
     else: 
         raise Exception('Unsupported windows version, have to be 32 or 64 bits: ' + bits)
