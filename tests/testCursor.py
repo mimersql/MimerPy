@@ -920,6 +920,23 @@ class TestCursorMethods(unittest.TestCase):
                 r = c.fetchall()[0]
                 self.assertEqual(r[0], ablob)
 
+    # Works, but need local zip file for this test
+    @unittest.skip
+    def test_insert_blob_zip(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table jonblobzip (c1 BLOB(100m)) in pybank")
+            with open("tee1.zip", 'rb') as input_file:
+                ablob = input_file.read()
+                c.execute("insert INTO jonblobzip VALUES (?)", (ablob))
+                self.tstcon.commit()
+                c.execute("select * from jonblobzip")
+                r = c.fetchall()[0]
+                self.assertEqual(r[0], ablob)
+                #print(r[0])
+                f=open("game2.zip","wb+")
+                f.write(r[0])
+                f.close()
+
     def test_insert_nclob(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jonnclob (c1 NCLOB(50000)) in pybank")

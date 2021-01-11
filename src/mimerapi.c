@@ -39,7 +39,6 @@
 /* *********************************************************************/
 
 // #define Py_LIMITED_API  ???
-
 #include "Python.h"
 #include "mimerapi.h"
 
@@ -57,7 +56,7 @@ typedef long long pyptr;
  *  waste cycles filling a too small buffer.
  */
 #define BUFLEN 128
-
+#define CHUNK_SIZE 100000
 
 
 /**
@@ -1258,8 +1257,9 @@ static PyObject* mimerGetBlobData(PyObject* self, PyObject* args)
     int rc, parameter_number;
     MimerLob lobhandle;
     size_t length;
-    char *data;
     PyObject* return_object;
+    size_t part_size = 0;
+    size_t buff_cnt = 0;
 
     if (!PyArg_ParseTuple(args, "Li", &statement, &parameter_number)) {
         return NULL;
@@ -1271,16 +1271,25 @@ static PyObject* mimerGetBlobData(PyObject* self, PyObject* args)
 
     rc = MimerGetLob((MimerStatement)statement, parameter_number, &length,
                      &lobhandle);
+    unsigned char *data = (unsigned char *)malloc(length);
+    
+    do {
+        if (buff_cnt + CHUNK_SIZE > length) {
+            part_size = length - buff_cnt;
+        } else {
+            part_size = CHUNK_SIZE;
+        }
+        rc = MimerGetBlobData(&lobhandle, &data[buff_cnt], part_size);
+        if (!MIMER_SUCCEEDED(rc)) 
+        {
+            return_object = Py_BuildValue("i", rc);
+            free(data);
+            return return_object;
+        } else {
+            buff_cnt += part_size;
+        }
+    } while(rc > part_size);
 
-    if (rc < 0) {
-        return Py_BuildValue("i", rc);
-    }
-
-    data = (char*) calloc(length, sizeof(char));
-    if(data == NULL) {
-        return(Py_BuildValue("i", 101));
-    }
-    rc = MimerGetBlobData(&lobhandle, data, length);
     return_object = Py_BuildValue("iy#", rc, data,length);
     free(data);
     return return_object;
