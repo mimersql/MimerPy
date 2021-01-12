@@ -39,6 +39,7 @@
 /* *********************************************************************/
 
 // #define Py_LIMITED_API  ???
+#define PY_SSIZE_T_CLEAN
 #include "Python.h"
 #include "mimerapi.h"
 
