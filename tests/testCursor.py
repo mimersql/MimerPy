@@ -920,6 +920,27 @@ class TestCursorMethods(unittest.TestCase):
                 r = c.fetchall()[0]
                 self.assertEqual(r[0], ablob)
 
+    def test_insert_blob_multi_column(self):
+        with self.tstcon.cursor() as c:
+            ablob = ('åäö' * 1024 * 2000).encode('utf-8') 
+            c.execute("create table jonblobmulti (c1 BLOB(20m), c2 BLOB(20m)) in pybank")
+            c.execute("insert INTO jonblobmulti VALUES (?,?)", (ablob,ablob))
+            self.tstcon.commit()
+            c.execute("select * from jonblobmulti")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], ablob)
+    
+    def test_insert_blob_multi_column2(self):
+        with self.tstcon.cursor() as c:
+            ablob = (256).to_bytes(1024 * 10000,byteorder='big')
+            ablob2 = ('åäö' * 1024 * 3000).encode('utf-8')
+            c.execute("create table jonblobmulti2 (c1 BLOB(30m), c2 BLOB(30m), c3 BLOB(30m)) in pybank")
+            c.execute("insert INTO jonblobmulti2 VALUES (?,?,?)", (ablob,ablob,ablob2))
+            self.tstcon.commit()
+            c.execute("select * from jonblobmulti2")
+            r = c.fetchall()[0]
+            self.assertEqual(r[2], ablob2)
+
     def test_insert_blob_10mb(self):
         with self.tstcon.cursor() as c:
             ablob = (256).to_bytes(1024 * 10000,byteorder='big') 
@@ -947,6 +968,17 @@ class TestCursorMethods(unittest.TestCase):
             c.execute("insert INTO jonblob100 VALUES (?)", (ablob))
             self.tstcon.commit()
             c.execute("select * from jonblob100")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], ablob)
+
+    # Might have to up your bufferpool memory to run this
+    def test_insert_blob_1gb(self):
+        with self.tstcon.cursor() as c:
+            ablob = (1024).to_bytes(1024 * 1000000,byteorder='big') 
+            c.execute("create table jonblobgb (c1 BLOB(1000m)) in pybank")
+            c.execute("insert INTO jonblobgb VALUES (?)", (ablob))
+            self.tstcon.commit()
+            c.execute("select * from jonblobgb")
             r = c.fetchall()[0]
             self.assertEqual(r[0], ablob)
 
