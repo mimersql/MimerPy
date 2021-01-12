@@ -920,21 +920,35 @@ class TestCursorMethods(unittest.TestCase):
                 r = c.fetchall()[0]
                 self.assertEqual(r[0], ablob)
 
-    # Works, but need local zip file for this test
-    @unittest.skip
-    def test_insert_blob_zip(self):
+    def test_insert_blob_10mb(self):
         with self.tstcon.cursor() as c:
-            c.execute("create table jonblobzip (c1 BLOB(100m)) in pybank")
-            with open("tee1.zip", 'rb') as input_file:
-                ablob = input_file.read()
-                c.execute("insert INTO jonblobzip VALUES (?)", (ablob))
-                self.tstcon.commit()
-                c.execute("select * from jonblobzip")
-                r = c.fetchall()[0]
-                self.assertEqual(r[0], ablob)
-                f=open("game2.zip","wb+")
-                f.write(r[0])
-                f.close()
+            ablob = (256).to_bytes(1024 * 10000,byteorder='big') 
+            c.execute("create table jonblob10 (c1 BLOB(100m)) in pybank")
+            c.execute("insert INTO jonblob10 VALUES (?)", (ablob))
+            self.tstcon.commit()
+            c.execute("select * from jonblob10")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], ablob)
+
+    def test_insert_blob_50mb(self):
+        with self.tstcon.cursor() as c:
+            ablob = (512).to_bytes(1024 * 50000,byteorder='big') 
+            c.execute("create table jonblob50 (c1 BLOB(100m)) in pybank")
+            c.execute("insert INTO jonblob50 VALUES (?)", (ablob))
+            self.tstcon.commit()
+            c.execute("select * from jonblob50")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], ablob)
+
+    def test_insert_blob_100mb(self):
+        with self.tstcon.cursor() as c:
+            ablob = (1024).to_bytes(1024 * 100000,byteorder='big') 
+            c.execute("create table jonblob100 (c1 BLOB(100m)) in pybank")
+            c.execute("insert INTO jonblob100 VALUES (?)", (ablob))
+            self.tstcon.commit()
+            c.execute("select * from jonblob100")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], ablob)
 
     def test_insert_nclob(self):
         with self.tstcon.cursor() as c:
