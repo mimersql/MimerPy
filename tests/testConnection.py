@@ -62,7 +62,7 @@ class TestConnectionMethods(unittest.TestCase):
             con = mimerpy.connect(**db_config.TSTUSR)
             mylist.append([con, True])
 
-        for a in range(100):
+        for a in range(300):
             rand = random.randint(0,number_of_connections - 1)
             if(not mylist[rand][1]):
                 mylist.pop(rand)

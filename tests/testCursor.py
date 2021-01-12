@@ -932,7 +932,6 @@ class TestCursorMethods(unittest.TestCase):
                 c.execute("select * from jonblobzip")
                 r = c.fetchall()[0]
                 self.assertEqual(r[0], ablob)
-                #print(r[0])
                 f=open("game2.zip","wb+")
                 f.write(r[0])
                 f.close()

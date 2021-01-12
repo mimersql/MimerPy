@@ -56,6 +56,12 @@ typedef long long pyptr;
  *  waste cycles filling a too small buffer.
  */
 #define BUFLEN 128
+
+
+/**
+ *  Maximum size of each chunk when reading blobs with MimerGetBlob. 
+ *  Can not be greater than 100000, limitation from mimerAPI.
+ */
 #define CHUNK_SIZE 100000
 
 

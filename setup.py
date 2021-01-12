@@ -31,6 +31,7 @@ elif plat == 'Windows':
             break
     inner_key = OpenKeyEx(mimer_key, version)
     path = QueryValueEx(inner_key, 'PathName')[0]
+    CloseKey(inner_key)
     CloseKey(root)
     if bits == '64':
         libDirs = [path + 'dev\\lib\\amd64']
@@ -38,6 +39,7 @@ elif plat == 'Windows':
         libDirs = [path + 'dev\\lib\\x86']
     else: 
         raise Exception('Unsupported windows version, have to be 32 or 64 bits: ' + bits)
+    incDirs.append(path + 'dev\\include')
 else:
     raise Exception('Unsupported platform: ' + plat)
 
