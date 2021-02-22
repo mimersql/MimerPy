@@ -36,7 +36,7 @@ mimerpy_error = {
     -25020:"Data conversion error",
 }
 
-py_error_nnnnn = {24010:DataError,24011:DataError
+py_error_nnnnn = {10001:OperationalError,24010:DataError,24011:DataError
 }
 
 py_error_nnnnx = {2500:NotSupportedError,

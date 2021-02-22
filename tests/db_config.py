@@ -15,6 +15,7 @@ SYSADM_PWD = 'SYSADM'
 
 import mimerpy
 import os
+import getpass
 
 # Connection arguments for SYSADM
 SYSUSR = dict(dsn      = DBNAME,
@@ -26,7 +27,7 @@ TSTUSR = dict(dsn      = DBNAME,
               user     = 'MIMERPY',
               password = 'PySecret')
 
-OSUSER = os.getlogin()
+OSUSER = getpass.getuser()
 KEEP_MIMERPY_IDENT = os.environ.get('MIMER_KEEP_MIMERPY_IDENT', 'false') == 'true'
 MIMERPY_STABLE = os.environ.get('MIMERPY_STABLE', 'True')
 

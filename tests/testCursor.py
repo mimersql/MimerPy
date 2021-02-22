@@ -950,7 +950,8 @@ class TestCursorMethods(unittest.TestCase):
             c.execute("select * from jonblob10")
             r = c.fetchall()[0]
             self.assertEqual(r[0], ablob)
-
+    
+    #@unittest.skip
     def test_insert_blob_50mb(self):
         with self.tstcon.cursor() as c:
             ablob = (512).to_bytes(1024 * 50000,byteorder='big') 
@@ -960,7 +961,8 @@ class TestCursorMethods(unittest.TestCase):
             c.execute("select * from jonblob50")
             r = c.fetchall()[0]
             self.assertEqual(r[0], ablob)
-
+    
+    #@unittest.skip
     def test_insert_blob_100mb(self):
         with self.tstcon.cursor() as c:
             ablob = (1024).to_bytes(1024 * 100000,byteorder='big') 
@@ -972,6 +974,7 @@ class TestCursorMethods(unittest.TestCase):
             self.assertEqual(r[0], ablob)
 
     # Might have to up your bufferpool memory to run this
+    @unittest.skip
     def test_insert_blob_1gb(self):
         with self.tstcon.cursor() as c:
             ablob = (1024).to_bytes(1024 * 1000000,byteorder='big') 
@@ -1253,6 +1256,62 @@ class TestCursorMethods(unittest.TestCase):
             c.execute("SELECT * FROM blob_table")
             r = c.fetchall()[0][0].decode("utf-8")
             self.assertEqual(r, blob)
+
+    def test_two_connection_conflict_drop(self):
+        with self.tstcon.cursor() as c:
+            mytuplelist = list(zip(list(range(100)), list(range(100))))
+            c.execute("CREATE TABLE conflict_test2 (int1 INTEGER, int2 INTEGER)")
+            c.executemany("INSERT INTO conflict_test2 VALUES (?,?)", (mytuplelist))
+            self.tstcon.commit()
+
+        conn1 = mimerpy.connect(**db_config.TSTUSR)
+        conn2 = mimerpy.connect(**db_config.TSTUSR)
+        conn1.execute("INSERT INTO conflict_test2 VALUES (?,?)", (200,200))
+        with self.assertRaises(OperationalError) as e:
+            conn2.execute("DROP TABLE conflict_test2 CASCADE")
+        self.assertEqual(-16001, e.exception.errno)
+        self.assertEqual("Table MIMERPY.conflict_test2 locked by another user", e.exception.message)
+        conn1.close()
+        conn2.close()
+    
+    def test_two_connection_conflict_insert(self):
+        with self.tstcon.cursor() as c:
+            mytuplelist = list(zip(list(range(100)), list(range(100))))
+            c.execute("CREATE TABLE conflict_test3 (int1 INTEGER, int2 INTEGER, PRIMARY KEY (int1))")
+            c.executemany("INSERT INTO conflict_test3 VALUES (?,?)", (mytuplelist))
+            self.tstcon.commit()
+
+        conn1 = mimerpy.connect(**db_config.TSTUSR)
+        conn2 = mimerpy.connect(**db_config.TSTUSR)
+        mytuplelist = list(zip(list(range(200,300)), list(range(200, 300))))
+        conn1.executemany("INSERT INTO conflict_test3 VALUES (?,?)", (mytuplelist))
+        conn2.executemany("INSERT INTO conflict_test3 VALUES (?,?)", (mytuplelist))
+        conn1.commit()
+        with self.assertRaises(OperationalError) as e:
+            conn2.commit()
+        self.assertEqual(-10001, e.exception.errno)
+        self.assertEqual("Transaction aborted due to conflict with other transaction", e.exception.message)
+        conn1.close()
+        conn2.close()
+
+    def test_two_connection_conflict_update(self):
+        with self.tstcon.cursor() as c:
+            mytuplelist = list(zip(list(range(100)), list(range(100))))
+            c.execute("CREATE TABLE conflict_test4 (int1 INTEGER, int2 INTEGER)")
+            c.executemany("INSERT INTO conflict_test4 VALUES (?,?)", (mytuplelist))
+            self.tstcon.commit()
+
+        conn1 = mimerpy.connect(**db_config.TSTUSR)
+        conn2 = mimerpy.connect(**db_config.TSTUSR)
+        conn1.execute("UPDATE conflict_test4 SET int1 = 500 where int1 = 50")
+        conn2.execute("UPDATE conflict_test4 SET int1 = 555 where int1 = 50")
+        conn1.commit()
+        with self.assertRaises(OperationalError) as e:
+            conn2.commit()
+        self.assertEqual(-10001, e.exception.errno)
+        self.assertEqual("Transaction aborted due to conflict with other transaction", e.exception.message)
+        conn1.close()
+        conn2.close()
 
     # these are the test examples for the documentaion
     def test_for_doc_1(self):
