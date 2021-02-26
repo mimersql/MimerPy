@@ -302,9 +302,28 @@ class TestCursorMethods(unittest.TestCase):
         with self.tstcon.cursor() as c:
             c.execute("create table bob33 (c1 INTEGER, c2 NVARCHAR(10))"
                       " in pybank")
-            with self.assertRaises(DataError):
+            with self.assertRaises(ProgrammingError):
                 c.executemany("insert into bob33 values (:a, :b)",
                               ((3, 'pi', 14), (3)))
+
+    def test_insert_parametermarkers_dict(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table poff_dict1 (c1 INTEGER, c2 NVARCHAR(10))"
+                      " in pybank")
+            c.execute("insert into poff_dict1 values (:a, :b)",
+                              {'a':3, 'b':'pi'})
+        self.tstcon.commit()
+
+    def test_to_many_parametermarkers_dict(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table poff_dict2 (c1 INTEGER, c2 NVARCHAR(10))"
+                      " in pybank")
+            c.execute("insert into poff_dict2 values (:a, :b)",
+                              {'g':55, 'a':3, 'b':'pi', 'y':'Boo'})
+            c.execute("select * from poff_dict2")
+            r = c.fetchall()[0]
+            self.assertEqual(r, (3, 'pi'))
+        self.tstcon.commit()
 
     def test_insert_many_times(self):
         with self.tstcon.cursor() as c:
@@ -318,8 +337,8 @@ class TestCursorMethods(unittest.TestCase):
         with self.tstcon.cursor() as c:
             c.execute("create table bob4 (c1 INTEGER) in pybank")
             c.executemany("insert into bob4 values (:a)", [(1,)])
-            with self.assertRaises(ProgrammingError):
-                c.executemany("insert into bob4 values (:a)", [(1)])
+            #with self.assertRaises(ProgrammingError):
+            c.execute("insert into bob4 values (:a)", [(1)])
             with self.assertRaises(ProgrammingError):
                 c.executemany("insert into bob4 values (:a)", (1))
             with self.assertRaises(ProgrammingError):
@@ -1257,7 +1276,7 @@ class TestCursorMethods(unittest.TestCase):
             r = c.fetchall()[0][0].decode("utf-8")
             self.assertEqual(r, blob)
 
-    def test_two_connection_conflict_drop(self):
+    def test_conflict_drop(self):
         with self.tstcon.cursor() as c:
             mytuplelist = list(zip(list(range(100)), list(range(100))))
             c.execute("CREATE TABLE conflict_test2 (int1 INTEGER, int2 INTEGER)")
@@ -1274,7 +1293,7 @@ class TestCursorMethods(unittest.TestCase):
         conn1.close()
         conn2.close()
     
-    def test_two_connection_conflict_insert(self):
+    def test_conflict_insert(self):
         with self.tstcon.cursor() as c:
             mytuplelist = list(zip(list(range(100)), list(range(100))))
             c.execute("CREATE TABLE conflict_test3 (int1 INTEGER, int2 INTEGER, PRIMARY KEY (int1))")
@@ -1287,14 +1306,14 @@ class TestCursorMethods(unittest.TestCase):
         conn1.executemany("INSERT INTO conflict_test3 VALUES (?,?)", (mytuplelist))
         conn2.executemany("INSERT INTO conflict_test3 VALUES (?,?)", (mytuplelist))
         conn1.commit()
-        with self.assertRaises(OperationalError) as e:
+        with self.assertRaises(TransactionAbortError) as e:
             conn2.commit()
         self.assertEqual(-10001, e.exception.errno)
         self.assertEqual("Transaction aborted due to conflict with other transaction", e.exception.message)
         conn1.close()
         conn2.close()
 
-    def test_two_connection_conflict_update(self):
+    def test_conflict_update(self):
         with self.tstcon.cursor() as c:
             mytuplelist = list(zip(list(range(100)), list(range(100))))
             c.execute("CREATE TABLE conflict_test4 (int1 INTEGER, int2 INTEGER)")

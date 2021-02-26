@@ -80,6 +80,15 @@ class OperationalError(DatabaseError):
 
     """
 
+class TransactionAbortError(OperationalError):
+
+    """
+        Exception raised for Transaction aborted. Can be due to conflict with 
+        other transaction or due to a preceding problem with databanks or 
+        resources
+
+    """
+
 class IntegrityError(DatabaseError):
 
     """

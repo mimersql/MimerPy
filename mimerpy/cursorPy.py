@@ -164,7 +164,6 @@ class Cursor:
         if (len(arg) > 1):
             if (isinstance(arg[1], dict)):
                 parameter_markers = arg[1]
-            # this is the problem, should be more strict on what the input can be - Erik 2018-10
             elif (not isinstance(arg[1], tuple) and (not isinstance(arg[1], list))):
                 parameter_markers = [arg[1]]
             else:
@@ -203,7 +202,7 @@ class Cursor:
                 self._number_of_parameters = rc_value
                 try:
 
-                    if (len(parameter_markers) != self._number_of_parameters):
+                    if (len(parameter_markers) < self._number_of_parameters):
                         self.__raise_exception(-25013)
 
                     # Column number starts a 1
@@ -220,12 +219,16 @@ class Cursor:
                                     parameter_type = 501
                                 rc_value = set_funcs[parameter_type](self.__statement, cur_column, parameter)
                             else:
-                                self.__raise_exception(-25012,
-                                                       str(parameter_name))
+                                #self.__raise_exception(-25012,str(parameter_name))
+                                pass # Skipping keys in dictionary that does not match with any column
                         else:
                             # If the parameter marker is None, we use mimerSetNull
-                            if (parameter_markers[cur_column - 1] == None):
-                                parameter_type = 501
+                            try:
+                                if (parameter_markers[cur_column - 1] == None):
+                                    parameter_type = 501
+                            except TypeError:
+                                # End up here when invalid parameters are used
+                                self.__raise_exception(-25013)
                             rc_value = set_funcs[parameter_type](self.__statement,
                                                                        cur_column, parameter_markers[cur_column - 1])
                         self.__check_mimerapi_error(rc_value, self.__statement)
@@ -235,6 +238,7 @@ class Cursor:
                     self.__raise_exception(-25020, exception=e) # &&&& ??
                 # Catching error for errorhandler
                 except TypeError as e:
+                    # End up here when invalid parameters are used¨
                     self.__raise_exception(-25020, exception=e)
                 # Catching error for errorhandler
                 except OverflowError as e:
@@ -295,17 +299,18 @@ class Cursor:
         """
         self.__check_if_open()
         self.__check_for_transaction()
-        rc_value = 0
         self._last_query = None
+        self.rowcount = 0
+        rc_value = 0
         values = []
 
         # I would like to look over this at some point
         # Checking for invalid parameter structure
         if (not isinstance(params, tuple) and not isinstance(params, list)):
             self.__raise_exception(-25013)
-        else:
-            if (not isinstance(params[0], tuple) and not isinstance(params[0], dict)):
-                self.__raise_exception(-25013)
+        #else:
+        #    if (not isinstance(params[0], tuple) and not isinstance(params[0], dict)):
+        #        self.__raise_exception(-25013)
 
         self.__close_statement()
         values = mimerapi.mimerBeginStatement8(self.__session, query, 0)
@@ -317,8 +322,6 @@ class Cursor:
 
         rc_value = mimerapi.mimerParameterCount(self.__statement)
         self._number_of_parameters = rc_value
-
-        self.rowcount = 0
         self.__check_mimerapi_error(rc_value, self.__statement)
 
         try:
@@ -339,11 +342,16 @@ class Cursor:
                                 parameter_type = 501
                             rc_value = set_funcs[parameter_type](self.__statement, cur_column, parameter)
                         else:
-                            self.__raise_exception(-25012, str(parameter_name))
+                            #self.__raise_exception(-25012, str(parameter_name))
+                            pass # Skipping keys in dictionary that does not match with any column
                     else:
                         # If the parameter marker is None, we use mimerSetNull
-                        if (cur_param[cur_column - 1] == None):
-                            parameter_type = 501
+                        try: 
+                            if (cur_param[cur_column - 1] == None):
+                                parameter_type = 501
+                        except TypeError as e:
+                            # End up here when invalid parameters are used
+                            self.__raise_exception(-25013)
                         rc_value = set_funcs[parameter_type](self.__statement,
                                                                    cur_column, cur_param[cur_column - 1])
                 self.messages = []
