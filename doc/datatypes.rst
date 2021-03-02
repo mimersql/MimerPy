@@ -111,8 +111,8 @@ Example usage of binary:
 .. _bytes-like objects: https://docs.python.org/3/glossary.html#term-bytes-like-object
 .. _Binary data: https://docs.python.org/3/library/binary.html
 
-``BLOB``
-^^^^^^^^^^
+``BLOB`` 
+^^^^^^^^^^^^^^^^^^^^^^^^^
 Just like :ref:`BINARY` but for larger objects. Like binary columns it expects the a parameter to be a `bytes-like objects`_.
 
 

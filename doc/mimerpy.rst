@@ -13,7 +13,7 @@ and the opening of cursors to execute MimerSQL statements.
 Constructor
 ------------
 
-.. method:: connect(dsn = None, user = None, password = None, 'autocommit' = False, 'errorhandler' = None)
+.. method:: connect(dsn = None, user = None, password = None, 'autocommit' = False, 'errorhandler' = None) 
 
   Constructor for creating a connection to the specified database using the
   :class:`Connection` class. Returns a :class:`Connection` object To establish a default
@@ -67,14 +67,14 @@ Connection
 
 .. _PEP 249 threadsafety: https://www.python.org/dev/peps/pep-0249/#threadsafety
 
-.. class:: Connection
+.. Class:: Connection
 
    The class Connection is used to establish a connection with a Mimer database.
 
-Methods
-------------------------
+Methods 
+--------------------------------------
 
-.. method:: close()
+.. method:: close() 
 
   Method is used for closing a connection. The :meth:`~close`-method also closes
   all cursors opened with the connection.
@@ -86,7 +86,7 @@ Methods
 
   When a connection has been closed using :meth:`~close`, it is unusable and a :exc:`~ProgrammingError` is raised if any operations are attempted on the connection.
 
-.. method:: commit()
+.. method:: commit() 
 
   Commits the pending transaction to the database.
 
@@ -96,38 +96,38 @@ Methods
 
   For information on the auto-commit feature on the connection, see :meth:`~autocommit`.
 
-.. method:: rollback()
+.. method:: rollback() 
 
   Causes the database to roll back to the start of the transaction.
   If a connection is closed without committing changes made during
   the transaction, a :meth:`rollback` is implicitly performed.
 
-.. method:: cursor('scrollable'  = False)
+.. method:: cursor('scrollable'  = False) 
 
   Returns a new :class:`~Cursor` object using the connection.
 
   If *scrollable* is unspecified, the default cursor class will be returned. If *scrollable* = ``True``
   a :class:`ScrollCursor` will be returned.
 
-.. method:: execute(query, [,parameters])
+.. method:: execute(query, [,parameters]) 
 
   This method is not included in the `PEP 249`_. It returns a :class:`~Cursor` object and executes the query.
 
-.. method:: executemany(query, seq_of_parameters)
+.. method:: executemany(query, seq_of_parameters) 
 
   This method is not included in the `PEP 249`_. It returns a :class:`~Cursor` object and executes the query against all the parameter sequences.
 
-Attributes
-------------------------
-.. attribute:: autocommitmode
+Attributes 
+----------------------------------------
+.. attribute:: autocommitmode 
 
   Attribute determines if the connection will auto-commmit any changes or if :meth:`~commit` has to be performed explicitly.
   This is set to ``False`` by default unless otherwise stated when opening the connection or by using the :meth:`~autocommit` method to change this attribute.
 
-Extensions
-------------------------
+Extensions 
+------------------------------------------
 
-.. method:: autocommit(bool)
+.. method:: autocommit(bool) 
 
   This method is used to turn on or off the auto-commit feature on the connection.
   By using this method, from this point onward changes are automatically committed.
@@ -137,13 +137,13 @@ Extensions
 .. Warning:: If :meth:`~autocommit` is called, all changes that have not yet been committed during the current transaction are rolled back and the auto-commit feature is later turned on. To prevent this, either set '*autocommit*' = ``True`` when opening a connection or use method :meth:`~commit` before
             using :meth:`~autocommit`.
 
-.. attribute:: messages
+.. attribute:: messages 
 
   Attribute where if raised, exception class and exception value are appended to. If connection has at least one cursor, then the error will be appended to the
   cursor's messages attribute, otherwise the error is appended to the connection's messages attribute.
   The aim of this attribute is to eliminate the need for a :exc:`Warning` exception which often causes problems.
 
-.. attribute:: errorhandler
+.. attribute:: errorhandler 
 
   The attribute states what errorhandler is used. This is set to the default unless otherwise stated when opening the connection. For further information, see
   :doc:`exceptions`.
@@ -159,7 +159,7 @@ Extensions
 Cursor
 ****************
 
-.. class:: Cursor
+.. class:: Cursor 
 
   The class cursor is used to execute MimerSQL statements and manage data result sets.
 
@@ -170,28 +170,28 @@ Cursor
   A cursor can be opened either by calling :meth:`Connection.cursor() <cursor>`, :meth:`Connection.execute() <execute>` or :meth:`Connection.executemany() <executemany>`.
 
 
-Methods
-------------------------
+Methods 
+----------------------------------
 
-.. method:: close()
+.. method:: close() 
 
   Closes a cursor. From this point onwards the cursor is unusable and a
   :exc:`~ProgrammingError` is raised if any operations are attempted on the connection.
 
-.. method:: execute(query, [,parameters])
+.. method:: execute(query, [,parameters]) 
 
   Prepares and executes a SQL statement.
 
   The input parameter *parameters* is optional, as queries can either contain
   data or parameter markers can be used, see :ref:`User guide` for more information.
 
-.. method:: executemany(query, seq_of_parameters)
+.. method:: executemany(query, seq_of_parameters) 
 
   Prepares and executes a SQL statement against all parameters in *seq_of_parameters*.
 
 .. seealso:: :ref:`User guide`, for the correct syntax of these methods.
 
-.. method:: fetchone()
+.. method:: fetchone() 
 
   Fetches the next row of a result set. The row is returned as a tuple. If
   no more data is available, ``None`` is returned.
@@ -199,7 +199,7 @@ Methods
   If :meth:`~fetchone` is called and the previous call to :meth:`~execute` did not produce a result
   set, a :exc:`~ProgrammingError` is raised.
 
-.. method:: fetchmany([size=cursor.arraysize])
+.. method:: fetchmany([size=cursor.arraysize]) 
 
   Fetches the next rows of a result set. The rows are returned as a list of tuples. If
   no more data is available, an empty list is returned.
@@ -214,7 +214,7 @@ Methods
   If :meth:`~fetchmany` is called and the previous call to :meth:`~execute` did not produce a result
   set, a :exc:`~ProgrammingError` is raised.
 
-.. method:: fetchall()
+.. method:: fetchall() 
 
   Fetches the remaining rows of a result set. The rows are returned as a list of tuples.  If
   no more data is available, an empty list is returned.
@@ -222,19 +222,19 @@ Methods
   If :meth:`~fetchall` is called and the previous call to :meth:`~execute` did not produce a result
   set, a :exc:`~ProgrammingError` is raised.
 
-.. method:: setinputsizes()
+.. method:: setinputsizes() 
 
   The method does not do anything but is a requirement from the DB-API `PEP 249`_.
 
-.. method:: setoutputsize()
+.. method:: setoutputsize() 
 
   The method does not do anything but is a requirement from the DB-API `PEP 249`_.
 
 
-Attributes
-------------------------
+Attributes 
+--------------------------------------
 
-.. attribute:: description
+.. attribute:: description 
 
   A read-only attribute that is a sequence of 7-item sequences. Each sequence stores information regarding the latest result column:
 
@@ -250,42 +250,42 @@ Attributes
 
   ``name`` provides the name of the result column and ``type_code`` specifies the native Mimer Micro C API type code for the column.
 
-.. attribute:: rowcount
+.. attribute:: rowcount 
 
   Read-only attribute that specifies the number of updated rows that the last :meth:`~execute` performed. For example performing
   an ``INSERT``, ``UPDATE`` or ``DELETE`` statement, the attribute is changed.
 
-.. attribute:: arraysize
+.. attribute:: arraysize 
 
   Read-write attribute which specifies the number of rows to be fetched with :meth:`~fetchmany`. By default this is set to ``1`` when a cursor
   is opened, thus it will fetch one row at a time from the result set until it is changed by calling :meth:`~fetchmany` with a different size.
 
 
-Extensions
-------------------------
+Extensions 
+--------------------------------------
 
 .. attribute:: connection
 
   Read-only attribute which returns a reference to the connection at which the cursor was created.
 
-.. attribute:: messages
+.. attribute:: messages 
 
   List where an exception class and value is appended to as a tuple that the interface receives from the underlying database.
   The aim of this attribute is to eliminate the need for a Warning exception which often causes problems.
 
   The list is cleared prior to executing all standard cursor methods except :meth:`fetch*() <fetchone>`.
 
-.. method:: next()
+.. method:: next() 
 
   Returns the next row in a result set, with the same semantics as :meth:`~fetchone`. If there is no more data available in the result set, a ``StopIteration`` exception is raised.
 
-.. method:: __iter__()
+.. method:: __iter__() 
 
   Returns self which enables the cursor's compatibility with iteration.
 
 .. seealso:: :ref:`Iterating a result set`, for an example how this can be used.
 
-.. attribute:: errorhandler
+.. attribute:: errorhandler 
 
   The attribute states what errorhandler is used. This is set to the default unless otherwise stated when opening the connection. For further information, see
   :doc:`exceptions`.
@@ -298,10 +298,10 @@ Extensions
 
 .. _scrollcursorclass:
 
-ScrollCursor
-------------------------
+ScrollCursor 
+------------------------------------
 
-.. class:: ScrollCursor
+.. class:: ScrollCursor 
 
   ``ScrollCursor`` is a subclass to the :class:`~Cursor`-class where the cursor can be scrolled to new positions in the result set.
   All methods in the baseclass :class:`~Cursor` can also be used by a ``ScrollCursor``.
@@ -313,10 +313,10 @@ ScrollCursor
   .. Note:: A ``ScrollCursor`` fetches the whole result set to the client.
 
 
-Methods
-^^^^^^^^^^^^^^^^^^^^^^^^
+Methods 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. method:: scroll(value [, mode='relative'])
+.. method:: scroll(value [, mode='relative']) 
 
   Method scrolls the cursor to a new position according to the *mode* of the scroll.
 
@@ -326,7 +326,7 @@ Methods
   If the method is called upon and desired position in the result set does not exist, an :exc:`IndexError` is raised.
 
 Attributes
-^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. attribute:: rownumber
 

@@ -34,7 +34,7 @@ The following example inserts the picture *mimer.jpg* as a ``BLOB`` into a table
   >>> cur.close()
   >>> conn.close()
 
-.. seealso:: :ref:`BLOB` documentation.
+.. seealso:: see :ref:`BINARY` documentation.
 
 Using `with`
 ---------------------------

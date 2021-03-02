@@ -1,6 +1,8 @@
-****************
+..
+    PLACEHOLDER FILE, THE TEXT FOR THE documentation FOR THIS FILE IS IN mimerpy.rst
+******************************
 Connection class
-****************
+******************************
 
 .. _PEP 249: https://www.python.org/dev/peps/pep-0249/
 

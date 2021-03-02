@@ -8,9 +8,7 @@ Mimerpy is under the MIT license, making it open source. However it's dependenci
 the Mimer Micro C API, is not open source and under a different license. You can find more legal information and help
 on the `Mimer website`_.
 
-
 .. _Mimer website: www.mimer.com
------------------------------
 
 License
 ------------------------

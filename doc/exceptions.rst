@@ -10,22 +10,25 @@ Exceptions
 The following section describes the implementation of the exception hierarchy
 stated in the DB-API `PEP 249`_.
 
-Exceptions
+Database Exceptions
 ------------------------
 
 Exception inheritance layout:
 
-| StandardError
-| |__Warning
-| |__Error
-|    |__InterfaceError
-|    |__DatabaseError
-|      |__DataError
-|      |__OperationalError
-|      |__IntegrityError
-|      |__InternalError
-|      |__ProgrammingError
-|      |__NotSupportedError
+::
+
+  StandardError
+  ├── Warning
+  └── Error
+      ├── InterfaceError
+      └── DatabaseError
+          ├── DataError
+          ├── OperationalError
+          │   └── TransactionAbortError
+          ├── IntegrityError
+          ├── InternalError
+          ├── ProgrammingError
+          └── NotSupportedError
 
 .. exception:: StandardError
 
@@ -61,6 +64,14 @@ Exception inheritance layout:
   :exc:`DatabaseError`.
 
 .. exception:: OperationalError
+
+  Exception raised for errors that are related to the database's operation and
+  not necessarily under the control of the programmer, e.g. an unexpected
+  disconnect occurs, the data source name is not found, a transaction could not
+  be processed, a memory allocation error occurred during processing, etc.
+  It is a subclass of :exc:`DatabaseError`.
+
+.. exception:: TransactionAbortError
 
   Exception raised for errors that are related to the database's operation and
   not necessarily under the control of the programmer, e.g. an unexpected

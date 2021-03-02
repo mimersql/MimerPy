@@ -1,6 +1,9 @@
-************
+..
+   PLACEHOLDER FILE, THE TEXT FOR THE documentation FOR THIS FILE IS IN mimerpy.rst
+************************
 Cursor class
-************
+************************
+
 
 .. _PEP 249: https://www.python.org/dev/peps/pep-0249/
 
@@ -17,13 +20,13 @@ A cursor can be opened either by calling :meth:`Connection.cursor() <cursor>`, :
 
 
 Methods
-------------------------
+------------------------------
 
-.. method:: close()
+.. method:: Cursor.close()
 
   Closes a cursor. From this point onwards the cursor is unusable and a :meth:`~ProgrammingError` is raised if any operations are attempted on the connection.
 
-.. method:: execute(query, [,parameters])
+.. method:: Cursor.execute(query, [,parameters])
 
   Prepares and executes a SQL statement.
 
@@ -83,7 +86,7 @@ Methods
 
 
 Attributes
-------------------------
+--------------------------------------
 
 .. attribute:: description
 
@@ -101,7 +104,7 @@ Attributes
 
   ``name`` provides the name of the result column and ``type_code`` specifies the native Mimer MICRO API type code for the column.
 
-.. attribute:: rowcount
+.. attribute:: rowcount 
 
   Read-only attribute that specifies the number of updated rows that the last :meth:`~execute` performed. For example if performing
   a ``INSERT``, ``UPDATE`` or ``DELETE`` statement, the attribute is changed.
@@ -115,7 +118,7 @@ Attributes
 
 
 Extensions
-------------------------
+----------------------------------
 
 .. attribute:: connection
 
@@ -154,7 +157,7 @@ ScrollCursor
 
 
 Methods
-^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. method:: scroll(value [, mode='relative'])
 
@@ -166,7 +169,7 @@ Methods
   If the method is called upon and desired position in the result set does not exist, an ``IndexError`` is raised.
 
 Attributes
-^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. attribute:: rownumber
 
