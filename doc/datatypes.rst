@@ -94,6 +94,8 @@ operating system and the machine your running the range varies. The approximate 
 
 ``BINARY``
 ^^^^^^^^^^^^
+.. _BINARY:
+
 In Python3 there are many ways to create a ``BINARY`` object. One way is to using
 the ``b'`` tag, another way is to use the ``to_bytes`` method, or you can use the
 ``bytearray`` method. When specifying a parameter for ``BINARY`` column, Mimerpy
@@ -113,7 +115,7 @@ Example usage of binary:
 
 ``BLOB`` 
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-Just like :ref:`BINARY` but for larger objects. Like binary columns it expects the a parameter to be a `bytes-like objects`_.
+Just like :ref:`BINARY <BINARY>` but for larger objects. Like binary columns it expects the a parameter to be a `bytes-like objects`_.
 
 
 Example usage of ``BLOB``::
@@ -125,6 +127,8 @@ Example usage of ``BLOB``::
 
 ``CLOB``
 ^^^^^^^^^^
+.. _CLOB:
+
 The ``CLOB`` column is used for storing large string objects. It can store all Latin-1 symbols.
 
 Example usage of ``CLOB``::
@@ -136,7 +140,7 @@ Example usage of ``CLOB``::
 
 ``NCLOB``
 ^^^^^^^^^^
-Just like :ref:`CLOB`, but can hold all Unicode symbols.
+Just like :ref:`CLOB <CLOB>`, but can hold all Unicode symbols.
 
 Example usage of ``NCLOB``::
 

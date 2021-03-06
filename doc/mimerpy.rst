@@ -71,7 +71,7 @@ Connection
 
    The class Connection is used to establish a connection with a Mimer database.
 
-Methods 
+Connection Methods 
 --------------------------------------
 
 .. method:: close() 
@@ -117,14 +117,14 @@ Methods
 
   This method is not included in the `PEP 249`_. It returns a :class:`~Cursor` object and executes the query against all the parameter sequences.
 
-Attributes 
+Connection Attributes 
 ----------------------------------------
 .. attribute:: autocommitmode 
 
   Attribute determines if the connection will auto-commmit any changes or if :meth:`~commit` has to be performed explicitly.
   This is set to ``False`` by default unless otherwise stated when opening the connection or by using the :meth:`~autocommit` method to change this attribute.
 
-Extensions 
+Connection Extensions 
 ------------------------------------------
 
 .. method:: autocommit(bool) 
@@ -152,7 +152,7 @@ Extensions
 
   Returns self which enables the connections's compatibility with the Python ``with`` statement.
 
-.. seealso:: :ref:`Using with` for an example how this is used.
+.. seealso:: :ref:`Using with <Using_with>` for an example how this is used.
 
 .. _cursorclass:
 
@@ -170,8 +170,8 @@ Cursor
   A cursor can be opened either by calling :meth:`Connection.cursor() <cursor>`, :meth:`Connection.execute() <execute>` or :meth:`Connection.executemany() <executemany>`.
 
 
-Methods 
-----------------------------------
+Cursor Methods
+----------------
 
 .. method:: close() 
 
@@ -231,7 +231,7 @@ Methods
   The method does not do anything but is a requirement from the DB-API `PEP 249`_.
 
 
-Attributes 
+Cursor Attributes 
 --------------------------------------
 
 .. attribute:: description 
@@ -261,7 +261,7 @@ Attributes
   is opened, thus it will fetch one row at a time from the result set until it is changed by calling :meth:`~fetchmany` with a different size.
 
 
-Extensions 
+Cursor Extensions 
 --------------------------------------
 
 .. attribute:: connection
@@ -294,12 +294,12 @@ Extensions
 
   Returns self which enables the cursor's compatibility with the Python ``with`` statement.
 
-.. seealso:: :ref:`Using with`, for an example how this can be used.
+.. seealso:: :ref:`Using with <Using_with>`, for an example how this can be used.
 
 .. _scrollcursorclass:
 
 ScrollCursor 
-------------------------------------
+------------------
 
 .. class:: ScrollCursor 
 
@@ -313,8 +313,8 @@ ScrollCursor
   .. Note:: A ``ScrollCursor`` fetches the whole result set to the client.
 
 
-Methods 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ScrollCursor Methods 
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. method:: scroll(value [, mode='relative']) 
 
@@ -325,8 +325,8 @@ Methods
 
   If the method is called upon and desired position in the result set does not exist, an :exc:`IndexError` is raised.
 
-Attributes
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ScrollCursor Attributes
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. attribute:: rownumber
 

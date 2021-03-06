@@ -34,10 +34,11 @@ The following example inserts the picture *mimer.jpg* as a ``BLOB`` into a table
   >>> cur.close()
   >>> conn.close()
 
-.. seealso:: see :ref:`BINARY` documentation.
+.. seealso:: see :ref:`BINARY <BINARY>` documentation.
 
 Using `with`
 ---------------------------
+.. _Using_with:
 
 The ``with`` statement is a useful tool as it allows the user to open a connection or cursor without having to explicitly close it and changes done within the with's scope are automatically comitted.
 
@@ -103,7 +104,7 @@ Iterating a result set
 -----------------------
 
 
-The same table that was used in the :ref:`Using with` example is used to illustrate possibility of iterating a result set::
+The same table that was used in the :ref:`Using with <Using_with>` example is used to illustrate possibility of iterating a result set::
 
   >>> import mimerpy
 
