@@ -6,16 +6,20 @@
 MimerPy -- Python database interface for MimerSQL
 =================================================
 
-Mimerpy is an adapter for MimerSQL in Python_ which implements the `PEP 249`_ specification.
-It allows the user to access the powerful tools and advantages of MimerSQL through Python.
-Mimerpy is implemented as a CPython wrapper of the Mimer SQL Micro C API.
+Mimerpy is an adapter for MimerSQL in Python_ which implements the `PEP 249`_
+specification.
+It allows the user to access the powerful tools and advantages of MimerSQL
+through Python.
+Mimerpy is implemented as a CPython wrapper of the `Mimer SQL C API`_
+aka MimerAPI.
 
-The following documentation covers the full interface of Mimerpy, demonstrating how to
+The following documentation covers the full interface of Mimerpy,
+demonstrating how to
 install and use the product through simple guides and easy to read examples.
 
 .. _Python: http://www.python.org/
 .. _PEP 249: https://www.python.org/dev/peps/pep-0249/
-.. _Micro C API: http://www.python.org/
+.. _Mimer SQL C API: https://developer.mimer.com/article/mimer-sql-c-api/
 
 Contents:
 
