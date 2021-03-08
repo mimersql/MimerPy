@@ -41,4 +41,4 @@ More information on `Mimer`_.
 .. _Mimer: http://mimer.com/
 .. _Python: http://www.python.org/
 .. _PEP 249: https://www.python.org/dev/peps/pep-0249/
-.. _Mimer SQL C API: https://developer.mimer.com/article/mimer-sql-c-api/
+.. _Mimer SQL C API: https://developer.mimer.com/mimerapi
