@@ -1295,7 +1295,7 @@ static PyObject* mimerGetBlobData(PyObject* self, PyObject* args)
         } else {
             buff_cnt += part_size;
         }
-    } while(rc > part_size);
+    } while ((size_t)rc > part_size);
 
     return_object = Py_BuildValue("iy#", rc, data,length);
     free(data);
