@@ -2,14 +2,55 @@
 Getting started
 ***************
 
-With Mimerpy installed, before proceeding make sure that you have a Mimer server
-of the corresponding version running. If you are uncertain if you have a Mimer
-server running, or need help getting one running, please visit the `Mimer documentation`_.
+With Mimerpy installed, before proceeding make sure that you have a
+Mimer server of the corresponding version running. If you are
+uncertain if you have a Mimer server running, or need help getting one
+running, please visit the `Mimer documentation`_.
 
-.. note:: If you are unsure if the server you have running is of the correct version
-          (>=11). You can use the command: "??????"
+.. _Mimer documentation: https://developer.mimer.com/products/documentation/
 
-.. _Mimer documentation: http://developer.mimer.se/documentation/html_101/Mimer_SQL_Engine_WinGetStart/Getting_Started.html
+Checking the Mimerpy installation
+---------------------------------
+While the primary use of Mimerpy is as a package used by other Python
+programs, it is possible to use it a a stand-alone Python
+program. This makes it easy to check if Mimerpy works as intended and
+can connect to a started Mimer database server.
+
+For example:
+
+.. code-block:: console
+
+    $ python -m mimerpy
+    Use option -h to get help
+    $ python -m mimerpy -h
+    usage: mimerpy [-h] [-d DATABASE] [-u USER] [-p PASSWORD] [-v] [sql]
+
+    A simple command line program for the MimerPy library. It can display the
+    version number of the MimerPy library (-v switch) or connect to a Mimer
+    database server and execute a singe SQL statement (provide database, user, and
+    password arguments and a SQL statement).
+
+    positional arguments:
+      sql                   A SQL command to execute
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      -d DATABASE, --database DATABASE
+                            Database to connect to
+      -u USER, --user USER  User name to use in connection
+      -p PASSWORD, --password PASSWORD
+                            Password for the user
+      -v, --version         Display MimerPy and MimerAPI version numbers
+    $ python -m mimerpy -v
+    Mimerpy  version 1.0.29
+    MimerAPI version 11.0.3D
+    $ python -m mimerpy -d pesc110 -u SYSADM -p SYSADM 'select current_date from system.onerow'
+    [('2021-03-09',)]
+
+In this way you can connect to a database server and execute a SQL
+statement.  If the statement returns a result, it will be displayed as
+a list of tuples (in Python syntax).
+
 
 Establishing a connection
 ------------------------------------------------
