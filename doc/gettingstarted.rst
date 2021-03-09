@@ -49,8 +49,10 @@ For example:
 
 In this way you can connect to a database server and execute a SQL
 statement.  If the statement returns a result, it will be displayed as
-a list of tuples (in Python syntax).
+a list_ of tuples_ (in Python syntax).
 
+.. _list: https://docs.python.org/3/tutorial/introduction.html#lists
+.. _tuples: https://docs.python.org/3/tutorial/datastructures.html#tuples-and-sequences
 
 Establishing a connection
 ------------------------------------------------
@@ -65,21 +67,25 @@ In your Python interpreter:
 
 If no errors occurred, a connection has been established.
 
-If you get the error *"ImportError: No module named 'mimerpy'"*, and you installed
-Mimerpy with the help of pip, you can check your pip packages and make sure Mimerpy
-is present in the list. On Unix you can use the command:
+Python allows you to records a set of named parameters as a
+dictionary_, and use it when calling functions. This allows you to
+record the connection parameters centrally and reuse it everywhere a
+connection needs to be created, like this:
 
+.. _dictionary: https://docs.python.org/3/tutorial/datastructures.html#dictionaries
 .. code-block:: console
 
-  $ pip list | grep mimerpy
+    >>> import mimerpy
+    >>> data_source = {'dsn':'mimerDB', 'user':'mimerUser', 'password':'password'}
 
-If nothing shows up, the installation was not completed successfully.
+      # Creating a connection
+    >>> con = mimerpy.connect(**data_source)
 
-.. note:: Remember to run the Python version you installed Mimerpy on.
 
 Executing statements
 --------------------
-After establishing a connection you are ready to create a cursor and start executing statements:
+After establishing a connection you are ready to create a cursor and
+start executing statements:
 
 .. code-block:: console
 
@@ -97,9 +103,9 @@ After establishing a connection you are ready to create a cursor and start execu
     # Committing the changes
   >>> con.commit()
 
-Bare in mind that in Python all :meth:`execute`-statements have to be committed,
-or they will be rolled back after the connection is closed. See :ref:`cursorclass` for more
-information.
+Remember that in Python all :meth:`execute`-statements have to be
+committed, or they will be rolled back after the connection is
+closed. See :ref:`cursorclass` for more information.
 
 Running your first program
 ---------------------------
@@ -148,4 +154,5 @@ If we run dbtest.py we get:
   $ python3 dbtest.py
   Using Mimerpy is easy!
 
-For more examples visit :ref:`Code examples`. For help with MimerSQL query syntax visit :ref:`User guide`.
+For more examples visit :ref:`Code examples`. For help with MimerSQL
+query syntax visit :ref:`User guide`.

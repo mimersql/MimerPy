@@ -80,6 +80,6 @@ Alternatively you can download the Python-dev package in any preferable way.
 
 The Mimer SQL C API is required.
 
-.. note:: The error “mimermicroapi.h: No such file or directory”, is caused by Mimer not being installed or a Mimer version older than 11.
+.. note:: The error “mimerapi.h: No such file or directory”, is caused by Mimer not being installed or a Mimer version older than 11.
 
 .. _Mimer developer site: http://developer.mimer.com
