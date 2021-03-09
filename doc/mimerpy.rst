@@ -7,38 +7,44 @@ The module
 
 .. _PEP 249: https://www.python.org/dev/peps/pep-0249/
 
-The :mod:`mimerpy` module enables the creation of connections to Mimer databases
-and the opening of cursors to execute MimerSQL statements.
+The :mod:`mimerpy` module enables the creation of connections to Mimer
+databases and the opening of cursors to execute MimerSQL statements.
 
 Constructor
 ------------
 
 .. method:: connect(dsn = None, user = None, password = None, 'autocommit' = False, 'errorhandler' = None) 
 
-  Constructor for creating a connection to the specified database using the
-  :class:`Connection` class. Returns a :class:`Connection` object To establish a default
-  connection with a Mimer database the following parameters are required:
+  Constructor for creating a connection to the specified database
+  using the :class:`Connection` class. Returns a :class:`Connection`
+  object. To establish a default connection with a Mimer database the
+  following parameters are required:
 
   * *dsn* -- Data source name as a string
   * *user* -- Username as a string
   * *password* -- Password as a string
 
-  This will create the default connection according the `PEP 249`_ specification.
+  This will create the default connection according the `PEP 249`_
+  specification.
 
   The connection's auto-commit feature is initially turned off and the default
   errorhandler is used. The following parameters can be set when creating
   a new connection:
 
   * *autocommit* -- If '*autocommit*' = ``False`` or unspecified,
-    auto-commit mode is turned off (as by default). If '*autocommit*' = ``True``
-    queries will be automatically committed.
+    auto-commit mode is turned off (as by default). If '*autocommit*'
+    = ``True`` queries will be automatically committed.
 
-  * *errorhandler* -- If '*errorhandler*' = ``None`` or unspecified, the default
-    errorhandler is used. The user can choose to use their own errorhandler of
-    choice by setting this parameter.
+  * *errorhandler* -- If '*errorhandler*' = ``None`` or unspecified,
+    the default errorhandler is used. The user can choose to use their
+    own errorhandler of choice by setting this parameter.
 
 Globals
 ----------
+
+.. data:: __version__
+
+  String that describes the version number of the :mod:`mimerpy` module.
 
 .. data:: apilevel
 
@@ -54,8 +60,8 @@ Globals
 
 .. data:: paramstyle
 
-  String that states what parameter marker format that is used. This has the value
-  ``qmark``.
+  String that states what parameter marker format that is used. This
+  has the value ``qmark``.
 
 .. seealso:: Information on :ref:`Query structure`.
 
@@ -69,22 +75,25 @@ Connection
 
 .. Class:: Connection
 
-   The class Connection is used to establish a connection with a Mimer database.
+  The class Connection is used to establish a connection with a Mimer database.
 
 Connection Methods 
 --------------------------------------
 
 .. method:: close() 
 
-  Method is used for closing a connection. The :meth:`~close`-method also closes
-  all cursors opened with the connection.
+  Method is used for closing a connection. The :meth:`~close`-method
+  also closes all cursors opened with the connection.
 
-  If the auto-commit feature is turned off and a connection is closed before
-  committing any changes, an implicit roll back is executed. Thus, before evoking
-  :meth:`~close`, :meth:`commit` should be used to prevent any changes being lost.
-  However, if auto-commit  is turned on, changes are automatically committed.
+  If the auto-commit feature is turned off and a connection is closed
+  before committing any changes, an implicit roll back is
+  executed. Thus, before evoking :meth:`~close`, :meth:`commit` should
+  be used to prevent any changes being lost.  However, if auto-commit
+  is turned on, changes are automatically committed.
 
-  When a connection has been closed using :meth:`~close`, it is unusable and a :exc:`~ProgrammingError` is raised if any operations are attempted on the connection.
+  When a connection has been closed using :meth:`~close`, it is
+  unusable and a :exc:`~ProgrammingError` is raised if any operations
+  are attempted on the connection.
 
 .. method:: commit() 
 
@@ -94,7 +103,8 @@ Connection Methods
     pending transactions are implicitly rolled back and all data manipulation
     performed during the transaction is lost.
 
-  For information on the auto-commit feature on the connection, see :meth:`~autocommit`.
+  For information on the auto-commit feature on the connection, see
+  :meth:`~autocommit`.
 
 .. method:: rollback() 
 
@@ -106,42 +116,58 @@ Connection Methods
 
   Returns a new :class:`~Cursor` object using the connection.
 
-  If *scrollable* is unspecified, the default cursor class will be returned. If *scrollable* = ``True``
-  a :class:`ScrollCursor` will be returned.
+  If *scrollable* is unspecified, the default cursor class will be
+  returned. If *scrollable* = ``True`` a :class:`ScrollCursor` will be
+  returned.
 
 .. method:: execute(query, [,parameters]) 
 
-  This method is not included in the `PEP 249`_. It returns a :class:`~Cursor` object and executes the query.
+  This method is not included in the `PEP 249`_. It returns a
+  :class:`~Cursor` object and executes the query.
 
 .. method:: executemany(query, seq_of_parameters) 
 
-  This method is not included in the `PEP 249`_. It returns a :class:`~Cursor` object and executes the query against all the parameter sequences.
+  This method is not included in the `PEP 249`_. It returns a
+  :class:`~Cursor` object and executes the query against all the
+  parameter sequences.
 
 Connection Attributes 
 ----------------------------------------
 .. attribute:: autocommitmode 
 
-  Attribute determines if the connection will auto-commmit any changes or if :meth:`~commit` has to be performed explicitly.
-  This is set to ``False`` by default unless otherwise stated when opening the connection or by using the :meth:`~autocommit` method to change this attribute.
+  Attribute determines if the connection will auto-commmit any changes
+  or if :meth:`~commit` has to be performed explicitly.  This is set
+  to ``False`` by default unless otherwise stated when opening the
+  connection or by using the :meth:`~autocommit` method to change this
+  attribute.
 
 Connection Extensions 
 ------------------------------------------
 
 .. method:: autocommit(bool) 
 
-  This method is used to turn on or off the auto-commit feature on the connection.
-  By using this method, from this point onward changes are automatically committed.
+  This method is used to turn on or off the auto-commit feature on the
+  connection.  By using this method, from this point onward changes
+  are automatically committed.
 
-  Turns on auto-commit feature if boolean value ``True`` and turns it off if ``False``.
+  Turns on auto-commit feature if boolean value ``True`` and turns it
+  off if ``False``.
 
-.. Warning:: If :meth:`~autocommit` is called, all changes that have not yet been committed during the current transaction are rolled back and the auto-commit feature is later turned on. To prevent this, either set '*autocommit*' = ``True`` when opening a connection or use method :meth:`~commit` before
-            using :meth:`~autocommit`.
+.. Warning:: If :meth:`~autocommit` is called, all changes that have
+            not yet been committed during the current transaction are
+            rolled back and the auto-commit feature is later turned
+            on. To prevent this, either set '*autocommit*' = ``True``
+            when opening a connection or use method :meth:`~commit`
+            before using :meth:`~autocommit`.
 
 .. attribute:: messages 
 
-  Attribute where if raised, exception class and exception value are appended to. If connection has at least one cursor, then the error will be appended to the
-  cursor's messages attribute, otherwise the error is appended to the connection's messages attribute.
-  The aim of this attribute is to eliminate the need for a :exc:`Warning` exception which often causes problems.
+  Attribute where if raised, exception class and exception value are
+  appended to. If connection has at least one cursor, then the error
+  will be appended to the cursor's messages attribute, otherwise the
+  error is appended to the connection's messages attribute.  The aim
+  of this attribute is to eliminate the need for a :exc:`Warning`
+  exception which often causes problems.
 
 .. attribute:: errorhandler 
 
