@@ -162,12 +162,16 @@ Connection Extensions
 
 .. attribute:: messages 
 
-  Attribute where if raised, exception class and exception value are
-  appended to. If connection has at least one cursor, then the error
-  will be appended to the cursor's messages attribute, otherwise the
-  error is appended to the connection's messages attribute.  The aim
-  of this attribute is to eliminate the need for a :exc:`Warning`
-  exception which often causes problems.
+  List where an exception class and value is appended to as a tuple
+  that the interface receives from the underlying database. If the
+  connection has at least one cursor, then the error is appended to
+  the cursor's messages attribute, otherwise the error is appended to
+  the connection's messages attribute. The aim of this attribute is to
+  eliminate the need for a Warning exception which often causes
+  problems.
+
+  The list is cleared prior to executing all standard cursor methods
+  except :meth:`fetch*() <fetchone>`. 
 
 .. attribute:: errorhandler 
 
@@ -333,7 +337,7 @@ Cursor Extensions
   which often causes problems.
 
   The list is cleared prior to executing all standard cursor methods
-  except :meth:`fetch*() <fetchone>`.
+  except :meth:`fetch*() <fetchone>`. 
 
 .. method:: next() 
 
