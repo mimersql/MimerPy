@@ -171,12 +171,14 @@ Connection Extensions
 
 .. attribute:: errorhandler 
 
-  The attribute states what errorhandler is used. This is set to the default unless otherwise stated when opening the connection. For further information, see
-  :doc:`exceptions`.
+  The attribute states what errorhandler is used. This is set to the
+  default unless otherwise stated when opening the connection. For
+  further information, see :doc:`exceptions`.
 
 .. method:: __enter__()
 
-  Returns self which enables the connections's compatibility with the Python ``with`` statement.
+  Returns self which enables the connections's compatibility with the
+  Python ``with`` statement.
 
 .. seealso:: :ref:`Using with <Using_with>` for an example how this is used.
 
@@ -187,13 +189,21 @@ Cursor
 
 .. class:: Cursor 
 
-  The class cursor is used to execute MimerSQL statements and manage data result sets.
+  The class cursor is used to execute MimerSQL statements and manage
+  data result sets.
 
-  Cursors that have been created from the same connection are not isolated. This means if data is manipulated by a cursor, this is visible to all other cursors
-  created with that connection. Changes made by a cursor are not visible to other cursors created from *different* connections until the changes are committed or unless the connection's attribute :attr:`~autocommitmode` is set to ``True``. If auto-commit is turned on, changes made to the database are visible to all
-  cursors independent on their connection.
+  Cursors that have been created from the same connection are not
+  isolated. This means if data is manipulated by a cursor, this is
+  visible to all other cursors created with that connection. Changes
+  made by a cursor are not visible to other cursors created from
+  *different* connections until the changes are committed or unless
+  the connection's attribute :attr:`~autocommitmode` is set to
+  ``True``. If auto-commit is turned on, changes made to the database
+  are visible to all cursors independent on their connection.
 
-  A cursor can be opened either by calling :meth:`Connection.cursor() <cursor>`, :meth:`Connection.execute() <execute>` or :meth:`Connection.executemany() <executemany>`.
+  A cursor can be opened either by calling :meth:`Connection.cursor()
+  <cursor>`, :meth:`Connection.execute() <execute>` or
+  :meth:`Connection.executemany() <executemany>`.
 
 
 Cursor Methods
@@ -201,19 +211,22 @@ Cursor Methods
 
 .. method:: close() 
 
-  Closes a cursor. From this point onwards the cursor is unusable and a
-  :exc:`~ProgrammingError` is raised if any operations are attempted on the connection.
+  Closes a cursor. From this point onwards the cursor is unusable and
+  a :exc:`~ProgrammingError` is raised if any operations are attempted
+  on the connection.
 
 .. method:: execute(query, [,parameters]) 
 
   Prepares and executes a SQL statement.
 
-  The input parameter *parameters* is optional, as queries can either contain
-  data or parameter markers can be used, see :ref:`User guide` for more information.
+  The input parameter *parameters* is optional, as queries can either
+  contain data or parameter markers can be used, see :ref:`User guide`
+  for more information.
 
 .. method:: executemany(query, seq_of_parameters) 
 
-  Prepares and executes a SQL statement against all parameters in *seq_of_parameters*.
+  Prepares and executes a SQL statement against all parameters in
+  *seq_of_parameters*.
 
 .. seealso:: :ref:`User guide`, for the correct syntax of these methods.
 
@@ -222,39 +235,48 @@ Cursor Methods
   Fetches the next row of a result set. The row is returned as a tuple. If
   no more data is available, ``None`` is returned.
 
-  If :meth:`~fetchone` is called and the previous call to :meth:`~execute` did not produce a result
-  set, a :exc:`~ProgrammingError` is raised.
+  If :meth:`~fetchone` is called and the previous call to
+  :meth:`~execute` did not produce a result set, a
+  :exc:`~ProgrammingError` is raised.
 
 .. method:: fetchmany([size=cursor.arraysize]) 
 
-  Fetches the next rows of a result set. The rows are returned as a list of tuples. If
-  no more data is available, an empty list is returned.
+  Fetches the next rows of a result set. The rows are returned as a
+  list of tuples. If no more data is available, an empty list is
+  returned.
 
-  The method fetches the number of rows specified by the parameter. If unspecified, the cursor's :attr:`arraysize`
-  is used. If the size of the fetch is larger than the number of rows available in the result set,
-  the remaining rows are returned.
+  The method fetches the number of rows specified by the parameter. If
+  unspecified, the cursor's :attr:`arraysize` is used. If the size of
+  the fetch is larger than the number of rows available in the result
+  set, the remaining rows are returned.
 
-  If the size parameter is specified, the cursor's :attr:`arraysize` is changed and if :meth:`~fetchmany` is called upon
-  again without a specified size, the new :attr:`arraysize` is used.
+  If the size parameter is specified, the cursor's :attr:`arraysize`
+  is changed and if :meth:`~fetchmany` is called upon again without a
+  specified size, the new :attr:`arraysize` is used.
 
-  If :meth:`~fetchmany` is called and the previous call to :meth:`~execute` did not produce a result
-  set, a :exc:`~ProgrammingError` is raised.
+  If :meth:`~fetchmany` is called and the previous call to
+  :meth:`~execute` did not produce a result set, a
+  :exc:`~ProgrammingError` is raised.
 
 .. method:: fetchall() 
 
-  Fetches the remaining rows of a result set. The rows are returned as a list of tuples.  If
-  no more data is available, an empty list is returned.
+  Fetches the remaining rows of a result set. The rows are returned as
+  a list of tuples.  If no more data is available, an empty list is
+  returned.
 
-  If :meth:`~fetchall` is called and the previous call to :meth:`~execute` did not produce a result
-  set, a :exc:`~ProgrammingError` is raised.
+  If :meth:`~fetchall` is called and the previous call to
+  :meth:`~execute` did not produce a result set, a
+  :exc:`~ProgrammingError` is raised.
 
 .. method:: setinputsizes() 
 
-  The method does not do anything but is a requirement from the DB-API `PEP 249`_.
+  The method does not do anything but is a requirement from the DB-API
+  `PEP 249`_.
 
 .. method:: setoutputsize() 
 
-  The method does not do anything but is a requirement from the DB-API `PEP 249`_.
+  The method does not do anything but is a requirement from the DB-API
+  `PEP 249`_.
 
 
 Cursor Attributes 
@@ -262,7 +284,8 @@ Cursor Attributes
 
 .. attribute:: description 
 
-  A read-only attribute that is a sequence of 7-item sequences. Each sequence stores information regarding the latest result column:
+  A read-only attribute that is a sequence of 7-item sequences. Each
+  sequence stores information regarding the latest result column:
 
   * name
   * type_code
@@ -272,19 +295,26 @@ Cursor Attributes
   * scale
   * null_ok
 
-  Only name and type_code are specified, the rest of the items are set to ``None``.
+  Only name and type_code are specified, the rest of the items are set
+  to ``None``.
 
-  ``name`` provides the name of the result column and ``type_code`` specifies the native Mimer Micro C API type code for the column.
+  ``name`` provides the name of the result column and ``type_code``
+  specifies the native Mimer SQL C API type code for the column.
 
 .. attribute:: rowcount 
 
-  Read-only attribute that specifies the number of updated rows that the last :meth:`~execute` performed. For example performing
-  an ``INSERT``, ``UPDATE`` or ``DELETE`` statement, the attribute is changed.
+  Read-only attribute that specifies the number of updated rows that
+  the last :meth:`~execute` performed. For example performing an
+  ``INSERT``, ``UPDATE`` or ``DELETE`` statement, the attribute is
+  changed.
 
 .. attribute:: arraysize 
 
-  Read-write attribute which specifies the number of rows to be fetched with :meth:`~fetchmany`. By default this is set to ``1`` when a cursor
-  is opened, thus it will fetch one row at a time from the result set until it is changed by calling :meth:`~fetchmany` with a different size.
+  Read-write attribute which specifies the number of rows to be
+  fetched with :meth:`~fetchmany`. By default this is set to ``1``
+  when a cursor is opened, thus it will fetch one row at a time from
+  the result set until it is changed by calling :meth:`~fetchmany`
+  with a different size.
 
 
 Cursor Extensions 
@@ -292,35 +322,44 @@ Cursor Extensions
 
 .. attribute:: connection
 
-  Read-only attribute which returns a reference to the connection at which the cursor was created.
+  Read-only attribute which returns a reference to the connection at
+  which the cursor was created.
 
 .. attribute:: messages 
 
-  List where an exception class and value is appended to as a tuple that the interface receives from the underlying database.
-  The aim of this attribute is to eliminate the need for a Warning exception which often causes problems.
+  List where an exception class and value is appended to as a tuple
+  that the interface receives from the underlying database.  The aim
+  of this attribute is to eliminate the need for a Warning exception
+  which often causes problems.
 
-  The list is cleared prior to executing all standard cursor methods except :meth:`fetch*() <fetchone>`.
+  The list is cleared prior to executing all standard cursor methods
+  except :meth:`fetch*() <fetchone>`.
 
 .. method:: next() 
 
-  Returns the next row in a result set, with the same semantics as :meth:`~fetchone`. If there is no more data available in the result set, a ``StopIteration`` exception is raised.
+  Returns the next row in a result set, with the same semantics as
+  :meth:`~fetchone`. If there is no more data available in the result
+  set, a ``StopIteration`` exception is raised.
 
 .. method:: __iter__() 
 
   Returns self which enables the cursor's compatibility with iteration.
 
-.. seealso:: :ref:`Iterating a result set`, for an example how this can be used.
+.. seealso:: :ref:`Iterating a result set`, for an example how this
+             can be used.
 
 .. attribute:: errorhandler 
 
-  The attribute states what errorhandler is used. This is set to the default unless otherwise stated when opening the connection. For further information, see
-  :doc:`exceptions`.
+  The attribute states what errorhandler is used. This is set to the
+  default unless otherwise stated when opening the connection. For
+  further information, see :doc:`exceptions`.
 
 .. method:: __enter__()
 
   Returns self which enables the cursor's compatibility with the Python ``with`` statement.
 
-.. seealso:: :ref:`Using with <Using_with>`, for an example how this can be used.
+.. seealso:: :ref:`Using with <Using_with>`, for an example how this
+             can be used.
 
 .. _scrollcursorclass:
 
@@ -329,12 +368,15 @@ ScrollCursor
 
 .. class:: ScrollCursor 
 
-  ``ScrollCursor`` is a subclass to the :class:`~Cursor`-class where the cursor can be scrolled to new positions in the result set.
-  All methods in the baseclass :class:`~Cursor` can also be used by a ``ScrollCursor``.
+  ``ScrollCursor`` is a subclass to the :class:`~Cursor`-class where
+  the cursor can be scrolled to new positions in the result set.  All
+  methods in the baseclass :class:`~Cursor` can also be used by a
+  ``ScrollCursor``.
 
-  When opening a cursor by using the method :meth:`Connection.cursor() <cursor>`, if the parameter
-  *scrollable* is set to ``True``, the cursor will be scrollable and an instance of ``ScrollCursor``.
-  If not specified, the cursor is by default not scrollable.
+  When opening a cursor by using the method :meth:`Connection.cursor()
+  <cursor>`, if the parameter *scrollable* is set to ``True``, the
+  cursor will be scrollable and an instance of ``ScrollCursor``.  If
+  not specified, the cursor is by default not scrollable.
 
   .. Note:: A ``ScrollCursor`` fetches the whole result set to the client.
 
@@ -344,24 +386,33 @@ ScrollCursor Methods
 
 .. method:: scroll(value [, mode='relative']) 
 
-  Method scrolls the cursor to a new position according to the *mode* of the scroll.
+  Method scrolls the cursor to a new position according to the *mode*
+  of the scroll.
 
-  The *mode* of the cursor is set to ``relative`` by default. This changes the cursor's position by *value* number of rows in relation to the current position of the cursor. If
-  *mode* is set to ``absolute`` the cursor is moved *value* number of rows down from the absolute position.
+  The *mode* of the cursor is set to ``relative`` by default. This
+  changes the cursor's position by *value* number of rows in relation
+  to the current position of the cursor. If *mode* is set to
+  ``absolute`` the cursor is moved *value* number of rows down from
+  the absolute position.
 
-  If the method is called upon and desired position in the result set does not exist, an :exc:`IndexError` is raised.
+  If the method is called upon and desired position in the result set
+  does not exist, an :exc:`IndexError` is raised.
 
 ScrollCursor Attributes
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. attribute:: rownumber
 
-  A read-only attribute that specifies the zero-based index of the cursor in the result set.
+  A read-only attribute that specifies the zero-based index of the
+  cursor in the result set.
 
-  This is set to ``None`` until a statement resulting in a result set i performed.
+  This is set to ``None`` until a statement resulting in a result set
+  i performed.
 
-  If a fetch operation is performed on the result set, the next row to fetch is the row with the :attr:`rownumber` as index.
+  If a fetch operation is performed on the result set, the next row to
+  fetch is the row with the :attr:`rownumber` as index.
 
 .. attribute:: rowcount
 
-  Same as for :class:`Cursor`, but is also updated whenever a ``SELECT`` statement is executed.
+  Same as for :class:`Cursor`, but is also updated whenever a
+  ``SELECT`` statement is executed.
