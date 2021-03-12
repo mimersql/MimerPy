@@ -228,5 +228,38 @@ performing several executes.However, this can be done by using the method
 
 .. seealso:: :ref:`cursorclass` documentation.
 
+Transaction loop
+------------------------
+
+You often want to grantee the completion of a transaction, or at least a re-try it if it fails. See the following example::
+
+    import mimerpy
+    from mimerpy.mimPyExceptions import DatabaseError, TransactionAbortError
+
+    def important_transaction(con, retries = 10):
+        if retries <= 0: 
+            return 0
+        try: 
+            cursor = con.cursor()
+            cursor.execute("CREATE TABLE poff (c1 INTEGER, c2 FLOAT) in pybank")
+            cursor.execute("INSERT into poff values (:a, :b)", (5, 5.5))
+            con.commit()
+        except TransactionAbortError as e:
+            con.rollback()
+            return important_transaction(con, retries - 1)
+        except DatabaseError as e:
+            con.rollback()
+            print("Unexpected non-database error:", e)
+            return 0
+        return 1
+
+    if __name__ == "__main__":
+        con = mimerpy.connect(dsn="pymeme", user = "SYSADM", password = "SYSADM")
+        result = important_transaction(con)
+        if result == 1: 
+            print("Succsess!")
+        else:
+            print("Failure!")
+
 .. Messages
 .. --------------
