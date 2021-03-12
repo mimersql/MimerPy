@@ -421,6 +421,39 @@ class TestCursorMethods(unittest.TestCase):
                              [(9, 'bob9'), (10, 'bob10')])
             self.assertEqual(c.fetchmany(2), [(11, 'bob11')])
 
+    def test_fetchmany_generator_smol(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table bob_generator (c1 INTEGER, c2 INTEGER)"
+                      " in pybank")
+            generator = ((i,-i) for i in range(10))
+            c.executemany("insert into bob_generator values (:a, :b)", generator)
+            self.tstcon.commit()
+
+    def test_fetchmany_generator_large(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table bob_generator2 (c1 INTEGER, c2 INTEGER)"
+                      " in pybank")
+        with self.tstcon.cursor() as c:
+            size = 100000
+            generator = ((i,-i) for i in range(size))
+            c.executemany("insert into bob_generator2 values (:a, :b)", generator)
+            self.tstcon.commit()
+            c.execute("SELECT MAX(c1), MIN(c2) AS maxv FROM bob_generator")
+            self.assertEqual(c.fetchone(),(size - 1, -size + 1))
+
+    @unittest.skip
+    def test_fetchmany_generator_too_large(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table bob_generator3 (c1 INTEGER, c2 INTEGER)"
+                    " in pybank")
+        with self.tstcon.cursor() as c:
+            size = 1000000
+            generator = ((i,-i) for i in range(size))
+            c.executemany("insert into bob_generator3 values (:a, :b)", generator)
+            self.tstcon.commit()
+            c.execute("SELECT MAX(c1), MIN(c2) AS maxv FROM bob_generator")
+            self.assertEqual(c.fetchone(),(size - 1, -size + 1))
+
     def test_fetchall(self):
         with self.tstcon.cursor() as c:
             c.execute("create table bob10 (c1 INTEGER, c2 NVARCHAR(10))"

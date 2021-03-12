@@ -23,6 +23,7 @@
 from mimerpy.mimPyExceptionHandler import *
 import mimerapi
 import collections
+from types import GeneratorType
 
 def _define_funcs():
     global get_funcs
@@ -306,6 +307,12 @@ class Cursor:
         rc_value = 0
         values = []
 
+        if isinstance(params, GeneratorType):
+            tmp_params = []
+            for i in params:
+                tmp_params.append(i)
+            params = tmp_params
+
         # I would like to look over this at some point
         # Checking for invalid parameter structure
         if (not isinstance(params, tuple) and not isinstance(params, list)):
@@ -488,7 +495,7 @@ class Cursor:
         while (fetch_value != 100):
             self.__check_mimerapi_error(fetch_value, self.__statement)
             return_tuple = ()
-            
+
             # Column number starts a 1
             for cur_column in range(1, self._number_of_columns + 1):
                 func_tuple = get_funcs[self._column_type[cur_column - 1]](self.__statement, cur_column)
