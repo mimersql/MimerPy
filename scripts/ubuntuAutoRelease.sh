@@ -1,12 +1,10 @@
 #!/bin/bash
 
-PTOKEN=
-
-if exist tmp (
+if [ -d "tmp" ]
+then 
     echo "error, tmp folder already exsist"
-    pause
     exit 1
-)
+fi
 
 mkdir tmp 
 
@@ -16,7 +14,9 @@ git clone https://github.com/mimersql/MimerPy.git
 
 cd MimerPy
 
-latestTag=git describe --tags $(git rev-list --tags --max-count=1)
+latestTag=`git describe --tags $(git rev-list --tags --max-count=1)`
+
+PTOKEN=$1
 
 git checkout $latestTag
 
