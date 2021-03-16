@@ -4,18 +4,21 @@ User guide
 
 .. _mimer-syntax:
 
-This chapter of the documentation covers the relationship between Mimerpy, MimerSQL and the Mimer Micro C API.
+This chapter of the documentation covers the relationship between
+Mimerpy, Mimer SQL and the Mimer SQL C API.
 
 Query structure
 ------------------------
-There are two ways to structure a query in Mimerpy, with or without parameter markers.
+There are two ways to structure a query in Mimerpy, with or without
+parameter markers.
 
 Without parameter markers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Executing a query without parameter markers is done with the MimerSQL syntax.
-If you are looking for help with basic elements of the SQL language and MimerSQL please visit `Mimer documentation`_.
-Consider the following example::
+Executing a query without parameter markers is done with the MimerSQL
+syntax.  If you are looking for help with basic elements of the SQL
+language and MimerSQL please visit `Mimer documentation`_.  Consider
+the following example::
 
   >>> con = mimerpy.connect(dsn ="mimerDB", user="mimerUser", password="password")
   >>> cur = con.execute("create table testtable(c1 NVARCHAR(128), c2 BINARY(3))")
@@ -76,7 +79,7 @@ Because of this there are some limitations and a few things to keep in mind whil
 * DDL statement are always committed.
 
 In most sequences of DDL and DML mixing, Mimerpy will raise a :exc:`ProgrammingError`. However not always.
-Mimerpy is coded to handle mixing of DDL and DML statements, but the current version of the Mimer Micro C API can not handle it.
+Mimerpy is coded to handle mixing of DDL and DML statements, but the current version of the Mimer SQL C API can not handle it.
 Because of this, unpredictable behavior sometimes occur when mixing DDL and DML executes.
 
 The Mimerpy user has the responsibility to write code with transaction control in mind.
@@ -89,7 +92,7 @@ Consider the following example::
   >>> cur.execute("select * from mytable")
   >>> conn.commit()
 
-In the current version of the Mimer Micro C API (``11.0``) the example above will not raise an error. However, because DDL
+In the current version of the Mimer SQL C API (``11.0``) the example above will not raise an error. However, because DDL
 statements always are committed, this example gives bad abstraction. Consider the following example::
 
   >>> cur = conn.cursor()

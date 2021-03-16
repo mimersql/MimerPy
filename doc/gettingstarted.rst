@@ -7,7 +7,7 @@ Mimer server of the corresponding version running. If you are
 uncertain if you have a Mimer server running, or need help getting one
 running, please visit the `Mimer documentation`_.
 
-.. _Mimer documentation: https://developer.mimer.com/products/documentation/
+.. _Mimer documentation: https://developer.mimer.com/documentation/
 
 Checking the Mimerpy installation
 ---------------------------------
