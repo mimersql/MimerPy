@@ -3,7 +3,7 @@ Exceptions
 **********
 
 .. _ref-exceptions:
-.. _Native Mimer SQL Return Codes: http://developer.mimer.se/documentation/html_101/Mimer_SQL_Engine_DocSet/App_Return_Codes3.html
+.. _Mimer SQL Documentation: https://developer.mimer.com/documentation
 .. _Exception: https://docs.python.org/3/library/exceptions.html#Exception
 .. _PEP 249: https://www.python.org/dev/peps/pep-0249/
 
@@ -118,7 +118,7 @@ into this list, so checking the list allows the user to verify correct
 operation of the method calls.
 
 .. seealso:: For further information regarding exception error codes,
-             see `Native Mimer SQL Return Codes`_.
+             see the Programmer's Manual in the `Mimer SQL Documentation`_.
 
 .. Warnings
 .. ------------------------
@@ -126,6 +126,9 @@ operation of the method calls.
 
 Errorhandler
 ------------------------
-The standard error handler adds the error information to the appropriate :attr:`messages` and raises the exception defined by the given errorclass and errorvalue parameters.
+The standard error handler adds the error information to the
+appropriate :attr:`messages` and raises the exception defined by the
+given errorclass and errorvalue parameters.
 
-If no errorhandler is set (the attribute is ``None``), the standard error handling scheme as outlined above, is applied.
+If no errorhandler is set (the attribute is ``None``), the standard
+error handling scheme as outlined above, is applied.
