@@ -80,7 +80,7 @@ Connection
 Connection Methods 
 --------------------------------------
 
-.. method:: close() 
+.. method:: Connection.close() 
 
   Method is used for closing a connection. The :meth:`~close`-method
   also closes all cursors opened with the connection.
@@ -95,7 +95,7 @@ Connection Methods
   unusable and a :exc:`~ProgrammingError` is raised if any operations
   are attempted on the connection.
 
-.. method:: commit() 
+.. method:: Connection.commit() 
 
   Commits the pending transaction to the database.
 
@@ -106,13 +106,13 @@ Connection Methods
   For information on the auto-commit feature on the connection, see
   :meth:`~autocommit`.
 
-.. method:: rollback() 
+.. method:: Connection.rollback() 
 
   Causes the database to roll back to the start of the transaction.
   If a connection is closed without committing changes made during
   the transaction, a :meth:`rollback` is implicitly performed.
 
-.. method:: cursor('scrollable'  = False) 
+.. method:: Connection.cursor('scrollable'  = False) 
 
   Returns a new :class:`~Cursor` object using the connection.
 
@@ -120,12 +120,12 @@ Connection Methods
   returned. If *scrollable* = ``True`` a :class:`ScrollCursor` will be
   returned.
 
-.. method:: execute(query, [,parameters]) 
+.. method:: Connection.execute(query, [,parameters]) 
 
   This method is not included in the `PEP 249`_. It returns a
   :class:`~Cursor` object and executes the query.
 
-.. method:: executemany(query, seq_of_parameters) 
+.. method:: Connection.executemany(query, seq_of_parameters) 
 
   This method is not included in the `PEP 249`_. It returns a
   :class:`~Cursor` object and executes the query against all the
@@ -144,7 +144,7 @@ Connection Attributes
 Connection Extensions 
 ------------------------------------------
 
-.. method:: autocommit(bool) 
+.. method:: Connection.autocommit(bool) 
 
   This method is used to turn on or off the auto-commit feature on the
   connection.  By using this method, from this point onward changes
@@ -179,7 +179,7 @@ Connection Extensions
   default unless otherwise stated when opening the connection. For
   further information, see :doc:`exceptions`.
 
-.. method:: __enter__()
+.. method:: Connection.__enter__()
 
   Returns self which enables the connections's compatibility with the
   Python ``with`` statement.
@@ -213,13 +213,13 @@ Cursor
 Cursor Methods
 ----------------
 
-.. method:: close() 
+.. method:: Cursor.close() 
 
   Closes a cursor. From this point onwards the cursor is unusable and
   a :exc:`~ProgrammingError` is raised if any operations are attempted
   on the connection.
 
-.. method:: execute(query, [,parameters]) 
+.. method:: Cursor.execute(query, [,parameters]) 
 
   Prepares and executes a SQL statement.
 
@@ -227,14 +227,14 @@ Cursor Methods
   contain data or parameter markers can be used, see :ref:`User guide`
   for more information.
 
-.. method:: executemany(query, seq_of_parameters) 
+.. method:: Cursor.executemany(query, seq_of_parameters) 
 
   Prepares and executes a SQL statement against all parameters in
   *seq_of_parameters*.
 
 .. seealso:: :ref:`User guide`, for the correct syntax of these methods.
 
-.. method:: fetchone() 
+.. method:: Cursor.fetchone() 
 
   Fetches the next row of a result set. The row is returned as a tuple. If
   no more data is available, ``None`` is returned.
@@ -243,7 +243,7 @@ Cursor Methods
   :meth:`~execute` did not produce a result set, a
   :exc:`~ProgrammingError` is raised.
 
-.. method:: fetchmany([size=cursor.arraysize]) 
+.. method:: Cursor.fetchmany([size=cursor.arraysize]) 
 
   Fetches the next rows of a result set. The rows are returned as a
   list of tuples. If no more data is available, an empty list is
@@ -262,7 +262,7 @@ Cursor Methods
   :meth:`~execute` did not produce a result set, a
   :exc:`~ProgrammingError` is raised.
 
-.. method:: fetchall() 
+.. method:: Cursor.fetchall() 
 
   Fetches the remaining rows of a result set. The rows are returned as
   a list of tuples.  If no more data is available, an empty list is
@@ -272,12 +272,12 @@ Cursor Methods
   :meth:`~execute` did not produce a result set, a
   :exc:`~ProgrammingError` is raised.
 
-.. method:: setinputsizes() 
+.. method:: Cursor.setinputsizes() 
 
   The method does not do anything but is a requirement from the DB-API
   `PEP 249`_.
 
-.. method:: setoutputsize() 
+.. method:: Cursor.setoutputsize() 
 
   The method does not do anything but is a requirement from the DB-API
   `PEP 249`_.
@@ -339,13 +339,13 @@ Cursor Extensions
   The list is cleared prior to executing all standard cursor methods
   except :meth:`fetch*() <fetchone>`. 
 
-.. method:: next() 
+.. method:: Cursor.next() 
 
   Returns the next row in a result set, with the same semantics as
   :meth:`~fetchone`. If there is no more data available in the result
   set, a ``StopIteration`` exception is raised.
 
-.. method:: __iter__() 
+.. method:: Cursor.__iter__() 
 
   Returns self which enables the cursor's compatibility with iteration.
 
@@ -358,7 +358,7 @@ Cursor Extensions
   default unless otherwise stated when opening the connection. For
   further information, see :doc:`exceptions`.
 
-.. method:: __enter__()
+.. method:: Cursor.__enter__()
 
   Returns self which enables the cursor's compatibility with the Python ``with`` statement.
 

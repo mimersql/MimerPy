@@ -23,6 +23,7 @@
 from mimerpy.mimPyExceptionHandler import *
 import mimerapi
 import collections
+from types import GeneratorType
 
 def _define_funcs():
     global get_funcs
@@ -107,6 +108,7 @@ class Cursor:
         self._number_of_columns = None
         self._last_query = None
         self._DDL_rc_value = None
+        self._column_type = []
 
         self.__session = session
         self.__statement = None
@@ -266,7 +268,7 @@ class Cursor:
                 description = collections.namedtuple('Column_description',
                                                      'name type_code display_size internal_size precision scale null_ok')
                 self.description = ()
-
+                self._column_type = []
                 for cur_column in range(1, self._number_of_columns + 1):
                     func_tuple = mimerapi.mimerColumnName8(self.__statement, cur_column)
                     rc_value = func_tuple[0]
@@ -274,6 +276,7 @@ class Cursor:
                     name = func_tuple[1]
                     rc_value = mimerapi.mimerColumnType(self.__statement, cur_column)
                     self.__check_mimerapi_error(rc_value, self.__statement)
+                    self._column_type.append(rc_value)
                     type_code = rc_value
                     self.description = self.description + (description(name=name,
                                                                        type_code=type_code,
@@ -303,6 +306,12 @@ class Cursor:
         self.rowcount = 0
         rc_value = 0
         values = []
+
+        if isinstance(params, GeneratorType):
+            tmp_params = []
+            for i in params:
+                tmp_params.append(i)
+            params = tmp_params
 
         # I would like to look over this at some point
         # Checking for invalid parameter structure
@@ -395,11 +404,9 @@ class Cursor:
         # Return value of mimerFetch == 100 implies end of result set
         if (rc_value == 100):
             return []
-
+        
         for cur_column in range(1, self._number_of_columns + 1):
-            rc_value = mimerapi.mimerColumnType(self.__statement, cur_column)
-            self.__check_mimerapi_error(rc_value, self.__statement)
-            func_tuple = get_funcs[rc_value](self.__statement, cur_column)
+            func_tuple = get_funcs[self._column_type[cur_column - 1]](self.__statement, cur_column)
             self.__check_mimerapi_error(func_tuple[0], self.__statement)
 
             # Conversion from C int to Python boolean
@@ -410,7 +417,6 @@ class Cursor:
                     return_tuple = return_tuple + (True,)
             else:
                 return_tuple = return_tuple + (func_tuple[1],)
-
         return return_tuple
 
     def fetchmany(self, *arg):
@@ -443,14 +449,14 @@ class Cursor:
         fetch_length = self.arraysize
         rc_value = mimerapi.mimerFetch(self.__statement)
         fetch_value = rc_value
+
         while (fetch_value != 100 and fetch_length > 0):
             self.__check_mimerapi_error(fetch_value, self.__statement)
             return_tuple = ()
+
             # Column number starts a 1
             for cur_column in range(1, self._number_of_columns + 1):
-                rc_value = mimerapi.mimerColumnType(self.__statement, cur_column)
-                self.__check_mimerapi_error(rc_value, self.__statement)
-                func_tuple = get_funcs[rc_value](self.__statement, cur_column)
+                func_tuple = get_funcs[self._column_type[cur_column - 1]](self.__statement, cur_column)
                 self.__check_mimerapi_error(func_tuple[0], self.__statement)
 
                 # Conversion from C int to Python boolean
@@ -485,14 +491,14 @@ class Cursor:
         values = []
         rc_value = mimerapi.mimerFetch(self.__statement)
         fetch_value = rc_value
+
         while (fetch_value != 100):
             self.__check_mimerapi_error(fetch_value, self.__statement)
             return_tuple = ()
+
             # Column number starts a 1
             for cur_column in range(1, self._number_of_columns + 1):
-                rc_value = mimerapi.mimerColumnType(self.__statement, cur_column)
-                self.__check_mimerapi_error(rc_value, self.__statement)
-                func_tuple = get_funcs[rc_value](self.__statement, cur_column)
+                func_tuple = get_funcs[self._column_type[cur_column - 1]](self.__statement, cur_column)
                 self.__check_mimerapi_error(func_tuple[0], self.__statement)
 
                 # Conversion from C int to Python boolean
@@ -503,7 +509,6 @@ class Cursor:
                         return_tuple = return_tuple + (True,)
                 else:
                     return_tuple = return_tuple + (func_tuple[1],)
-
             values.append(return_tuple)
             fetch_value = mimerapi.mimerFetch(self.__statement)
         return values
