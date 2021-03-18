@@ -163,7 +163,7 @@ Example usage of varbinary:
 
 ``BLOB(n[K|M|G])`` 
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-Just like :ref:`BINARY <BINARY>` but for larger objects. Like binary columns it expects the a parameter to be a `bytes-like objects`_. The BINARY LARGE OBJECT or BLOB data type stores binary string values of varying length up to the maximum specified as the large object length (n[K|M|G]).
+Just like :ref:`BINARY <BINARY>` but for larger objects. Like binary columns it expects the a parameter to be a `bytes-like object`_. The BINARY LARGE OBJECT or BLOB data type stores binary string values of varying length up to the maximum specified as the large object length (n[K|M|G]).
 
 The large object length is n, optionally multiplied by K|M|G.
 
