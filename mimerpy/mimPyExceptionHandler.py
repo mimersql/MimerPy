@@ -23,6 +23,13 @@
 from mimerpy.mimPyExceptions import *
 import mimerapi
 
+# When adding new MimerAPI error codes:
+#  - Use the range -25xxx
+#  - Check the dictionaries below so that the right exception is thrown
+#  - Update env/gblsym/message.sym in the Mimer trunk
+#  - Update dbl/sdb/syscat.ddi in the Mimer trunk
+#  - Tell Jarl
+
 mimerpy_error = {
     -25000:"Unsupported method",
     -25001:"TPC is unsupported",
