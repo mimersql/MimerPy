@@ -17,7 +17,7 @@ The following documentation covers the full interface of Mimerpy,
 demonstrating how to
 install and use the product through simple guides and easy to read examples.
 
-.. _Python: http://www.python.org/
+.. _Python: https://www.python.org/
 .. _PEP 249: https://www.python.org/dev/peps/pep-0249/
 .. _Mimer SQL C API: https://developer.mimer.com/mimerapi
 
