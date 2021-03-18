@@ -1,9 +1,5 @@
-import unittest
-import time
-import math
+import unittest, time, math, random, uuid
 import mimerpy
-import random
-
 from mimerpy.mimPyExceptions import *
 import db_config
 
@@ -30,6 +26,24 @@ class TestCursorMethods(unittest.TestCase):
         with self.tstcon.cursor() as c:
             c.execute("select 'a', cast('2020-09-17 11:21:51' as timestamp(2)) from system.onerow")
             self.assertEqual(c.fetchall(), [('a', '2020-09-17 11:21:51.00')])
+
+    def test_fetchall_timestamp_one(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table bob_timestamp(c1 TIMESTAMP(2)) in pybank")
+            c.execute("insert into bob_timestamp values (:a)", ('2020-09-17 11:21:51'))
+            self.tstcon.commit()
+            c.execute("select * from bob_timestamp")
+            r = c.fetchone()
+            self.assertEqual(r, ('2020-09-17 11:21:51.00',))
+
+    def test_fetchall_timestamp_two(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table bob_timestamp(c1 TIMESTAMP(9)) in pybank")
+            c.execute("insert into bob_timestamp values (:a)", ('2020-09-17 11:21:51.123456789'))
+            self.tstcon.commit()
+            c.execute("select * from bob_timestamp")
+            r = c.fetchone()
+            self.assertEqual(r, ('2020-09-17 11:21:51.123456789',))
 
     def test_privilege(self):
         with self.tstcon.cursor() as c:
@@ -950,6 +964,26 @@ class TestCursorMethods(unittest.TestCase):
             with self.assertRaises(ProgrammingError):
                 c.fetchall()
 
+    def test_UUID_one(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table uuidtable( id BUILTIN.UUID) in pybank")
+            vuuid = str(uuid.uuid4())
+            c.execute("insert into uuidtable values(builtin.uuid_from_text(cast(? as varchar(50))))", (vuuid))
+            self.tstcon.commit()
+            c.execute("select id.as_text() from uuidtable")
+            r = c.fetchall()[0][0]
+            self.assertEqual(r, vuuid)
+
+    def test_UUID_two(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table uuidtable2( id BUILTIN.UUID) in pybank")
+            vuuid = str(uuid.uuid1())
+            c.execute("insert into uuidtable2 values(builtin.uuid_from_text(cast(? as varchar(50))))", (vuuid))
+            self.tstcon.commit()
+            c.execute("select id.as_text() from uuidtable2")
+            r = c.fetchall()[0][0]
+            self.assertEqual(r, vuuid)
+
     def test_insert_blob(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jonblob (c1 BLOB(18389)) in pybank")
@@ -1108,10 +1142,20 @@ class TestCursorMethods(unittest.TestCase):
             r = c.fetchall()[0]
             self.assertEqual(r[0], data)
 
-    def test_insert_time(self):
+    def test_insert_time_one(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jontime (c1 TIME(0)) in pybank")
             time = "16:04:55"
+            c.execute("insert INTO jontime VALUES (?)", (time))
+            self.tstcon.commit()
+            c.execute("select * from jontime")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], time)
+
+    def test_insert_time_two(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table jontime (c1 TIME(4)) in pybank")
+            time = "16:04:55.1234"
             c.execute("insert INTO jontime VALUES (?)", (time))
             self.tstcon.commit()
             c.execute("select * from jontime")
