@@ -230,8 +230,45 @@ performing several executes.However, this can be done by using the method
 
 Transaction loop
 ------------------------
+It is often usefull redo a transaction if it fails. There is a never a grantee a transaction complets, but a program can be written so it re-trys when it fails. The following example is one way of retrying a transaction if it fails::
 
-You often want to grantee the completion of a transaction, or at least a re-try it if it fails. See the following example::
+    import mimerpy
+    from mimerpy.mimPyExceptions import DatabaseError, TransactionAbortError
+
+    def important_transaction(con):
+        try: 
+            cursor = con.cursor()
+            cursor.execute("CREATE TABLE poff (c1 INTEGER, c2 FLOAT) in pybank")
+            cursor.execute("INSERT into poff values (:a, :b)", (5, 5.5))
+            con.commit()
+        except TransactionAbortError as e:
+            con.rollback()
+            return 0
+        except DatabaseError as e:
+            con.rollback()
+            print("Unexpected non-database error:", e)
+            return -1
+        return 1
+
+    if __name__ == "__main__":
+        con = mimerpy.connect(dsn="pymeme", user = "SYSADM", password = "SYSADM")
+        laps = 0
+        while laps <= 10:
+            result = important_transaction(con)
+            if result == 1:
+                break
+            laps = laps + 1
+
+        if result == 1: 
+            print("Succsess!")
+        else:
+            print("Failure!")
+
+.. seealso:: :ref:`TransactionAbortError <TransactionAbortError>` documentation.
+
+Alternative Transaction loop
+-------------------------------
+The following example is alternative way of retrying a transaction if it fails using recursion::
 
     import mimerpy
     from mimerpy.mimPyExceptions import DatabaseError, TransactionAbortError
