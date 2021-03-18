@@ -15,11 +15,10 @@ it is dependent on the `Mimer SQL C API`_.
 The Mimer SQL C API is a discrete C API that comes with Mimer. The
 Mimer SQL C API and the Mimer server has be of version 11 or newer.
 
-Mimerpy is currently in Alpha. For more information on the current
-status of the project go to :ref:`Release notes`.
-
 Mimerpy is under MIT license and is open source. For more information
 regarding this, see :ref:`Legal notice`.
+
+The current source code for MimerPy can be found on GitHub_.
 
 The following documentation covers the full interface of Mimerpy,
 explaining how to install it stepwise and also how to use the product
@@ -29,16 +28,16 @@ and easy to read code examples.
 For questions regarding the Mimer SQL C API, please visit `Mimer
 SQL C API`_.
 
-If you are experiencing any difficulties with the product itself, its
-installation, usage or documentation please contact us.  All feedback
-is appreciated to help us at Mimer Information Technology to improve
-our product.
-
-Contact us at: support@mimer.com
+If you are experiencing any difficulties with MimerPy, its
+installation, usage or documentation please create a new issue_ on
+GitHub.  All feedback is appreciated to help us at Mimer Information
+Technology to improve our product.
 
 More information on `Mimer`_.
 
-.. _Mimer: http://mimer.com/
-.. _Python: http://www.python.org/
+.. _GitHub: https://github.com/mimersql/MimerPy
+.. _issue: https://github.com/mimersql/MimerPy/issues
+.. _Mimer: https://www.mimer.com/
+.. _Python: https://www.python.org/
 .. _PEP 249: https://www.python.org/dev/peps/pep-0249/
 .. _Mimer SQL C API: https://developer.mimer.com/mimerapi

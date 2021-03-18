@@ -12,7 +12,7 @@ Requirements:
 * MimerPy is currently supported on Linux, MacOS and Windows.
 * Python 3.5 or later
 
-The source code for MimerPy resides on GitHub_. Installable packets
+The source code for MimerPy resides on GitHub_. Installable packages
 can be found on PyPi_. To install, use the command::
 pip3 install mimerpy
 

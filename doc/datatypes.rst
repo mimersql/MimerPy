@@ -2,7 +2,8 @@
 Python and Mimer datatypes
 **************************
 
-This section discusses the relationship between Python3 data types and MimerSQL data types.
+This section discusses the relationship between Python3 data types and
+MimerSQL data types.
 
 -----------------------------------------
 
@@ -32,9 +33,9 @@ Overview of MimerSQL to Python data types:
 +------------------------+--------------------+
 | DECIMAL(p,s)           | Float              |
 +------------------------+--------------------+
-| BINARY                 | Str                |
+| BINARY                 | bytes              |
 +------------------------+--------------------+
-| VARBINARY(n)           | Str                |
+| VARBINARY(n)           | bytes              |
 +------------------------+--------------------+
 | BLOB(n[K,M,G])         | Str                |
 +------------------------+--------------------+
@@ -59,8 +60,6 @@ Overview of MimerSQL to Python data types:
 | NULL                   | NoneType           |
 +------------------------+--------------------+
 
-.. Note:: There are some MimerSQL data types that have yet not been implemented.
-          These will be added to the list as they are implemented in Mimerpy.
 
 ``BOOLEAN``
 ^^^^^^^^^^^^
@@ -73,19 +72,22 @@ column and Mimerpy will accept this. Consider the following example::
 
   >>> cur.executemany("insert into booltable values (?)", [(None,), (1,), (0,), (3.1415,), ("potato",), ('banana',)])
 
-All of the paramarkers are of accepted Python boolean types and in the database
-these values will be stored as ``False``, ``True``, ``False``, ``True``, ``True``
-and ``True``. For more information on Python3 built-in types and truth values testing please visit `Built-in Types`_.
+All of the paramarkers are of accepted Python boolean types and in the
+database these values will be stored as ``False``, ``True``,
+``False``, ``True``, ``True`` and ``True``. For more information on
+Python3 built-in types and truth values testing please visit `Built-in
+Types`_.
 
 .. _Built-in Types: https://docs.python.org/3/library/stdtypes.html#truth-value-testing
 
 ``INTEGER``, ``INTEGER(p)``, ``BIGINT & SMALLINT``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Because Python3 only uses one data type for the three corresponding MimerSQL integer
-types, it's the responsibility of the user to stay within the limits.
-If a value is too large or too small for a number (``INTEGER``, ``BIGINT`` or ``SMALLINT``)
-column, a :exc:`ProgrammingError` will be raised. The following limits apply:
+Because Python3 only uses one data type for the three corresponding
+MimerSQL integer types, it's the responsibility of the user to stay
+within the limits.  If a value is too large or too small for a number
+(``INTEGER``, ``BIGINT`` or ``SMALLINT``) column, a
+:exc:`ProgrammingError` will be raised. The following limits apply:
 
 +------------------------+----------------------+
 | MimerSQL data type     | Range of values      |
@@ -102,35 +104,38 @@ column, a :exc:`ProgrammingError` will be raised. The following limits apply:
 
 ``DOUBLE PRECISION, FLOAT, FLOAT(p), REAL, & DECIMAL(p,s)``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-``DOUBLE PRECISION``, ``FLOAT`` and ``REAL`` columns are a science of their own. Depending on the
-operating system and the machine your running the range varies. ``FLOAT(p)`` are floating point value 
+``DOUBLE PRECISION``, ``FLOAT`` and ``REAL`` conform to 64-bit and
+32-bit IEEE floating point numbers. Mimer will not accept NaN, +Inf or
+-Inf. And it will convert the distinct value -0.0 to 0.0. ``FLOAT(p)`` are floating point value 
 with p digits in the decimal mantissa. ``DECIMAL(p,s)`` are exact numerical, precision p, scale s.  
 The approximate limits apply:
 
-+------------------------+-----------------------------------+
-| MimerSQL data type     | Range of values                   |
-|                        |                                   |
-+========================+===================================+
-| DOUBLE PRECISION       |  - -10^308 to 10^308              |
-+------------------------+-----------------------------------+
-| FLOAT                  | - -10^308 to 10^308               |
-+------------------------+-----------------------------------+
-| FLOAT(p)               | - 1 <= p <= 45                    |
-|                        | - Zero or absolute value          |
-|                        | - 10^999 to 10^999                |
-+------------------------+-----------------------------------+
-| REAL                   | - -10^38 to 10^38                 |
-+------------------------+-----------------------------------+
-| DECIMAL(p,s)           | - 1 <= p <= 45                    |
-|                        | - 0 <= s <= p                     |
-+------------------------+-----------------------------------+
++------------------------+-----------------------------------+-----------+
+| MimerSQL data type     | Range of values                   | IEEE type |
++========================+===================================+===========+
+| DOUBLE PRECISION       | - -10^308 to 10^308               | 64-bit    |
++------------------------+-----------------------------------+-----------+
+| FLOAT                  | - -10^308 to 10^308               | 64-bit    |
++------------------------+-----------------------------------+-----------+
+| FLOAT(p)               | - 1 <= p <= 45                    | 64-bit    |
+|                        | - Zero or absolute value          |           |
+|                        | - 10^999 to 10^999                |           |
++------------------------+-----------------------------------+-----------+
+| REAL                   | - -10^38 to 10^38                 | 64-bit    |
++------------------------+-----------------------------------+-----------+
+| DECIMAL(p,s)           | - 1 <= p <= 45                    | 32-bit    |
+|                        | - 0 <= s <= p                     |           |
++------------------------+-----------------------------------+-----------+
 
 ``BINARY(n)``
 ^^^^^^^^^^^^^^^
 .. _BINARY:
 
-The binary data type stores a sequence of bytes. In Python3 there are many ways to create a ``BINARY`` object. One way is to using the ``b'`` tag, another way is to use the ``to_bytes`` method, or you can use the
-``bytearray`` method. When specifying a parameter for ``BINARY`` column, Mimerpy expects it to be a `bytes-like objects`_.  ``n`` specifies the length to be between 1 and 15 000.
+In Python3 there are many ways to create a ``BINARY`` object. One way
+is to using the ``b'`` tag, another way is to use the ``to_bytes``
+method, or you can use the ``bytearray`` method. When specifying a
+parameter for ``BINARY`` column, Mimerpy expects it to be a
+`bytes-like object`_.  ``n`` specifies the length to be between 1 and 15 000.
 
 Example usage of binary:
 
@@ -141,7 +146,7 @@ Example usage of binary:
 
 .. seealso:: `Binary data`_, for more information.
 
-.. _bytes-like objects: https://docs.python.org/3/glossary.html#term-bytes-like-object
+.. _bytes-like object: https://docs.python.org/3/glossary.html#term-bytes-like-object
 .. _Binary data: https://docs.python.org/3/library/binary.html
 
 ``VARBINARY(n)``
@@ -197,8 +202,8 @@ Example usage of ``CLOB``::
   ...      cur.execute("insert INTO clob_table VALUES (?)", (aclob))
 
 ``NCLOB(n)``
-^^^^^^^^^^^^^^^^^^
-Just like :ref:`CLOB <CLOB>`, but can hold all Unicode symbols.
+^^^^^^^^^^^^^^
+Just like :ref:`CLOB <CLOB>`, but can hold all Unicode code-points.
 
 Example usage of ``NCLOB``::
 
@@ -297,17 +302,13 @@ Consider the following example::
 
 ``NULL``
 ^^^^^^^^^^^^
-The Python data type ``None`` is mapped to ``NULL`` in Mimerpy. MimerSQL ``NULL`` values will be returned as ``None`` in Python. Columns which contain an undefined value are assigned a null value. 
-Consider the following example::
+The Python data type ``None`` is mapped to ``NULL`` in
+Mimerpy. MimerSQL ``NULL`` values will be returned as ``None`` in
+Python. Consider the following example::
 
   >>> cursor.execute("create table booltable(c1 INTEGER)")
   >>> cursor.execute("insert into booltable values (NULL)")
   >>> cursor.execute("insert into booltable values (?)", (None))
 
-In the database both values will be stored as ``NULL``. When selected, they are both shown as ``None`` in Python.
-
-Unsupported data types
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-All data types supported by the Mimer API are supported in Mimerpy.
-There are some data types in MimerSQL that are not yet supported by the Mimer API.
-As more data types are implemented in the Mimer API they will be implemented in Mimerpy.
+In the database both values will be stored as ``NULL``. When selected,
+they are both shown as ``None`` in Python.

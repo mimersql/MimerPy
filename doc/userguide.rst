@@ -1,25 +1,40 @@
-***************
+
 User guide
 ***************
 
 .. _mimer-syntax:
 
-This chapter of the documentation covers the relationship between Mimerpy, MimerSQL and the Mimer Micro C API.
+This chapter of the documentation covers the relationship between
+Mimerpy, Mimer SQL and the Mimer SQL C API.
 
 Query structure
 ------------------------
-There are two ways to structure a query in Mimerpy, with or without parameter markers.
+There are two ways to structure a query in Mimerpy, with or without
+parameter markers.
 
 Without parameter markers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Executing a query without parameter markers is done with the MimerSQL syntax.
-If you are looking for help with basic elements of the SQL language and MimerSQL please visit `Mimer documentation`_.
-Consider the following example::
+Executing a query without parameter markers is done with the MimerSQL
+syntax.  If you are looking for help with basic elements of the SQL
+language and MimerSQL please visit `Mimer documentation`_.  Consider
+the following example::
 
   >>> con = mimerpy.connect(dsn ="mimerDB", user="mimerUser", password="password")
   >>> cur = con.execute("create table testtable(c1 NVARCHAR(128), c2 BINARY(3))")
   >>> cur.execute("INSERT INTO ptable VALUES ('bar', x'ABCD01')")
+
+There are some drawbacks using constant literals in SQL expressions:
+
+* The SQL server will compile each new SQL statement into an
+  intermediate executable representation. The server maintains a cache
+  of statements it has already compiled. If it finds the exact same
+  SQL string, it can reuse an old compiled statement. Use parameter
+  markers to keep the statements identical and reusable.
+* Creating SQL strings with data constants can create a security risk known
+  as `SQL Injection`_. Use parameter markers to avoid this risk.
+
+.. _SQL Injection: https://en.wikipedia.org/wiki/SQL_injection
 
 With parameter markers
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -50,38 +65,43 @@ When executing to multiple columns, the rules are more strict::
   >>> cur.execute("INSERT INTO ptable VALUES (?,?,?)", ["bar",314,41.23]) # Correct
   >>> cur.execute("INSERT INTO ptable VALUES (?,?,?)", "bar",314,41.23)   # Incorrect
 
-The same rules apply when using :meth:`~executemany`. For an example, see :ref:`Executemany`.
+The same rules apply when using :meth:`~executemany`. For an example,
+see :ref:`Executemany`.
 
 
 .. Common mistakes
 .. ------------------------
 
 
-.. If you are looking for a more formal guide please visit the `official mimer documentation`_
+.. If you are looking for a more formal guide please visit the `Mimer documentation`_
 
 .. _PEP 249: https://www.python.org/dev/peps/pep-0249/
-.. _mimer documentation: http://developer.mimer.com/documentation/html_101/Mimer_SQL_Engine_DocSet/index.htm
-.. _official mimer documentation: http://developer.mimer.com/documentation/html_101/Mimer_SQL_Engine_DocSet/index.htm
+.. _mimer documentation: https://developer.mimer.com/documentation/
 
 
 Transaction control
 ------------------------
 
-Every time an :meth:`execute` is called from a connection or a cursor, a transaction, if not already open, starts.
-The transaction is supposed to be open until a :meth:`rollback` or a :meth:`commit` is performed. Unfortunately this is not always true.
-If a DDL statement is executed the transaction will implicitly end.
-Because of this there are some limitations and a few things to keep in mind while using the current version Mimerpy.
+Every time an :meth:`execute` is called from a connection or a cursor,
+a transaction, if not already open, starts.  The transaction is
+supposed to be open until a :meth:`rollback` or a :meth:`commit` is
+performed. Unfortunately this is not always true.  If a DDL statement
+is executed the transaction will implicitly end.  Because of this
+there are some limitations and a few things to keep in mind while
+using the current version Mimerpy.
 
 * DLL and DML statements should (can) not be mixed in the same transaction.
 * DDL statement are always committed.
 
-In most sequences of DDL and DML mixing, Mimerpy will raise a :exc:`ProgrammingError`. However not always.
-Mimerpy is coded to handle mixing of DDL and DML statements, but the current version of the Mimer Micro C API can not handle it.
-Because of this, unpredictable behavior sometimes occur when mixing DDL and DML executes.
+In most sequences of DDL and DML mixing, Mimerpy will raise a
+:exc:`ProgrammingError`. However not always.  Mimerpy is coded to
+handle mixing of DDL and DML statements, but the current version of
+the Mimer SQL C API can not handle it.  Because of this, unpredictable
+behavior sometimes occur when mixing DDL and DML executes.
 
-The Mimerpy user has the responsibility to write code with transaction control in mind.
-Our recommendation is to always commit before and after a executing a DDL statement.
-Consider the following example::
+The Mimerpy user has the responsibility to write code with transaction
+control in mind.  Our recommendation is to always commit before and
+after a executing a DDL statement.  Consider the following example::
 
   >>> cur = conn.cursor()
   >>> cur.execute("create table mytable(c1 NVARCHAR(128))")
@@ -89,8 +109,10 @@ Consider the following example::
   >>> cur.execute("select * from mytable")
   >>> conn.commit()
 
-In the current version of the Mimer Micro C API (``11.0``) the example above will not raise an error. However, because DDL
-statements always are committed, this example gives bad abstraction. Consider the following example::
+In the current version of the Mimer SQL C API (``11.0``) the example
+above will not raise an error. However, because DDL statements are
+always committed, this example gives a false impression. Consider the
+following example::
 
   >>> cur = conn.cursor()
   >>> cur.execute("create table mytable(c1 NVARCHAR(128))")
@@ -101,8 +123,8 @@ statements always are committed, this example gives bad abstraction. Consider th
 
 This is what is done in the first example implicitly.
 
-.. note:: If you wish to bypass this problem, :meth:`autocommit` can be used and none
-          of this applies.
+.. note:: If you wish to bypass this problem, :meth:`autocommit` can
+          be used and none of this applies.
 
 MimerSQL DML & DDL cheat sheet
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
