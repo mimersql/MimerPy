@@ -231,7 +231,8 @@ performing several executes.However, this can be done by using the method
 Transaction loop
 ------------------------
 
-You often want to grantee the completion of a transaction, or at least a re-try it if it fails. See the following example::
+You often want to guarantee the completion of a transaction by retrying
+it if it fails. See the following example::
 
     import mimerpy
     from mimerpy.mimPyExceptions import DatabaseError, TransactionAbortError
