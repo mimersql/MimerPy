@@ -133,7 +133,7 @@ Connection Methods
 
 Connection Attributes 
 ----------------------------------------
-.. attribute:: autocommitmode 
+.. attribute:: Connection.autocommitmode 
 
   Attribute determines if the connection will auto-commmit any changes
   or if :meth:`~commit` has to be performed explicitly.  This is set
@@ -160,7 +160,7 @@ Connection Extensions
             when opening a connection or use method :meth:`~commit`
             before using :meth:`~autocommit`.
 
-.. attribute:: messages 
+.. attribute:: Connection.messages 
 
   List where an exception class and value is appended to as a tuple
   that the interface receives from the underlying database. If the
@@ -173,7 +173,7 @@ Connection Extensions
   The list is cleared prior to executing all standard cursor methods
   except :meth:`fetch*() <fetchone>`. 
 
-.. attribute:: errorhandler 
+.. attribute:: Connection.errorhandler 
 
   The attribute states what errorhandler is used. This is set to the
   default unless otherwise stated when opening the connection. For
@@ -286,7 +286,7 @@ Cursor Methods
 Cursor Attributes 
 --------------------------------------
 
-.. attribute:: description 
+.. attribute:: Cursor.description 
 
   A read-only attribute that is a sequence of 7-item sequences. Each
   sequence stores information regarding the latest result column:
@@ -305,14 +305,14 @@ Cursor Attributes
   ``name`` provides the name of the result column and ``type_code``
   specifies the native Mimer SQL C API type code for the column.
 
-.. attribute:: rowcount 
+.. attribute:: Cursor.rowcount 
 
   Read-only attribute that specifies the number of updated rows that
   the last :meth:`~execute` performed. For example performing an
   ``INSERT``, ``UPDATE`` or ``DELETE`` statement, the attribute is
   changed.
 
-.. attribute:: arraysize 
+.. attribute:: Cursor.arraysize 
 
   Read-write attribute which specifies the number of rows to be
   fetched with :meth:`~fetchmany`. By default this is set to ``1``
@@ -324,12 +324,12 @@ Cursor Attributes
 Cursor Extensions 
 --------------------------------------
 
-.. attribute:: connection
+.. attribute:: Cursor.connection
 
   Read-only attribute which returns a reference to the connection at
   which the cursor was created.
 
-.. attribute:: messages 
+.. attribute:: Cursor.messages 
 
   List where an exception class and value is appended to as a tuple
   that the interface receives from the underlying database.  The aim
@@ -352,7 +352,7 @@ Cursor Extensions
 .. seealso:: :ref:`Iterating a result set`, for an example how this
              can be used.
 
-.. attribute:: errorhandler 
+.. attribute:: Cursor.errorhandler 
 
   The attribute states what errorhandler is used. This is set to the
   default unless otherwise stated when opening the connection. For
@@ -388,7 +388,7 @@ ScrollCursor
 ScrollCursor Methods 
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. method:: scroll(value [, mode='relative']) 
+.. method:: ScrollCursor.scroll(value [, mode='relative']) 
 
   Method scrolls the cursor to a new position according to the *mode*
   of the scroll.
@@ -405,7 +405,7 @@ ScrollCursor Methods
 ScrollCursor Attributes
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. attribute:: rownumber
+.. attribute:: ScrollCursor.rownumber
 
   A read-only attribute that specifies the zero-based index of the
   cursor in the result set.
@@ -416,7 +416,7 @@ ScrollCursor Attributes
   If a fetch operation is performed on the result set, the next row to
   fetch is the row with the :attr:`rownumber` as index.
 
-.. attribute:: rowcount
+.. attribute:: ScrollCursor.rowcount
 
   Same as for :class:`Cursor`, but is also updated whenever a
   ``SELECT`` statement is executed.

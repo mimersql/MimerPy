@@ -1,8 +1,16 @@
 :: @echo off
 :: Arg 1 is the private token for PyPI or TestPyPI 
 
+:: Checking if first commandline argument is set
+if [%1]==[] (
+    echo "Error: missing first argument, TOKEN"
+    pause
+    exit 1
+)
+
+:: Checking if folder tmp exist
 if exist tmp (
-    echo "error, tmp folder already exsist"
+    echo "Error: tmp folder already exsist"
     pause
     exit 1
 )

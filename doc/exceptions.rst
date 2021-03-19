@@ -72,6 +72,8 @@ Exception inheritance layout:
   be processed, a memory allocation error occurred during processing, etc.
   It is a subclass of :exc:`DatabaseError`.
 
+.. _TransactionAbortError:
+
 .. exception:: TransactionAbortError
 
   Exception raised when the database cannot commit a transaction. The

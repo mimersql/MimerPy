@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Checking if first commandline argument is set
+if [ $# -eq 0 ]
+  then
+    echo "Error: missing first argument, TOKEN"
+    exit 1
+fi
+
+# Checking if folder tmp exist
 if [ -d "tmp" ]
 then 
     echo "error, tmp folder already exsist"
@@ -14,6 +22,7 @@ git clone https://github.com/mimersql/MimerPy.git
 
 cd MimerPy
 
+# Getting latest tag number
 latestTag=`git describe --tags $(git rev-list --tags --max-count=1)`
 
 PTOKEN=$1
