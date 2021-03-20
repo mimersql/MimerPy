@@ -1613,8 +1613,8 @@ static PyObject* mimerGetUUID(PyObject* self, PyObject* args)
 /**
  *  @brief      Sets a parameter to sql NULL.
  *
- *  @author     Erik Gunne & Magdalena Boström
- *  @date       2017-06-16
+ *  @author     Erik Gunne
+ *  @date       2021-03-20
  *
  *  @param[in]    self        Pointer to python object that function is
  *                            called from.
@@ -1648,8 +1648,8 @@ static PyObject* mimerSetUUID(PyObject* self, PyObject* args)
 /**
  *  @brief      Sets a parameter to sql NULL.
  *
- *  @author     Erik Gunne & Magdalena Boström
- *  @date       2017-06-16
+ *  @author     Erik Gunne
+ *  @date       2021-03-20
  *
  *  @param[in]    self        Pointer to python object that function is
  *                            called from.
