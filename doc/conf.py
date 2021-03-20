@@ -46,7 +46,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'MimerPy'
-copyright = u'2017, Erik Gunne Magdalena Bostrom'
+copyright = u'Mimer Information Technology AB'
 author = u'Erik Gunne Magdalena Bostrom'
 
 # The version info for the project you're documenting, acts as replacement for

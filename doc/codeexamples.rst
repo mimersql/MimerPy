@@ -230,7 +230,10 @@ performing several executes.However, this can be done by using the method
 
 Transaction loop
 ------------------------
-It is often usefull redo a transaction if it fails. There is a never a grantee a transaction complets, but a program can be written so it re-trys when it fails. The following example is one way of retrying a transaction if it fails::
+It is often useful to redo a transaction if it fails. There is a never a
+guarantee that a transaction completes, but a program can be written so it
+retries when it fails. The following example is one way of retrying a
+failed transaction::
 
     import mimerpy
     from mimerpy.mimPyExceptions import DatabaseError, TransactionAbortError
@@ -268,7 +271,8 @@ It is often usefull redo a transaction if it fails. There is a never a grantee a
 
 Alternative Transaction loop
 -------------------------------
-The following example is alternative way of retrying a transaction if it fails using recursion::
+The following example is alternative way of retrying a transaction if
+it fails using recursion::
 
     import mimerpy
     from mimerpy.mimPyExceptions import DatabaseError, TransactionAbortError
