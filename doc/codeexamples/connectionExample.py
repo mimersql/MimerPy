@@ -1,7 +1,0 @@
-conn = Connection("dbName", "usrName", "pwd")
-cur = conn.cursor()
-cur.execute("CREATE table testtable(c1 INTEGER)")
-cur.execute("INSERT INTO testtable VALUES(?)", (10))
-cur.commit()
-cur.close()
-conn.close()
