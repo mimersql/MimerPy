@@ -38,10 +38,10 @@ class TestCursorMethods(unittest.TestCase):
 
     def test_fetchall_timestamp_two(self):
         with self.tstcon.cursor() as c:
-            c.execute("create table bob_timestamp(c1 TIMESTAMP(9)) in pybank")
-            c.execute("insert into bob_timestamp values (:a)", ('2020-09-17 11:21:51.123456789'))
+            c.execute("create table bob_timestamp2(c1 TIMESTAMP(9)) in pybank")
+            c.execute("insert into bob_timestamp2 values (:a)", ('2020-09-17 11:21:51.123456789'))
             self.tstcon.commit()
-            c.execute("select * from bob_timestamp")
+            c.execute("select * from bob_timestamp2")
             r = c.fetchone()
             self.assertEqual(r, ('2020-09-17 11:21:51.123456789',))
 
@@ -452,7 +452,7 @@ class TestCursorMethods(unittest.TestCase):
             generator = ((i,-i) for i in range(size))
             c.executemany("insert into bob_generator2 values (:a, :b)", generator)
             self.tstcon.commit()
-            c.execute("SELECT MAX(c1), MIN(c2) AS maxv FROM bob_generator")
+            c.execute("SELECT MAX(c1), MIN(c2) AS maxv FROM bob_generator2")
             self.assertEqual(c.fetchone(),(size - 1, -size + 1))
 
     @unittest.skip
@@ -964,16 +964,18 @@ class TestCursorMethods(unittest.TestCase):
             with self.assertRaises(ProgrammingError):
                 c.fetchall()
 
+    @unittest.skip
     def test_UUID_one(self):
         with self.tstcon.cursor() as c:
             c.execute("create table uuidtable( id BUILTIN.UUID) in pybank")
-            vuuid = str(uuid.uuid4())
-            c.execute("insert into uuidtable values(builtin.uuid_from_text(cast(? as varchar(50))))", (vuuid))
+            vuuid = uuid.uuid4().bytes
+            c.execute("insert into uuidtable values(?)", (vuuid))
             self.tstcon.commit()
             c.execute("select id.as_text() from uuidtable")
             r = c.fetchall()[0][0]
             self.assertEqual(r, vuuid)
 
+    
     def test_UUID_two(self):
         with self.tstcon.cursor() as c:
             c.execute("create table uuidtable2( id BUILTIN.UUID) in pybank")
@@ -1154,11 +1156,11 @@ class TestCursorMethods(unittest.TestCase):
 
     def test_insert_time_two(self):
         with self.tstcon.cursor() as c:
-            c.execute("create table jontime (c1 TIME(4)) in pybank")
+            c.execute("create table jontime2 (c1 TIME(4)) in pybank")
             time = "16:04:55.1234"
-            c.execute("insert INTO jontime VALUES (?)", (time))
+            c.execute("insert INTO jontime2 VALUES (?)", (time))
             self.tstcon.commit()
-            c.execute("select * from jontime")
+            c.execute("select * from jontime2")
             r = c.fetchall()[0]
             self.assertEqual(r[0], time)
     
@@ -1169,6 +1171,27 @@ class TestCursorMethods(unittest.TestCase):
             c.execute("insert INTO jondecimal VALUES (?)", (floatnum))
             self.tstcon.commit()
             c.execute("select * from jondecimal")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], floatnum)
+
+    def test_datatype_float(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table floattable (c1 FLOAT) in pybank")
+            floatnum = 32423.123456789
+            c.execute("insert INTO floattable VALUES (?)", (floatnum))
+            self.tstcon.commit()
+            c.execute("select * from floattable")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], floatnum)
+
+    @unittest.skip
+    def test_datatype_float_p(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table floatptable (c1 FLOAT(5)) in pybank")
+            floatnum = 3.123
+            c.execute("insert INTO floatptable VALUES (?)", (floatnum))
+            self.tstcon.commit()
+            c.execute("select * from floatptable")
             r = c.fetchall()[0]
             self.assertEqual(r[0], floatnum)
 

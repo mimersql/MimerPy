@@ -25,13 +25,16 @@ import mimerapi
 import collections
 from types import GeneratorType
 
+
 def _define_funcs():
     global get_funcs
     global set_funcs
+    global mimer_types
 
     get_funcs = {1: mimerapi.mimerGetString8,
                  2: mimerapi.mimerGetString8,
                  3: mimerapi.mimerGetString8,
+                 4: mimerapi.mimerGetFloat,
                  6: mimerapi.mimerGetInt32,
                  10: mimerapi.mimerGetDouble,
                  11: mimerapi.mimerGetString8,
@@ -56,6 +59,7 @@ def _define_funcs():
     set_funcs = {1: mimerapi.mimerSetString8,
                  2: mimerapi.mimerSetString8,
                  3: mimerapi.mimerSetString8,
+                 4: mimerapi.mimerSetFloat,
                  6: mimerapi.mimerSetInt32,
                  10: mimerapi.mimerSetDouble,
                  11: mimerapi.mimerSetString8,
@@ -78,7 +82,72 @@ def _define_funcs():
                  59: mimerapi.mimerSetNclobData8,
                  501: mimerapi.mimerSetNull}
 
+    mimer_types = {1: "MIMER_CHARACTER",
+                   2: "MIMER_DECIMAL",
+                   3: "MIMER_INTEGER",
+                   4: "MIMER_FLOAT",
+                   5: "MIMER_LIKE_PATTERN",
+                   6: "MIMER_T_INTEGER",
+                   7: "MIMER_T_SMALLINT",
+                   8: "MIMER_T_FLOAT",
+                   9: "MIMER_T_REAL",
+                   10: "MIMER_T_DOUBLE",
+                   11: "MIMER_CHARACTER_VARYING",
+                   12: "MIMER_DATE",
+                   13: "MIMER_TIME",
+                   14: "MIMER_TIMESTAMP",
+                   15: "MIMER_INTERVAL_YEAR",
+                   16: "MIMER_INTERVAL_MONTH",
+                   17: "MIMER_INTERVAL_DAY",
+                   18: "MIMER_INTERVAL_HOUR",
+                   19: "MIMER_INTERVAL_MINUTE",
+                   20: "MIMER_INTERVAL_SECOND",
+                   21: "MIMER_INTERVAL_YEAR_TO_MONTH",
+                   22: "MIMER_INTERVAL_DAY_TO_HOUR",
+                   23: "MIMER_INTERVAL_DAY_TO_MINUTE",
+                   24: "MIMER_INTERVAL_DAY_TO_SECOND",
+                   25: "MIMER_INTERVAL_HOUR_TO_MINUTE",
+                   26: "MIMER_INTERVAL_HOUR_TO_SECOND",
+                   27: "MIMER_INTERVAL_MINUTE_TO_SECOND",
+                   28: "MIMER_UNSIGNED_INTEGER",
+                   29: "MIMER_T_UNSIGNED_INTEGER",
+                   30: "MIMER_T_UNSIGNED_SMALLINT",
+                   31: "MIMER_NUMERIC",
+                   32: "MIMER_T_BIGINT",
+                   33: "MIMER_T_UNSIGNED_BIGINT",
+                   34: "MIMER_BINARY",
+                   35: "MIMER_BINARY_VARYING",
+                   36: "MIMER_RECORD",
+                   37: "MIMER_BLOB",
+                   38: "MIMER_CLOB",
+                   39: "MIMER_NCHAR",
+                   40: "MIMER_NCHAR_VARYING",
+                   41: "MIMER_NCLOB",
+                   42: "MIMER_BOOLEAN",
+                   43: "MIMER_BLOB_LOCATOR",
+                   44: "MIMER_CLOB_LOCATOR",
+                   45: "MIMER_NCLOB_LOCATOR",
+                   47: "MIMER_NATIVE_SMALLINT",
+                   48: "MIMER_NATIVE_SMALLINT_NULLABLE",
+                   49: "MIMER_NATIVE_INTEGER",
+                   50: "MIMER_NATIVE_INTEGER_NULLABLE",
+                   51: "MIMER_NATIVE_BIGINT",
+                   52: "MIMER_NATIVE_BIGINT_NULLABLE",
+                   53: "MIMER_NATIVE_REAL",
+                   54: "MIMER_NATIVE_REAL_NULLABLE",
+                   55: "MIMER_NATIVE_DOUBLE",
+                   56: "MIMER_NATIVE_DOUBLE_NULLABLE",
+                   57: "MIMER_NATIVE_BLOB",
+                   58: "MIMER_NATIVE_CLOB",
+                   59: "MIMER_NATIVE_NCLOB",
+                   60: "MIMER_NATIVE_BLOB_LOCATOR",
+                   61: "MIMER_NATIVE_CLOB_LOCATOR",
+                   62: "MIMER_NATIVE_NCLOB_LOCATOR",
+                   63: "MIMER_UTF8", }
+
+
 _define_funcs()
+
 
 class Cursor:
     """
@@ -172,7 +241,6 @@ class Cursor:
                 parameter_markers = arg[1]
         query = arg[0]
 
-
         # If same query is used twice there is not need for a new statement
         if (query != self._last_query or self.__mimcursor):
             self.__close_statement()
@@ -209,20 +277,26 @@ class Cursor:
 
                     # Column number starts a 1
                     for cur_column in range(1, self._number_of_parameters + 1):
-                        parameter_type = mimerapi.mimerParameterType(self.__statement, cur_column)
-                        self.__check_mimerapi_error(parameter_type, self.__statement)
+                        parameter_type = mimerapi.mimerParameterType(
+                            self.__statement, cur_column)
+                        self.__check_mimerapi_error(
+                            parameter_type, self.__statement)
 
                         if (isinstance(parameter_markers, dict)):
-                            rc_value, parameter_name = mimerapi.mimerParameterName8(self.__statement, cur_column)
-                            self.__check_mimerapi_error(rc_value, self.__statement)
+                            rc_value, parameter_name = mimerapi.mimerParameterName8(
+                                self.__statement, cur_column)
+                            self.__check_mimerapi_error(
+                                rc_value, self.__statement)
                             if parameter_name in parameter_markers:
-                                parameter = parameter_markers.get(parameter_name)
+                                parameter = parameter_markers.get(
+                                    parameter_name)
                                 if (parameter == None):
                                     parameter_type = 501
-                                rc_value = set_funcs[parameter_type](self.__statement, cur_column, parameter)
+                                rc_value = set_funcs[parameter_type](
+                                    self.__statement, cur_column, parameter)
                             else:
-                                #self.__raise_exception(-25012,str(parameter_name))
-                                pass # Skipping keys in dictionary that does not match with any column
+                                # self.__raise_exception(-25012,str(parameter_name))
+                                pass  # Skipping keys in dictionary that does not match with any column
                         else:
                             # If the parameter marker is None, we use mimerSetNull
                             try:
@@ -232,12 +306,12 @@ class Cursor:
                                 # End up here when invalid parameters are used
                                 self.__raise_exception(-25013)
                             rc_value = set_funcs[parameter_type](self.__statement,
-                                                                       cur_column, parameter_markers[cur_column - 1])
+                                                                 cur_column, parameter_markers[cur_column - 1])
                         self.__check_mimerapi_error(rc_value, self.__statement)
 
                 # Catching error for errorhandler
                 except KeyError as e:
-                    self.__raise_exception(-25020, exception=e) # &&&& ??
+                    self.__raise_exception(-25020, exception=e)  # &&&& ??
                 # Catching error for errorhandler
                 except TypeError as e:
                     # End up here when invalid parameters are used¨
@@ -270,11 +344,13 @@ class Cursor:
                 self.description = ()
                 self._column_type = []
                 for cur_column in range(1, self._number_of_columns + 1):
-                    func_tuple = mimerapi.mimerColumnName8(self.__statement, cur_column)
+                    func_tuple = mimerapi.mimerColumnName8(
+                        self.__statement, cur_column)
                     rc_value = func_tuple[0]
                     self.__check_mimerapi_error(rc_value, self.__statement)
                     name = func_tuple[1]
-                    rc_value = mimerapi.mimerColumnType(self.__statement, cur_column)
+                    rc_value = mimerapi.mimerColumnType(
+                        self.__statement, cur_column)
                     self.__check_mimerapi_error(rc_value, self.__statement)
                     self._column_type.append(rc_value)
                     type_code = rc_value
@@ -317,7 +393,7 @@ class Cursor:
         # Checking for invalid parameter structure
         if (not isinstance(params, tuple) and not isinstance(params, list)):
             self.__raise_exception(-25013)
-        #else:
+        # else:
         #    if (not isinstance(params[0], tuple) and not isinstance(params[0], dict)):
         #        self.__raise_exception(-25013)
 
@@ -339,30 +415,34 @@ class Cursor:
 
                 # Column number starts a 1
                 for cur_column in range(1, self._number_of_parameters + 1):
-                    parameter_type = mimerapi.mimerParameterType(self.__statement, cur_column)
-                    self.__check_mimerapi_error(parameter_type, self.__statement)
+                    parameter_type = mimerapi.mimerParameterType(
+                        self.__statement, cur_column)
+                    self.__check_mimerapi_error(
+                        parameter_type, self.__statement)
 
                     if (isinstance(cur_param, dict)):
-                        rc_value, parameter_name = mimerapi.mimerParameterName8(self.__statement, cur_column)
+                        rc_value, parameter_name = mimerapi.mimerParameterName8(
+                            self.__statement, cur_column)
                         self.__check_mimerapi_error(rc_value, self.__statement)
                         if parameter_name in cur_param:
                             parameter = cur_param.get(parameter_name)
                             if (parameter == None):
                                 parameter_type = 501
-                            rc_value = set_funcs[parameter_type](self.__statement, cur_column, parameter)
+                            rc_value = set_funcs[parameter_type](
+                                self.__statement, cur_column, parameter)
                         else:
                             #self.__raise_exception(-25012, str(parameter_name))
-                            pass # Skipping keys in dictionary that does not match with any column
+                            pass  # Skipping keys in dictionary that does not match with any column
                     else:
                         # If the parameter marker is None, we use mimerSetNull
-                        try: 
+                        try:
                             if (cur_param[cur_column - 1] == None):
                                 parameter_type = 501
                         except TypeError as e:
                             # End up here when invalid parameters are used
                             self.__raise_exception(-25013)
                         rc_value = set_funcs[parameter_type](self.__statement,
-                                                                   cur_column, cur_param[cur_column - 1])
+                                                             cur_column, cur_param[cur_column - 1])
                 self.messages = []
 
                 # Batching after all parameters are set
@@ -404,9 +484,10 @@ class Cursor:
         # Return value of mimerFetch == 100 implies end of result set
         if (rc_value == 100):
             return []
-        
+
         for cur_column in range(1, self._number_of_columns + 1):
-            func_tuple = get_funcs[self._column_type[cur_column - 1]](self.__statement, cur_column)
+            func_tuple = get_funcs[self._column_type[cur_column - 1]
+                                   ](self.__statement, cur_column)
             self.__check_mimerapi_error(func_tuple[0], self.__statement)
 
             # Conversion from C int to Python boolean
@@ -456,7 +537,8 @@ class Cursor:
 
             # Column number starts a 1
             for cur_column in range(1, self._number_of_columns + 1):
-                func_tuple = get_funcs[self._column_type[cur_column - 1]](self.__statement, cur_column)
+                func_tuple = get_funcs[self._column_type[cur_column - 1]
+                                       ](self.__statement, cur_column)
                 self.__check_mimerapi_error(func_tuple[0], self.__statement)
 
                 # Conversion from C int to Python boolean
@@ -498,7 +580,8 @@ class Cursor:
 
             # Column number starts a 1
             for cur_column in range(1, self._number_of_columns + 1):
-                func_tuple = get_funcs[self._column_type[cur_column - 1]](self.__statement, cur_column)
+                func_tuple = get_funcs[self._column_type[cur_column - 1]
+                                       ](self.__statement, cur_column)
                 self.__check_mimerapi_error(func_tuple[0], self.__statement)
 
                 # Conversion from C int to Python boolean
@@ -535,7 +618,7 @@ class Cursor:
     def __close_statement(self):
         # Private method for closing MimerStatement.
         if (self.__statement is not None and
-            self.connection._session is not None):
+                self.connection._session is not None):
             rc_value = mimerapi.mimerEndStatement(self.__statement)
             self.__check_mimerapi_error(rc_value, self.__statement)
         self.__statement = None

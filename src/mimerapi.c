@@ -131,6 +131,7 @@ static PyObject* mimerBeginSession8(PyObject* self, PyObject* args)
 
 
 
+
 static PyObject* mimerEndSession(PyObject* self, PyObject* args)
 /* *********************************************************************/
 /**
@@ -524,6 +525,7 @@ static PyObject* mimerParameterCount(PyObject* self, PyObject* args)
     rc = MimerParameterCount((MimerStatement)statement);
     return Py_BuildValue("i", rc);
 }
+
 
 
 static PyObject* mimerParameterName8(PyObject* self, PyObject* args)
@@ -933,6 +935,49 @@ static PyObject* mimerGetDouble(PyObject* self, PyObject* args)
 }
 
 
+static PyObject* mimerGetFloat(PyObject* self, PyObject* args)
+/* *********************************************************************/
+/**
+ *  @brief      Gets float precision data from a result set or an
+ *              output parameter.
+ *
+ *  @author     Erik Gunne
+ *  @date       2021-03-20
+ *
+ *  @param[in]    self        Pointer to python object that function is
+ *                            called from.
+ *  @param[in]    args        Arguments.
+ *                args 1:     Statementhandle.
+ *                args 2:     Parameter of column number to get data from.
+ *
+ *  @returns   Tuple.
+ *             Tuple[0]: Return code 0 = OK, < 0 if error.
+ *             Tuple[1]: The double precision value.
+ *
+ *  @remarks   Only the database data types DOUBLE PRECISION, FLOAT(n), FLOAT
+ *             and REAL may be retrieved using this call.
+ *
+ *  @remarks   Only supported in version 11 or above of the Micro C API.
+ */
+/* *********************************************************************/
+{
+    pyptr statement;
+    int rc, column_number;
+    float value;
+
+    if (!PyArg_ParseTuple(args, "Li", &statement, &column_number)) {
+        return NULL;
+    }
+
+    if (MimerIsNull((MimerStatement)statement, column_number) > 0) {
+        return Py_BuildValue("is", 0, NULL);
+    }
+
+    rc = MimerGetFloat((MimerStatement)statement, column_number, &value);
+    return Py_BuildValue("if", rc, value);
+}
+
+
 
 static PyObject* mimerSetInt32(PyObject* self, PyObject* args)
 /* *********************************************************************/
@@ -1073,6 +1118,40 @@ static PyObject* mimerSetDouble(PyObject* self, PyObject* args)
     }
 
     rc = MimerSetDouble((MimerStatement)statement, parameter_number, val);
+
+    return Py_BuildValue("i", rc);
+}
+
+static PyObject* mimerSetFloat(PyObject* self, PyObject* args)
+/* *********************************************************************/
+/**
+ *  @brief      Sets a floating point parameter.
+ *
+ *  @author     Erik Gunne
+ *  @date       2021-03-20
+ *
+ *  @param[in]    self        Pointer to python object that function is
+ *                            called from.
+ *  @param[in]    args        Arguments.
+ *                args 1:     Statementhandle.
+ *                args 2:     A number identifying the parameter.
+ *                args 3:     A floating point value.
+ *
+ *  @returns    Return code 0 = OK, < 0 if error.
+ *
+ *  @remarks    Only supported in version 11 or above of the Micro C API.
+ */
+/* *********************************************************************/
+{
+    pyptr statement;
+    int rc, parameter_number;
+    float val;
+
+    if (!PyArg_ParseTuple(args, "Lif", &statement, &parameter_number, &val)) {
+        return NULL;
+    }
+
+    rc = MimerSetFloat((MimerStatement)statement, parameter_number, val);
 
     return Py_BuildValue("i", rc);
 }
@@ -1529,6 +1608,72 @@ static PyObject* mimerGetBoolean(PyObject* self, PyObject* args)
 
 
 
+static PyObject* mimerGetUUID(PyObject* self, PyObject* args)
+/* *********************************************************************/
+/**
+ *  @brief      Sets a parameter to sql NULL.
+ *
+ *  @author     Erik Gunne & Magdalena Boström
+ *  @date       2017-06-16
+ *
+ *  @param[in]    self        Pointer to python object that function is
+ *                            called from.
+ *  @param[in]    args        Arguments.
+ *                args 1:     Statementhandle or sessionhandle.
+ *                args 2:     A number identifying the parameter.
+ *
+ *  @returns    Return code 0 = OK, < 0 if error.
+ *
+ */
+/* *********************************************************************/
+{
+    pyptr statement;
+    int rc, parameter_number;
+    unsigned char uuid[16];
+
+     if (!PyArg_ParseTuple(args, "Li", &statement, &parameter_number)) {
+        return NULL;
+    }
+
+    printf("REEEEEEEEEEEEE");
+    rc = MimerGetUUID((MimerStatement)statement, parameter_number, uuid);
+
+    return Py_BuildValue("is", rc, &uuid);
+}
+
+
+
+static PyObject* mimerSetUUID(PyObject* self, PyObject* args)
+/* *********************************************************************/
+/**
+ *  @brief      Sets a parameter to sql NULL.
+ *
+ *  @author     Erik Gunne & Magdalena Boström
+ *  @date       2017-06-16
+ *
+ *  @param[in]    self        Pointer to python object that function is
+ *                            called from.
+ *  @param[in]    args        Arguments.
+ *                args 1:     Statementhandle or sessionhandle.
+ *                args 2:     A number identifying the parameter.
+ *
+ *  @returns    Return code 0 = OK, < 0 if error.
+ *
+ */
+/* *********************************************************************/
+{
+    pyptr statement;
+    int rc, parameter_number, parse_length;
+    char *uuid;
+    if (!PyArg_ParseTuple(args, "Lis", &statement, &parameter_number, &uuid)) {
+        return NULL;
+    }
+    rc = MimerSetUUID((MimerStatement)statement, parameter_number, uuid);
+
+    return Py_BuildValue("i", rc);
+}
+
+
 static PyObject* mimerSetNull(PyObject* self, PyObject* args)
 /* *********************************************************************/
 /**
@@ -1559,8 +1704,6 @@ static PyObject* mimerSetNull(PyObject* self, PyObject* args)
     rc = MimerSetNull((MimerStatement)statement, parameter_number);
     return Py_BuildValue("i", rc);
 }
-
-
 
 /**
 * Describes all methods of the mimerapi extension.
@@ -1640,7 +1783,15 @@ static PyMethodDef mimerapiMethods[] =
     {"mimerColumnName8", (PyCFunction)mimerColumnName8, METH_VARARGS,
      "Obtains name of a column."},
     {"mimerGetBinary", (PyCFunction)mimerGetBinary, METH_VARARGS,
-     "Obtains name of a column."},
+     "Gets binary data."},
+    {"mimerGetUUID", (PyCFunction)mimerGetUUID, METH_VARARGS,
+     "Gets UUID data."},
+     {"mimerSetUUID", (PyCFunction)mimerSetUUID, METH_VARARGS,
+     "Gets UUID data."},
+    {"mimerGetFloat", (PyCFunction)mimerGetFloat, METH_VARARGS,
+     "Gets FLOAT data."},
+     {"mimerSetFloat", (PyCFunction)mimerSetFloat, METH_VARARGS,
+     "Sets FLOAT data."},
     {NULL, NULL, 0, NULL}
 };
 
