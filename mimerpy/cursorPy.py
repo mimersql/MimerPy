@@ -29,7 +29,6 @@ from types import GeneratorType
 def _define_funcs():
     global get_funcs
     global set_funcs
-    global mimer_types
 
     get_funcs = {1: mimerapi.mimerGetString8,
                  2: mimerapi.mimerGetString8,
@@ -81,69 +80,6 @@ def _define_funcs():
                  58: mimerapi.mimerSetNclobData8,
                  59: mimerapi.mimerSetNclobData8,
                  501: mimerapi.mimerSetNull}
-
-    mimer_types = {1: "MIMER_CHARACTER",
-                   2: "MIMER_DECIMAL",
-                   3: "MIMER_INTEGER",
-                   4: "MIMER_FLOAT",
-                   5: "MIMER_LIKE_PATTERN",
-                   6: "MIMER_T_INTEGER",
-                   7: "MIMER_T_SMALLINT",
-                   8: "MIMER_T_FLOAT",
-                   9: "MIMER_T_REAL",
-                   10: "MIMER_T_DOUBLE",
-                   11: "MIMER_CHARACTER_VARYING",
-                   12: "MIMER_DATE",
-                   13: "MIMER_TIME",
-                   14: "MIMER_TIMESTAMP",
-                   15: "MIMER_INTERVAL_YEAR",
-                   16: "MIMER_INTERVAL_MONTH",
-                   17: "MIMER_INTERVAL_DAY",
-                   18: "MIMER_INTERVAL_HOUR",
-                   19: "MIMER_INTERVAL_MINUTE",
-                   20: "MIMER_INTERVAL_SECOND",
-                   21: "MIMER_INTERVAL_YEAR_TO_MONTH",
-                   22: "MIMER_INTERVAL_DAY_TO_HOUR",
-                   23: "MIMER_INTERVAL_DAY_TO_MINUTE",
-                   24: "MIMER_INTERVAL_DAY_TO_SECOND",
-                   25: "MIMER_INTERVAL_HOUR_TO_MINUTE",
-                   26: "MIMER_INTERVAL_HOUR_TO_SECOND",
-                   27: "MIMER_INTERVAL_MINUTE_TO_SECOND",
-                   28: "MIMER_UNSIGNED_INTEGER",
-                   29: "MIMER_T_UNSIGNED_INTEGER",
-                   30: "MIMER_T_UNSIGNED_SMALLINT",
-                   31: "MIMER_NUMERIC",
-                   32: "MIMER_T_BIGINT",
-                   33: "MIMER_T_UNSIGNED_BIGINT",
-                   34: "MIMER_BINARY",
-                   35: "MIMER_BINARY_VARYING",
-                   36: "MIMER_RECORD",
-                   37: "MIMER_BLOB",
-                   38: "MIMER_CLOB",
-                   39: "MIMER_NCHAR",
-                   40: "MIMER_NCHAR_VARYING",
-                   41: "MIMER_NCLOB",
-                   42: "MIMER_BOOLEAN",
-                   43: "MIMER_BLOB_LOCATOR",
-                   44: "MIMER_CLOB_LOCATOR",
-                   45: "MIMER_NCLOB_LOCATOR",
-                   47: "MIMER_NATIVE_SMALLINT",
-                   48: "MIMER_NATIVE_SMALLINT_NULLABLE",
-                   49: "MIMER_NATIVE_INTEGER",
-                   50: "MIMER_NATIVE_INTEGER_NULLABLE",
-                   51: "MIMER_NATIVE_BIGINT",
-                   52: "MIMER_NATIVE_BIGINT_NULLABLE",
-                   53: "MIMER_NATIVE_REAL",
-                   54: "MIMER_NATIVE_REAL_NULLABLE",
-                   55: "MIMER_NATIVE_DOUBLE",
-                   56: "MIMER_NATIVE_DOUBLE_NULLABLE",
-                   57: "MIMER_NATIVE_BLOB",
-                   58: "MIMER_NATIVE_CLOB",
-                   59: "MIMER_NATIVE_NCLOB",
-                   60: "MIMER_NATIVE_BLOB_LOCATOR",
-                   61: "MIMER_NATIVE_CLOB_LOCATOR",
-                   62: "MIMER_NATIVE_NCLOB_LOCATOR",
-                   63: "MIMER_UTF8", }
 
 
 _define_funcs()
@@ -305,6 +241,8 @@ class Cursor:
                             except TypeError:
                                 # End up here when invalid parameters are used
                                 self.__raise_exception(-25013)
+                            print("parameter")
+                            print(parameter_type)
                             rc_value = set_funcs[parameter_type](self.__statement,
                                                                  cur_column, parameter_markers[cur_column - 1])
                         self.__check_mimerapi_error(rc_value, self.__statement)
