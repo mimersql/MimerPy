@@ -8,7 +8,7 @@ The following section shows a few short and useful examples how to use :mod:`mim
 
 The aim of these examples are to illustrate some useful methods and clarify the correct usage of the module's content.
 
-Inserting a ``BLOB``
+Inserting a BLOB
 ------------------------
 
 The following example inserts the picture *mimer.jpg* as a ``BLOB`` into a table::
