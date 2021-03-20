@@ -986,6 +986,25 @@ class TestCursorMethods(unittest.TestCase):
             r = c.fetchall()[0][0]
             self.assertEqual(r, vuuid)
 
+    def test_datatype_GIS_one(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table gistable2( id BUILTIN.GIS_LATITUDE) in pybank")
+            c.execute("insert into gistable2 values(BUILTIN.GIS_LOCATION(40.75,-74.0))")
+            self.tstcon.commit()
+            #c.execute("select id.as_text() from uuidtable2")
+            #r = c.fetchall()[0][0]
+            #self.assertEqual(r, vuuid)
+
+    def test_datatype_GIS(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table gistable2( id BUILTIN.GIS_LATITUDE) in pybank")
+            x,y = 40.75,-74.0
+            c.execute("insert into gistable2 values(BUILTIN.GIS_LOCATION(?,?))", (x,y))
+            self.tstcon.commit()
+            #c.execute("select id.as_text() from uuidtable2")
+            #r = c.fetchall()[0][0]
+            #self.assertEqual(r, vuuid)
+
     def test_insert_blob(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jonblob (c1 BLOB(18389)) in pybank")
@@ -1131,6 +1150,16 @@ class TestCursorMethods(unittest.TestCase):
             c.execute("insert INTO jonclob VALUES (?)", (aclob))
             self.tstcon.commit()
             c.execute("select * from jonclob")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], aclob)
+
+    def test_datatype_clob(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table jonclob2 (c1 clob) in pybank")
+            aclob = "mimer" * 5
+            c.execute("insert INTO jonclob2 VALUES (?)", (aclob))
+            self.tstcon.commit()
+            c.execute("select * from jonclob2")
             r = c.fetchall()[0]
             self.assertEqual(r[0], aclob)
 
@@ -1573,7 +1602,7 @@ create table longboi (c1 char(10),
         with self.tstcon.cursor() as c:
             long = "create table longboi_integer45(c1 INTEGER(45)) in pybank"
             c.execute(long)
-            c.execute("insert into longboi_integer45 values (?)", (str(2**145)))
+            c.execute("insert into longboi_integer45 values (?)", str(2**145))
 
             c.execute("SELECT * from longboi_integer45")
             self.assertEqual(c.fetchall(), [(str(2**140),)])
