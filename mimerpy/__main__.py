@@ -21,6 +21,8 @@ SQL statement).
                         action="store_true")
     parser.add_argument("-t", "--tag",
                         help=argparse.SUPPRESS, action="store_true")
+    parser.add_argument("--trace",
+                        help=argparse.SUPPRESS, action="store_true")
     parser.add_argument("sql", default=None, nargs='?',
                         help="A SQL command to execute")
     args = parser.parse_args()
@@ -33,12 +35,14 @@ SQL statement).
 
     if args.version:
         something = True
-        print("Mimerpy  version %s" % mimerpy.__version__)
+        print("MimerPy  version %s" % mimerpy.__version__)
         print("MimerAPI version %s" % mimerapi.__version__)
 
     if args.sql:
         something = True
         try:
+            if args.trace:
+                mimerpy._trace()
             with mimerpy.connect(dsn = args.database,
                                  user = args.user,
                                  password = args.password,
@@ -46,8 +50,8 @@ SQL statement).
                 with con.cursor() as cur:
                     cur.execute(args.sql)
                     if cur.description is not None:
-                        r = cur.fetchall()
-                        print(r)
+                        for r in cur:
+                            print(r)
         except Exception as e:
             print(e)
 
