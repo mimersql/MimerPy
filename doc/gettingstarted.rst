@@ -49,7 +49,7 @@ For example:
 
 In this way you can connect to a database server and execute a SQL
 statement.  If the statement returns a result, it will be displayed as
-a list_ of tuples_ (in Python syntax).
+a list of tuples_ (in Python syntax).
 
 .. _list: https://docs.python.org/3/tutorial/introduction.html#lists
 .. _tuples: https://docs.python.org/3/tutorial/datastructures.html#tuples-and-sequences
