@@ -2,18 +2,18 @@
 Getting started
 ***************
 
-With Mimerpy installed, before proceeding make sure that you have a
+With MimerPy installed, before proceeding make sure that you have a
 Mimer server of the corresponding version running. If you are
 uncertain if you have a Mimer server running, or need help getting one
 running, please visit the `Mimer documentation`_.
 
 .. _Mimer documentation: https://developer.mimer.com/documentation/
 
-Checking the Mimerpy installation
+Checking the MimerPy installation
 ---------------------------------
-While the primary use of Mimerpy is as a package used by other Python
+While the primary use of MimerPy is as a package used by other Python
 programs, it is possible to use it a a stand-alone Python
-program. This makes it easy to check if Mimerpy works as intended and
+program. This makes it easy to check if MimerPy works as intended and
 can connect to a started Mimer database server.
 
 For example:
@@ -45,7 +45,7 @@ For example:
     Mimerpy  version 1.0.29
     MimerAPI version 11.0.3D
     $ python -m mimerpy -d pesc110 -u SYSADM -p SYSADM 'select current_date from system.onerow'
-    [('2021-03-09',)]
+    ('2021-03-09',)
 
 In this way you can connect to a database server and execute a SQL
 statement.  If the statement returns a result, it will be displayed as
@@ -109,7 +109,7 @@ closed. See :ref:`cursorclass` for more information.
 
 Running your first program
 ---------------------------
-Just like in the Python interpreter, Mimerpy can be run from a file.
+Just like in the Python interpreter, MimerPy can be run from a file.
 In this example the following file is used: :download:`dbtest.py <dbtest.py>`::
 
   import mimerpy
@@ -127,7 +127,7 @@ In this example the following file is used: :download:`dbtest.py <dbtest.py>`::
   cur.execute("create table test_table(c1 NVARCHAR(128)) in bankoftest")
 
   # Inserting a string
-  cur.execute("insert into test_table values ('Using Mimerpy is easy!')")
+  cur.execute("insert into test_table values ('Using MimerPy is easy!')")
 
   # Selecting the inserted string
   cur.execute("select * from test_table")
@@ -152,7 +152,7 @@ If we run dbtest.py we get:
 .. code-block:: console
 
   $ python3 dbtest.py
-  Using Mimerpy is easy!
+  Using MimerPy is easy!
 
-For more examples visit :ref:`Code examples`. For help with MimerSQL
+For more examples visit :ref:`Code examples`. For help with Mimer SQL
 query syntax visit :ref:`User guide`.

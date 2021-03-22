@@ -3,14 +3,14 @@ Python and Mimer datatypes
 **************************
 
 This section discusses the relationship between Python3 data types and
-MimerSQL data types.
+Mimer SQL data types.
 
 -----------------------------------------
 
-Overview of MimerSQL to Python data types:
+Overview of Mimer SQL to Python data types:
 
 +------------------------+--------------------+
-| MimerSQL               | Python3            |
+| Mimer SQL              | Python3            |
 |                        |                    |
 +========================+====================+
 | BOOLEAN                | Bool               |
@@ -23,7 +23,7 @@ Overview of MimerSQL to Python data types:
 +------------------------+--------------------+
 | SMALLINT               | Int                |
 +------------------------+--------------------+
-| DOUBLE                 | Float              |
+| DOUBLE PRECISION       | Float              |
 +------------------------+--------------------+
 | FLOAT                  | Float              |
 +------------------------+--------------------+
@@ -66,7 +66,7 @@ BOOLEAN
 
 In Python all objects can act as a ``BOOLEAN``. With this in mind, a parameter
 marker insert can be performed with any Python object to a Mimer ``BOOLEAN`` 
-column and Mimerpy will accept this. Consider the following example::
+column and MimerPy will accept this. Consider the following example::
 
   >>> cur.execute("create table booltable(c1 BOOLEAN)")
 
@@ -84,13 +84,13 @@ INTEGER, INTEGER(p), BIGINT & SMALLINT
 ----------------------------------------------------
 
 Because Python3 only uses one data type for the three corresponding
-MimerSQL integer types, it's the responsibility of the user to stay
+Mimer SQL integer types, it's the responsibility of the user to stay
 within the limits.  If a value is too large or too small for a number
 (``INTEGER``, ``BIGINT`` or ``SMALLINT``) column, a
 :exc:`ProgrammingError` will be raised. The following limits apply:
 
 +------------------------+----------------------+
-| MimerSQL data type     | Range of values      |
+| Mimer SQL data type    | Range of values      |
 |                        |                      |
 +========================+======================+
 | INTEGER                | -2-31 to 2-31 - 1    |
@@ -111,7 +111,7 @@ with p digits in the decimal mantissa. ``DECIMAL(p,s)`` are exact numerical, pre
 The approximate limits apply:
 
 +------------------------+-----------------------------------+-----------+
-| MimerSQL data type     | Range of values                   | IEEE type |
+| Mimer SQL data type    | Range of values                   | IEEE type |
 +========================+===================================+===========+
 | DOUBLE PRECISION       | - -10^308 to 10^308               | 64-bit    |
 +------------------------+-----------------------------------+-----------+
@@ -134,7 +134,7 @@ BINARY(n)
 In Python3 there are many ways to create a ``BINARY`` object. One way
 is to using the ``b'`` tag, another way is to use the ``to_bytes``
 method, or you can use the ``bytearray`` method. When specifying a
-parameter for ``BINARY`` column, Mimerpy expects it to be a
+parameter for ``BINARY`` column, MimerPy expects it to be a
 `bytes-like object`_.  ``n`` specifies the length to be between 1 and 15 000.
 
 Example usage of binary:
@@ -303,7 +303,7 @@ Consider the following example::
 NULL 
 ------------
 The Python data type ``None`` is mapped to ``NULL`` in
-Mimerpy. MimerSQL ``NULL`` values will be returned as ``None`` in
+MimerPy. Mimer SQL ``NULL`` values will be returned as ``None`` in
 Python. Consider the following example::
 
   >>> cursor.execute("create table booltable(c1 INTEGER)")
