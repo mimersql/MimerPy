@@ -33,7 +33,7 @@ def _define_funcs():
     get_funcs = {1: mimerapi.mimerGetString8,
                  2: mimerapi.mimerGetString8,
                  3: mimerapi.mimerGetString8,
-                 4: mimerapi.mimerGetFloat,
+                 4: mimerapi.mimerGetString8,
                  6: mimerapi.mimerGetInt32,
                  10: mimerapi.mimerGetDouble,
                  11: mimerapi.mimerGetString8,
