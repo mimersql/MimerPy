@@ -44,6 +44,13 @@
 #include "mimerapi.h"
 
 /**
+ * Error codes. Match with mimPyExceptionHandler.py.
+ */
+enum {
+      MIMERPY_NOMEM = -25020
+};
+
+/**
  * We must pass pointers between the C layer and Python. We use the "L"
  * format character which specified the "long long" C type.
  */
@@ -1182,31 +1189,29 @@ static PyObject* mimerGetError8(PyObject* self, PyObject* args)
  */
 /* *********************************************************************/
 {
+#define ELEN 512
     pyptr statement;
     int rc, evalue;
-    char message[BUFLEN];
+    char msg[ELEN]; /* MimerAPI 11.0.3D doesn't tell needed size */
 
     if (!PyArg_ParseTuple(args, "L", &statement)) {
         return NULL;
     }
 
-    rc = MimerGetError8((MimerStatement)statement, &evalue, message, BUFLEN);
-    
-    if (rc > BUFLEN) {
-        PyObject* return_object;
-        int big_buff = 512;
-        char *long_message;
-        long_message = (char*) calloc(big_buff, sizeof(char));
-        if(long_message == NULL) {
-            return(Py_BuildValue("i", 101));
+    rc = MimerGetError8((MimerStatement)statement, &evalue, msg, ELEN);
+
+    /* MimerAPI 11.0.3D does not NULL-terminate. So we do it here. */
+    if (rc >= 0) {
+        if (rc > ELEN) {
+            rc = ELEN;
         }
-        rc = MimerGetError8((MimerStatement)statement, &evalue, long_message, big_buff);
-        return_object = Py_BuildValue("iis", 0, evalue, long_message);
-        free(long_message);
-        return return_object;
+        msg[rc] = '\0';
+        rc = 0;
+    } else {
+        msg[0] = '\0';
     }
-    
-    return Py_BuildValue("iis", 0, evalue, message);
+
+    return Py_BuildValue("iis", rc, evalue, msg);
 }
 
 
