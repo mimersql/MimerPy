@@ -41,6 +41,7 @@ mimerpy_error = {
     -25015:"Cursor not open",
     -25016:"Illegal scroll mode",
     -25020:"Data conversion error",
+    -25030:"Out of memory",
 }
 
 py_error_nnnnn = {10001:TransactionAbortError,10003:TransactionAbortError,24010:DataError,24011:DataError
@@ -49,6 +50,7 @@ py_error_nnnnn = {10001:TransactionAbortError,10003:TransactionAbortError,24010:
 py_error_nnnnx = {2500:NotSupportedError,
                   2501:ProgrammingError,
                   2502:DataError,
+                  2503:OperationalError,
 }
 
 py_error_nnxxx = {10:DataError, 11:OperationalError, 12:ProgrammingError,
