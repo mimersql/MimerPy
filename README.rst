@@ -13,8 +13,17 @@ Requirements:
 * Python 3.5 or later
 
 The source code for MimerPy resides on GitHub_. Installable packages
-can be found on PyPi_. To install, use the command::
-pip3 install mimerpy
+can be found on PyPi_. To install, use the command:
+
+.. code-block:: console
+
+    pip3 install mimerpy
+
+The source for the MimerPy manual is stored together with the source
+in the doc/ directory. We recommend reading it on the
+`Mimer documentation site`_.
+
+The `home page`_ for the project can be found on the Mimer developer site.
 
 
 .. _Python: http://www.python.org/
@@ -22,3 +31,5 @@ pip3 install mimerpy
 .. _MimerSQL: https://www.mimer.com
 .. _GitHub: https://github.com/mimersql/MimerPy
 .. _PyPi: https://pypi.org/project/mimerpy/
+.. _Mimer documentation site: https://developer.mimer.com/documentation
+.. _home page: https://developer.mimer.com/mimerpy

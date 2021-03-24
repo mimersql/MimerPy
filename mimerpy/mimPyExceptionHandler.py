@@ -82,6 +82,8 @@ def get_mimerapi_exception(rc, mimerapi_handle):
     """
     Return (errorclass, errorvalue) from a failed MimerAPI call.
     """
+    if -25999 <= rc <= -25000:
+        return (get_error_class(rc), (rc, mimerpy_error[rc]))
     (rc0, _, msg) = mimerapi.mimerGetError8(mimerapi_handle)
     if rc0:
         msg = "Unknown error %d" % rc
