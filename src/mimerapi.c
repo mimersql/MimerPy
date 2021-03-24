@@ -47,7 +47,7 @@
  * Error codes. Match with mimPyExceptionHandler.py.
  */
 enum {
-      MIMERPY_NOMEM = -25020
+      MIMERPY_NOMEM = -25030
 };
 
 /**
@@ -868,7 +868,9 @@ static PyObject* mimerGetString8(PyObject* self, PyObject* args)
 {
     pyptr statement;
     int rc, column_number;
-    char value[BUFLEN];
+    char buffer[BUFLEN];
+    char *buf = buffer;
+    PyObject* return_object;
 
     if (!PyArg_ParseTuple(args, "Li", &statement, &column_number)) {
         return NULL;
@@ -879,22 +881,28 @@ static PyObject* mimerGetString8(PyObject* self, PyObject* args)
     }
 
     rc = MimerGetString8((MimerStatement)statement, column_number,
-                         value, BUFLEN);
+                         buf, BUFLEN);
 
     if (rc >= BUFLEN) {
         int buffer_size = rc + 1;
-        PyObject* return_object;
-        char *bigvalue = (char*) calloc(buffer_size, sizeof(char));
-        if(bigvalue == NULL) {
-            return(Py_BuildValue("i", 101));
+        buf = (char*) malloc(buffer_size);
+        if (buf == NULL) {
+            return Py_BuildValue("is", MIMERPY_NOMEM, "");
         }
         rc = MimerGetString8((MimerStatement)statement, column_number,
-                             bigvalue, buffer_size);
-        return_object = Py_BuildValue("is", rc, bigvalue);
-        free(bigvalue);
-        return return_object;
+                             buf, buffer_size);
     }
-    return Py_BuildValue("is", rc, &value);
+
+    if (rc <= 0) {
+        buf[0] = '\0';
+    }
+
+    return_object = Py_BuildValue("is", rc, buf);
+    if (buf != buffer) {
+        free(buf);
+    }
+
+    return return_object;
 }
 
 
