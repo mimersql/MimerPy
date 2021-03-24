@@ -1668,9 +1668,9 @@ static PyObject* mimerSetUUID(PyObject* self, PyObject* args)
 /* *********************************************************************/
 {
     pyptr statement;
-    int rc, parameter_number, parse_length;
-    char *uuid;
-    if (!PyArg_ParseTuple(args, "Lis", &statement, &parameter_number, &uuid)) {
+    int rc, parameter_number;
+    unsigned char uuid[16];
+    if (!PyArg_ParseTuple(args, "Lis", &statement, &parameter_number, uuid)) {
         return NULL;
     }
     rc = MimerSetUUID((MimerStatement)statement, parameter_number, uuid);

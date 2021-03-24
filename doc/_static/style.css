@@ -1,7 +1,14 @@
-.section {
-    width: 40vw;
+div.document {
+    width: calc(100% - 20px);
+    margin: 0 !important;  
+    /* margin-top: 30px;
+    margin-right: 1vw;
+    margin-bottom: 0px;
+    margin-left: 1vw; */  
 }
 
-div.document {
-    margin: 1vw;     
+div.body {
+    margin: 30px 1vw 0 1vw;
+    max-width: calc(100% - 20px);
+    min-width: 300px;
 }
