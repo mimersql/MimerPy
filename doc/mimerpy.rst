@@ -8,7 +8,7 @@ The module
 .. _PEP 249: https://www.python.org/dev/peps/pep-0249/
 
 The :mod:`mimerpy` module enables the creation of connections to Mimer
-databases and the opening of cursors to execute MimerSQL statements.
+databases and the opening of cursors to execute Mimer SQL statements.
 
 Constructor
 ------------
@@ -193,7 +193,7 @@ Cursor
 
 .. class:: Cursor 
 
-  The class cursor is used to execute MimerSQL statements and manage
+  The class cursor is used to execute Mimer SQL statements and manage
   data result sets.
 
   Cursors that have been created from the same connection are not

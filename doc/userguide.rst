@@ -5,19 +5,19 @@ User guide
 .. _mimer-syntax:
 
 This chapter of the documentation covers the relationship between
-Mimerpy, Mimer SQL and the Mimer SQL C API.
+MimerPy, Mimer SQL and the Mimer SQL C API.
 
 Query structure
 ------------------------
-There are two ways to structure a query in Mimerpy, with or without
+There are two ways to structure a query in MimerPy, with or without
 parameter markers.
 
 Without parameter markers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Executing a query without parameter markers is done with the MimerSQL
+Executing a query without parameter markers is done with the Mimer SQL
 syntax.  If you are looking for help with basic elements of the SQL
-language and MimerSQL please visit `Mimer documentation`_.  Consider
+language and Mimer SQL please visit `Mimer documentation`_.  Consider
 the following example::
 
   >>> con = mimerpy.connect(dsn ="mimerDB", user="mimerUser", password="password")
@@ -88,18 +88,18 @@ supposed to be open until a :meth:`rollback` or a :meth:`commit` is
 performed. Unfortunately this is not always true.  If a DDL statement
 is executed the transaction will implicitly end.  Because of this
 there are some limitations and a few things to keep in mind while
-using the current version Mimerpy.
+using the current version MimerPy.
 
 * DLL and DML statements should (can) not be mixed in the same transaction.
 * DDL statement are always committed.
 
-In most sequences of DDL and DML mixing, Mimerpy will raise a
-:exc:`ProgrammingError`. However not always.  Mimerpy is coded to
+In most sequences of DDL and DML mixing, MimerPy will raise a
+:exc:`ProgrammingError`. However not always.  MimerPy is coded to
 handle mixing of DDL and DML statements, but the current version of
 the Mimer SQL C API can not handle it.  Because of this, unpredictable
 behavior sometimes occur when mixing DDL and DML executes.
 
-The Mimerpy user has the responsibility to write code with transaction
+The MimerPy user has the responsibility to write code with transaction
 control in mind.  Our recommendation is to always commit before and
 after a executing a DDL statement.  Consider the following example::
 
@@ -126,7 +126,7 @@ This is what is done in the first example implicitly.
 .. note:: If you wish to bypass this problem, :meth:`autocommit` can
           be used and none of this applies.
 
-MimerSQL DML & DDL cheat sheet
+Mimer SQL DML & DDL cheat sheet
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 +----------+----------+
 | DML      | DDL      |

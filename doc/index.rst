@@ -3,17 +3,17 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-MimerPy -- Python database interface for MimerSQL
-=================================================
+MimerPy -- Python database interface for Mimer SQL
+==================================================
 
-Mimerpy is an adapter for MimerSQL in Python_ which implements the `PEP 249`_
+MimerPy is an adapter for Mimer SQL in Python_ which implements the `PEP 249`_
 specification.
-It allows the user to access the powerful tools and advantages of MimerSQL
+It allows the user to access the powerful tools and advantages of Mimer SQL
 through Python.
-Mimerpy is implemented as a CPython wrapper of the `Mimer SQL C API`_
+MimerPy is implemented as a CPython wrapper of the `Mimer SQL C API`_
 aka MimerAPI.
 
-The following documentation covers the full interface of Mimerpy,
+The following documentation covers the full interface of MimerPy,
 demonstrating how to
 install and use the product through simple guides and easy to read examples.
 
