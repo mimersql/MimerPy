@@ -132,7 +132,7 @@ class TestMimerPool(unittest.TestCase):
 
     def test_pool3_CreateManyConnections(self):
         #See how many connections the database allows, but no more than max_cons
-        max_cons = 200
+        max_cons = 100
         available_cons = 0
         cons = []
         try:

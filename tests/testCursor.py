@@ -1217,7 +1217,7 @@ class TestCursorMethods(unittest.TestCase):
     def test_datatype_float_p(self):
         with self.tstcon.cursor() as c:
             c.execute("create table floatptable (c1 FLOAT(5)) in pybank")
-            floatnum = 3.123
+            floatnum = str(3.123)
             c.execute("insert INTO floatptable VALUES (?)", (floatnum))
             self.tstcon.commit()
             c.execute("select * from floatptable")
