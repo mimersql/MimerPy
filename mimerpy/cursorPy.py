@@ -58,7 +58,7 @@ def _define_funcs():
     set_funcs = {1: mimerapi.mimerSetString8,
                  2: mimerapi.mimerSetString8,
                  3: mimerapi.mimerSetString8,
-                 4: mimerapi.mimerSetFloat,
+                 4: mimerapi.mimerSetString8,
                  6: mimerapi.mimerSetInt32,
                  10: mimerapi.mimerSetDouble,
                  11: mimerapi.mimerSetString8,
