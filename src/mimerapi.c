@@ -1648,7 +1648,6 @@ static PyObject* mimerGetUUID(PyObject* self, PyObject* args)
         return NULL;
     }
 
-    printf("REEEEEEEEEEEEE");
     rc = MimerGetUUID((MimerStatement)statement, parameter_number, uuid);
 
     return Py_BuildValue("is", rc, &uuid);
