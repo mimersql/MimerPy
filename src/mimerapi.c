@@ -80,6 +80,36 @@ typedef long long pyptr;
 static const int lengthof_Terminating_NUL = 1;
 
 
+/**
+ *  Control what Malloc() does. Useful when testing error exits.
+ *    0:    call malloc()
+ *  !=0:    always return NULL (failure)
+ */
+static int malloc_version = 0;
+
+
+static void *Malloc(size_t size)
+/* *********************************************************************/
+/**
+ *  @brief      A malloc() that can be made to fail by calling
+ *              mimerpy.mimerTestMalloc(1)
+ *
+ *  @author     Per Schröder
+ *  @date       2021-03-24
+ *  @param[in]  size     Bytes to allocate
+ *
+ *  @returns    Pointer to area or NULL if allocation failed
+ */
+/* *********************************************************************/
+{
+    if (malloc_version) {
+        return NULL;
+    } else {
+        return malloc(size);
+    }
+}
+
+
 
 static PyObject* mimerAPIVersion(PyObject* self, PyObject* args)
 /* *********************************************************************/
@@ -567,7 +597,7 @@ static PyObject* mimerParameterName8(PyObject* self, PyObject* args)
     if (rc >= BUFLEN) {
         int buffer_size = rc + 1;
         PyObject* return_object;
-        char *bigvalue = (char*) calloc(buffer_size, sizeof(char));
+        char *bigvalue = (char*) Malloc(buffer_size);
         if(bigvalue == NULL) {
                 return(Py_BuildValue("i", 101));
         }
@@ -710,7 +740,7 @@ static PyObject* mimerColumnName8(PyObject* self, PyObject* args)
     if (rc >= BUFLEN) {
         int buffer_size = rc + 1;
         PyObject* return_object;
-        char *bigvalue = (char*) calloc(buffer_size, sizeof(char));
+        char *bigvalue = (char*) Malloc(buffer_size);
         if(bigvalue == NULL) {
             return(Py_BuildValue("i", 101));
         }
@@ -885,7 +915,7 @@ static PyObject* mimerGetString8(PyObject* self, PyObject* args)
 
     if (rc >= BUFLEN) {
         int buffer_size = rc + 1;
-        buf = (char*) malloc(buffer_size);
+        buf = (char*) Malloc(buffer_size);
         if (buf == NULL) {
             return Py_BuildValue("is", MIMERPY_NOMEM, "");
         }
@@ -1370,7 +1400,7 @@ static PyObject* mimerGetBlobData(PyObject* self, PyObject* args)
 
     rc = MimerGetLob((MimerStatement)statement, parameter_number, &length,
                      &lobhandle);
-    unsigned char *data = (unsigned char *)malloc(length);
+    unsigned char *data = (unsigned char *)Malloc(length);
     
     do {
         if (buff_cnt + CHUNK_SIZE > length) {
@@ -1441,7 +1471,7 @@ static PyObject* mimerGetNclobData8(PyObject* self, PyObject* args)
         return Py_BuildValue("i", rc);
     }
 
-    data = (char*) calloc(4*length + lengthof_Terminating_NUL, sizeof(char));
+    data = (char*) Malloc(4*length + lengthof_Terminating_NUL);
     if(data == NULL) {
         return(Py_BuildValue("i", 101));
     }
@@ -1529,7 +1559,7 @@ static PyObject* mimerGetBinary(PyObject* self, PyObject* args)
 
     if (rc > BUFLEN) {
         PyObject* return_object;
-        char *bigvalue = malloc(rc);
+        char *bigvalue = Malloc(rc);
         if(bigvalue == NULL) {
             return(Py_BuildValue("i", 101));
         }
@@ -1717,6 +1747,38 @@ static PyObject* mimerSetNull(PyObject* self, PyObject* args)
     return Py_BuildValue("i", rc);
 }
 
+
+static PyObject* mimerTestMalloc(PyObject* self, PyObject* args)
+/* *********************************************************************/
+/**
+ *  @brief      Activate a MALLOC() that always fail for testing error handling
+ *
+ *  @author     Per Schröder
+ *  @date       2021-03-24
+ *
+ *  @param[in]    self        Pointer to python object that function is
+ *                            called from.
+ *  @param[in]    args        Arguments.
+ *                args 1:     0: use normal malloc(), !=0 use malloc() that
+ *                            always fail.
+ *
+ *  @returns    Return code: Old value
+ *
+ */
+/* *********************************************************************/
+{
+    int v;
+    PyObject *return_object;
+
+    if (!PyArg_ParseTuple(args, "i", &v)) {
+        return NULL;
+    }
+
+    return_object = Py_BuildValue("i", malloc_version);
+    malloc_version = v;
+    return return_object;
+}
+
 /**
 * Describes all methods of the mimerapi extension.
 */
@@ -1798,12 +1860,14 @@ static PyMethodDef mimerapiMethods[] =
      "Gets binary data."},
     {"mimerGetUUID", (PyCFunction)mimerGetUUID, METH_VARARGS,
      "Gets UUID data."},
-     {"mimerSetUUID", (PyCFunction)mimerSetUUID, METH_VARARGS,
+    {"mimerSetUUID", (PyCFunction)mimerSetUUID, METH_VARARGS,
      "Gets UUID data."},
     {"mimerGetFloat", (PyCFunction)mimerGetFloat, METH_VARARGS,
      "Gets FLOAT data."},
-     {"mimerSetFloat", (PyCFunction)mimerSetFloat, METH_VARARGS,
+    {"mimerSetFloat", (PyCFunction)mimerSetFloat, METH_VARARGS,
      "Sets FLOAT data."},
+    {"mimerTestMalloc", (PyCFunction)mimerTestMalloc, METH_VARARGS,
+     "Disables malloc() for error testing."},
     {NULL, NULL, 0, NULL}
 };
 
