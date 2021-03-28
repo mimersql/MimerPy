@@ -585,31 +585,38 @@ static PyObject* mimerParameterName8(PyObject* self, PyObject* args)
 {
     pyptr statement;
     int rc, parameter_number;
-    char value[BUFLEN];
+    char buffer[BUFLEN];
+    char *buf = buffer;
+    PyObject* return_object;
 
     if (!PyArg_ParseTuple(args, "Li", &statement, &parameter_number)) {
         return NULL;
     }
 
     rc = MimerParameterName8((MimerStatement)statement, parameter_number,
-                             value, BUFLEN);
+                             buf, BUFLEN);
 
     if (rc >= BUFLEN) {
         int buffer_size = rc + 1;
-        PyObject* return_object;
-        char *bigvalue = (char*) Malloc(buffer_size);
-        if(bigvalue == NULL) {
-                return(Py_BuildValue("i", 101));
+        buf = (char*) Malloc(buffer_size);
+        if (buf == NULL) {
+            return Py_BuildValue("is", MIMERPY_NOMEM, "");
         }
 
         rc = MimerParameterName8((MimerStatement)statement, parameter_number,
-                                 bigvalue, buffer_size);
-        return_object = Py_BuildValue("is", rc, bigvalue);
-        free(bigvalue);
-        return return_object;
+                                 buf, buffer_size);
     }
 
-    return Py_BuildValue("is", rc, &value);
+    if (rc <= 0) {
+        buf[0] = '\0';
+    }
+
+    return_object = Py_BuildValue("is", rc, buf);
+    if (buf != buffer) {
+        free(buf);
+    }
+
+    return return_object;
 }
 
 
@@ -1276,11 +1283,12 @@ static PyObject* mimerSetBlobData(PyObject* self, PyObject* args)
 /* *********************************************************************/
 {
     pyptr statement;
-    int rc, parameter_number, parse_length;
+    Py_ssize_t parse_length;
+    int rc, parameter_number;
     MimerLob lobhandle;
     const char *data;
 
-    if (!PyArg_ParseTuple(args, "Liz#", &statement, &parameter_number, &data,
+    if (!PyArg_ParseTuple(args, "Liy#", &statement, &parameter_number, &data,
                           &parse_length)) {
         return NULL;
     }
@@ -1331,7 +1339,8 @@ static PyObject* mimerSetNclobData8(PyObject* self, PyObject* args)
 /* *********************************************************************/
 {
     pyptr statement;
-    int rc, parameter_number, parse_length;
+    Py_ssize_t parse_length;
+    int rc, parameter_number;
     MimerLob lobhandle;
     const char *data;
 
@@ -1505,10 +1514,11 @@ static PyObject* mimerSetBinary(PyObject* self, PyObject* args)
 /* *********************************************************************/
 {
     pyptr statement;
-    int rc, parameter_number, parse_length;
+    Py_ssize_t parse_length;
+    int rc, parameter_number;
     char *value;
 
-    if (!PyArg_ParseTuple(args, "Liz#", &statement, &parameter_number, &value,
+    if (!PyArg_ParseTuple(args, "Liy#", &statement, &parameter_number, &value,
                           &parse_length)){
         return NULL;
     }
