@@ -267,8 +267,8 @@ class Cursor:
                             except TypeError:
                                 # End up here when invalid parameters are used
                                 self.__raise_exception(-25013)
-                                rc_value = set_funcs[parameter_type](self.__statement,
-                                                                    cur_column, parameter_markers[cur_column - 1])
+                            rc_value = set_funcs[parameter_type](self.__statement,
+                                                                cur_column, parameter_markers[cur_column - 1])
                         self.__check_mimerapi_error(rc_value, self.__statement)
 
                 # Catching error for errorhandler
