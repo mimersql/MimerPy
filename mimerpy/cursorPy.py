@@ -40,6 +40,19 @@ def _define_funcs():
                  12: mimerapi.mimerGetString8,
                  13: mimerapi.mimerGetString8,
                  14: mimerapi.mimerGetString8,
+                 15: mimerapi.mimerGetString8,
+                 16: mimerapi.mimerGetString8,
+                 17: mimerapi.mimerGetString8,
+                 18: mimerapi.mimerGetString8,
+                 19: mimerapi.mimerGetString8,
+                 20: mimerapi.mimerGetString8,
+                 21: mimerapi.mimerGetString8,
+                 22: mimerapi.mimerGetString8,
+                 23: mimerapi.mimerGetString8,
+                 24: mimerapi.mimerGetString8,
+                 25: mimerapi.mimerGetString8,
+                 26: mimerapi.mimerGetString8,
+                 27: mimerapi.mimerGetString8,
                  34: mimerapi.mimerGetBinary,
                  35: mimerapi.mimerGetBinary,
                  39: mimerapi.mimerGetString8,
@@ -65,6 +78,19 @@ def _define_funcs():
                  12: mimerapi.mimerSetString8,
                  13: mimerapi.mimerSetString8,
                  14: mimerapi.mimerSetString8,
+                 15: mimerapi.mimerSetString8,
+                 16: mimerapi.mimerSetString8,
+                 17: mimerapi.mimerSetString8,
+                 18: mimerapi.mimerSetString8,
+                 19: mimerapi.mimerSetString8,
+                 20: mimerapi.mimerSetString8,
+                 21: mimerapi.mimerSetString8,
+                 22: mimerapi.mimerSetString8,
+                 23: mimerapi.mimerSetString8,
+                 24: mimerapi.mimerSetString8,
+                 25: mimerapi.mimerSetString8,
+                 26: mimerapi.mimerSetString8,
+                 27: mimerapi.mimerSetString8,
                  34: mimerapi.mimerSetBinary,
                  35: mimerapi.mimerSetBinary,
                  39: mimerapi.mimerSetString8,
@@ -241,10 +267,8 @@ class Cursor:
                             except TypeError:
                                 # End up here when invalid parameters are used
                                 self.__raise_exception(-25013)
-                            print("parameter")
-                            print(parameter_type)
-                            rc_value = set_funcs[parameter_type](self.__statement,
-                                                                 cur_column, parameter_markers[cur_column - 1])
+                                rc_value = set_funcs[parameter_type](self.__statement,
+                                                                    cur_column, parameter_markers[cur_column - 1])
                         self.__check_mimerapi_error(rc_value, self.__statement)
 
                 # Catching error for errorhandler

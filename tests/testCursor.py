@@ -1,4 +1,4 @@
-import unittest, time, math, random, uuid
+import unittest, time, math, random, uuid, decimal
 import mimerpy
 from mimerpy.mimPyExceptions import *
 import db_config
@@ -986,15 +986,18 @@ class TestCursorMethods(unittest.TestCase):
             r = c.fetchall()[0][0]
             self.assertEqual(r, vuuid)
 
+    @unittest.skip
     def test_datatype_GIS_one(self):
         with self.tstcon.cursor() as c:
+            vuuid = '40.75,-74.0'
             c.execute("create table gistable2( id BUILTIN.GIS_LATITUDE) in pybank")
             c.execute("insert into gistable2 values(BUILTIN.GIS_LOCATION(40.75,-74.0))")
             self.tstcon.commit()
-            #c.execute("select id.as_text() from uuidtable2")
-            #r = c.fetchall()[0][0]
-            #self.assertEqual(r, vuuid)
+            c.execute("select id.as_text() from uuidtable2")
+            r = c.fetchall()[0][0]
+            self.assertEqual(r, vuuid)
 
+    @unittest.skip
     def test_datatype_GIS(self):
         with self.tstcon.cursor() as c:
             c.execute("create table gistable2( id BUILTIN.GIS_LATITUDE) in pybank")
@@ -1193,7 +1196,7 @@ class TestCursorMethods(unittest.TestCase):
             r = c.fetchall()[0]
             self.assertEqual(r[0], time)
     
-    def test_insert_decimal(self):
+    def test_insert_decimal_str(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jondecimal (c1 DECIMAL(7,2)) in pybank")
             floatnum = '32423.23'
@@ -1203,15 +1206,154 @@ class TestCursorMethods(unittest.TestCase):
             r = c.fetchall()[0]
             self.assertEqual(r[0], floatnum)
 
-    def test_datatype_float(self):
+    @unittest.skip
+    def test_insert_decimal_decimal(self):
         with self.tstcon.cursor() as c:
-            c.execute("create table floattable (c1 FLOAT) in pybank")
-            floatnum = 32423.123456789
-            c.execute("insert INTO floattable VALUES (?)", (floatnum))
+            decimal.getcontext().prec = 5
+            des = decimal.Decimal(1.14)
+            c.execute("create table jondecimal2 (c1 DECIMAL(1,46)) in pybank")
+            c.execute("insert INTO jondecimal2 VALUES (?)", (des))
             self.tstcon.commit()
-            c.execute("select * from floattable")
+            c.execute("select * from jondecimal2")
             r = c.fetchall()[0]
-            self.assertEqual(r[0], floatnum)
+            self.assertEqual(r[0], des)
+
+    def test_datatype_interval_DAY(self):
+        with self.tstcon.cursor() as c:
+            decimal.getcontext().prec = 5
+            day = "20005"
+            c.execute("create table jonday (c1 INTERVAL DAY(5)) in pybank")
+            c.execute("insert INTO jonday VALUES (?)", (day))
+            self.tstcon.commit()
+            c.execute("select * from jonday")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], day)
+
+    def test_datatype_interval_HOUR(self):
+        with self.tstcon.cursor() as c:
+            decimal.getcontext().prec = 5
+            hour = "20005"
+            c.execute("create table jonhour (c1 INTERVAL HOUR(5)) in pybank")
+            c.execute("insert INTO jonhour VALUES (?)", (hour))
+            self.tstcon.commit()
+            c.execute("select * from jonhour")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], hour)
+
+    def test_datatype_interval_MINUTE(self):
+        with self.tstcon.cursor() as c:
+            decimal.getcontext().prec = 5
+            minute = "1234567890"
+            c.execute("create table jonminute (c1 INTERVAL MINUTE(10)) in pybank")
+            c.execute("insert INTO jonminute VALUES (?)", (minute))
+            self.tstcon.commit()
+            c.execute("select * from jonminute")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], minute)
+
+    def test_datatype_interval_year(self):
+        with self.tstcon.cursor() as c:
+            decimal.getcontext().prec = 5
+            year = "20005"
+            c.execute("create table jonyear (c1 INTERVAL year(5)) in pybank")
+            c.execute("insert INTO jonyear VALUES (?)", (year))
+            self.tstcon.commit()
+            c.execute("select * from jonyear")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], year)
+
+    def test_datatype_interval_SECOND(self):
+        with self.tstcon.cursor() as c:
+            decimal.getcontext().prec = 5
+            second = "20005.000000"
+            c.execute("create table jonsecond (c1 INTERVAL SECOND(5)) in pybank")
+            c.execute("insert INTO jonsecond VALUES (?)", (second))
+            self.tstcon.commit()
+            c.execute("select * from jonsecond")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], second)
+
+    def test_datatype_interval_SECOND_P(self):
+        with self.tstcon.cursor() as c:
+            decimal.getcontext().prec = 5
+            second = "12345.67"
+            c.execute("create table jonsecondp (c1 INTERVAL SECOND(5,2)) in pybank")
+            c.execute("insert INTO jonsecondp VALUES (?)", (second))
+            self.tstcon.commit()
+            c.execute("select * from jonsecondp")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], second)
+
+    def test_datatype_interval_YEAR_TO_MONTH(self):
+        with self.tstcon.cursor() as c:
+            ym = "5-10"
+            c.execute("create table jonytm (c1 INTERVAL YEAR(5) TO MONTH) in pybank")
+            c.execute("insert INTO jonytm VALUES (?)", (ym))
+            self.tstcon.commit()
+            c.execute("select * from jonytm")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], ym)
+
+    def test_datatype_interval_DAY_TO_HOUR(self):
+        with self.tstcon.cursor() as c:
+            dhms = "5 23"
+            c.execute("create table jondth (c1 INTERVAL DAY(5) TO HOUR) in pybank")
+            c.execute("insert INTO jondth VALUES (?)", (dhms))
+            self.tstcon.commit()
+            c.execute("select * from jondth")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], dhms)
+
+    def test_datatype_interval_DAY_TO_MINUTE(self):
+        with self.tstcon.cursor() as c:
+            dhm = "5 23:55"
+            c.execute("create table jondtm (c1 INTERVAL DAY(5) TO MINUTE) in pybank")
+            c.execute("insert INTO jondtm VALUES (?)", (dhm))
+            self.tstcon.commit()
+            c.execute("select * from jondtm")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], dhm)
+
+    def test_datatype_interval_DAY_TO_SECOND(self):
+        with self.tstcon.cursor() as c:
+            dhms = "5 23:05:01.123"
+            c.execute("create table jondts (c1 INTERVAL DAY(5) TO SECOND(3)) in pybank")
+            c.execute("insert INTO jondts VALUES (?)", (dhms))
+            self.tstcon.commit()
+            c.execute("select * from jondts")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], dhms)
+
+    def test_datatype_interval_HOUR_TO_MINUTE(self):
+        with self.tstcon.cursor() as c:
+            hts = "55555:01"
+            c.execute("create table jonhtm (c1 INTERVAL HOUR(5) TO MINUTE) in pybank")
+            c.execute("insert INTO jonhtm VALUES (?)", (hts))
+            self.tstcon.commit()
+            c.execute("select * from jonhtm")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], hts)
+
+    def test_datatype_interval_HOUR_TO_SECOND(self):
+        with self.tstcon.cursor() as c:
+            hts = "55555:23:02.12345"
+            c.execute("create table jonhts (c1 INTERVAL HOUR(5) TO SECOND(5)) in pybank")
+            c.execute("insert into jonhts values(cast(? as interval HOUR(5) to second(5)))", (hts))
+            #c.execute("insert INTO jonhts VALUES (?)", (hts))
+            self.tstcon.commit()
+            c.execute("select * from jonhts")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], hts)
+
+    def test_datatype_interval_MINUTE_TO_SECOND(self):
+        with self.tstcon.cursor() as c:
+            minute = '12345:12.12345679'
+            c.execute("create table jonmts (c1 INTERVAL MINUTE(5) TO SECOND(8)) in pybank")
+            c.execute("insert into jonmts values (?)", minute)
+            self.tstcon.commit()
+            c.execute("select * from jonmts")
+            r = c.fetchall()
+            self.assertEqual(r[0][0], minute)
 
     @unittest.skip
     def test_datatype_float_p(self):
