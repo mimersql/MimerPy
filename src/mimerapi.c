@@ -735,30 +735,37 @@ static PyObject* mimerColumnName8(PyObject* self, PyObject* args)
 {
     pyptr statement;
     int rc, column_number;
-    char value[BUFLEN];
+    char buffer[BUFLEN];
+    char *buf = buffer;
+    PyObject* return_object;
 
     if (!PyArg_ParseTuple(args, "Li", &statement, &column_number)) {
         return NULL;
     }
 
     rc = MimerColumnName8((MimerStatement)statement, column_number,
-                          value, BUFLEN);
+                          buf, BUFLEN);
 
     if (rc >= BUFLEN) {
         int buffer_size = rc + 1;
-        PyObject* return_object;
-        char *bigvalue = (char*) Malloc(buffer_size);
-        if(bigvalue == NULL) {
-            return(Py_BuildValue("i", 101));
+        buf = (char*) Malloc(buffer_size);
+        if (buf == NULL) {
+            return Py_BuildValue("is", MIMERPY_NOMEM, "");
         }
         rc = MimerColumnName8((MimerStatement)statement, column_number,
-                              bigvalue, buffer_size);
-        return_object = Py_BuildValue("is", rc, bigvalue);
-        free(bigvalue);
-        return return_object;
+                              buf, buffer_size);
     }
 
-    return Py_BuildValue("is", rc, &value);
+    if (rc <= 0) {
+        buf[0] = '\0';
+    }
+
+    return_object = Py_BuildValue("is", rc, buf);
+    if (buf != buffer) {
+        free(buf);
+    }
+
+    return return_object;
 }
 
 
@@ -1418,8 +1425,7 @@ static PyObject* mimerGetBlobData(PyObject* self, PyObject* args)
             part_size = CHUNK_SIZE;
         }
         rc = MimerGetBlobData(&lobhandle, &data[buff_cnt], part_size);
-        if (!MIMER_SUCCEEDED(rc)) 
-        {
+        if (!MIMER_SUCCEEDED(rc)) {
             return_object = Py_BuildValue("i", rc);
             free(data);
             return return_object;
@@ -1428,7 +1434,7 @@ static PyObject* mimerGetBlobData(PyObject* self, PyObject* args)
         }
     } while ((size_t)rc > part_size);
 
-    return_object = Py_BuildValue("iy#", rc, data,length);
+    return_object = Py_BuildValue("iy#", rc, data, length);
     free(data);
     return return_object;
 }
@@ -1554,7 +1560,9 @@ static PyObject* mimerGetBinary(PyObject* self, PyObject* args)
 {
     pyptr statement;
     int rc, parameter_number;
-    char value[BUFLEN];
+    char buffer[BUFLEN];
+    char *buf = buffer;
+    PyObject* return_object;
 
     if (!PyArg_ParseTuple(args, "Li", &statement, &parameter_number)) {
         return NULL;
@@ -1565,22 +1573,28 @@ static PyObject* mimerGetBinary(PyObject* self, PyObject* args)
     }
 
     rc = MimerGetBinary((MimerStatement)statement, parameter_number,
-                        value, BUFLEN);
+                        buf, BUFLEN);
 
     if (rc > BUFLEN) {
-        PyObject* return_object;
-        char *bigvalue = Malloc(rc);
-        if(bigvalue == NULL) {
-            return(Py_BuildValue("i", 101));
+        char *buf = Malloc(rc);
+        if (buf == NULL) {
+            return Py_BuildValue("is", MIMERPY_NOMEM, NULL);
         }
         rc = MimerGetBinary((MimerStatement)statement, parameter_number,
-                            bigvalue, rc);
-        return_object = Py_BuildValue("iy#", rc, bigvalue, rc);
-        free(bigvalue);
-        return return_object;
+                            buf, rc);
     }
 
-    return Py_BuildValue("iy#", rc, &value[0], rc);
+    if (rc <= 0) {
+        return_object = Py_BuildValue("is", rc, NULL);
+    } else {
+        return_object = Py_BuildValue("iy#", rc, buf, rc);
+    }
+
+    if (buf != buffer) {
+        free(buf);
+    }
+
+    return return_object;
 }
 
 
