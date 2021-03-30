@@ -48,7 +48,6 @@ The following example uses ``with`` for a :class:`Connection`::
 
       # Opening a connection and executing statements with it. Changes are automatically committed
   >>> with mimerpy.connect(dsn = "dbname", user = "username", password = "password") as conn:
-      ...   conn.execute("CREATE TABLE with_table_connection(c1 INTEGER, c2 VARCHAR(32))")
       ...   conn.execute("INSERT INTO with_table_connection VALUES (?,?)", (1, "This is an example"))
       ...   conn.execute("INSERT INTO with_table_connection VALUES (?,?)", (2, "on how to use"))
       ...   conn.execute("INSERT INTO with_table_connection VALUES (?,?)", (3, "the with functionality."))
@@ -77,7 +76,6 @@ The following example uses ``with`` for a :class:`Cursor`::
 
         # Opening a cursor and executing statements with it. Changes are automatically committed
     >>> with conn.cursor() as cur:
-        ...   cur.execute("CREATE TABLE with_table_cursor(c1 INTEGER, c2 VARCHAR(32))")
         ...   cur.execute("INSERT INTO with_table_cursor VALUES (?,?)", (1, "This is an example"))
         ...   cur.execute("INSERT INTO with_table_cursor VALUES (?,?)", (2, "on how to use"))
         ...   cur.execute("INSERT INTO with_table_cursor VALUES (?,?)", (3, "the with functionality."))
@@ -140,7 +138,6 @@ can be used and::
   >>> cur = conn.cursor(scrollable = 'True')
 
       # Creating and inserting value to table
-  >>> cur.execute("CREATE TABLE scroll_example(c1 INTEGER, c2 VARCHAR(32))")
   >>> cur.execute("INSERT INTO scroll_example VALUES (?,?)", (1, "This is an example"))
   >>> cur.execute("INSERT INTO scroll_example VALUES (?,?)", (2, "on how to use"))
   >>> cur.execute("INSERT INTO scroll_example VALUES (?,?)", (3, "a ScrollCursor."))
@@ -215,9 +212,6 @@ performing several executes.However, this can be done by using the method
 
   >>> cur = conn.cursor()
 
-      # Creating a table with a BLOB column
-  >>> cur.execute("CREATE TABLE executemany_table (c1 INTEGER, c2 VARCHAR(32))")
-
       # Inserting two rows into the table
   >>> cur.executemany("INSERT INTO executemany_table VALUES (?,?)", (((1, "This is an example"), (2, "on how to use executemany."))))
 
@@ -241,8 +235,7 @@ failed transaction::
     def important_transaction(con):
         try: 
             cursor = con.cursor()
-            cursor.execute("CREATE TABLE poff (c1 INTEGER, c2 FLOAT) in pybank")
-            cursor.execute("INSERT into poff values (:a, :b)", (5, 5.5))
+            cursor.execute("INSERT into mytable values (:a, :b)", (5, 5.5))
             con.commit()
         except TransactionAbortError as e:
             con.rollback()
@@ -282,8 +275,7 @@ it fails using recursion::
             return 0
         try: 
             cursor = con.cursor()
-            cursor.execute("CREATE TABLE poff (c1 INTEGER, c2 FLOAT) in pybank")
-            cursor.execute("INSERT into poff values (:a, :b)", (5, 5.5))
+            cursor.execute("INSERT into mytable values (:a, :b)", (5, 5.5))
             con.commit()
         except TransactionAbortError as e:
             con.rollback()
