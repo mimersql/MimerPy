@@ -53,7 +53,7 @@ class TestMimerPool(unittest.TestCase):
     def test_pool1_CreateConnection(self):
         pool = MimerPool(
             initialconnections=1, maxunused=2, maxconnections=3, block=False,
-            reset=True, dsn=self.DSN, user=self.USER, password=self.PASSWORD)
+            dsn=self.DSN, user=self.USER, password=self.PASSWORD)
         self.assertEqual(pool.cached_connections, 1)
         con = pool.get_connection()
         from mimerpy.pool import PooledConnection
@@ -92,11 +92,11 @@ class TestMimerPool(unittest.TestCase):
     def test_pool2_CreateConnectionNoMaxCache(self):
         pool = MimerPool(
             initialconnections=1, maxunused=0, maxconnections=3, block=False,
-            reset=True, dsn=self.DSN, user=self.USER, password=self.PASSWORD)
+            dsn=self.DSN, user=self.USER, password=self.PASSWORD)
         del(pool)
         pool = MimerPool(
             initialconnections=1, maxunused=0, maxconnections=3, block=False,
-            reset=True, dsn=self.DSN, user=self.USER, password=self.PASSWORD)
+            dsn=self.DSN, user=self.USER, password=self.PASSWORD)
         self.assertEqual(pool.cached_connections, 1)
         self.assertEqual(pool.used_connections, 0)
         con = pool.get_connection()
@@ -149,7 +149,7 @@ class TestMimerPool(unittest.TestCase):
         self.assertGreaterEqual(available_cons, 50, "50 available connections ore more needed")
         pool = MimerPool(
             initialconnections=5, maxunused=0, maxconnections=10, block=False,
-            reset=True, dsn=self.DSN, user=self.USER, password=self.PASSWORD)
+            dsn=self.DSN, user=self.USER, password=self.PASSWORD)
         self.assertEqual(pool.cached_connections, 5)
         self.assertEqual(pool.used_connections, 0)
 
@@ -174,7 +174,7 @@ class TestMimerPool(unittest.TestCase):
 
         pool = MimerPool(
             initialconnections=5, maxunused=0, maxconnections=available_cons+1, block=False,
-            reset=True, dsn=self.DSN, user=self.USER, password=self.PASSWORD)
+            dsn=self.DSN, user=self.USER, password=self.PASSWORD)
         #This will be slow since we have to create all the connection
         cons = [pool.get_connection() for cnt in range(available_cons)]
         self.assertEqual(pool.cached_connections, 0)

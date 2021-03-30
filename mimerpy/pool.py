@@ -33,7 +33,6 @@ maxconnections: maximum number of connections allowed (Default: 0, unlimited num
 block: determines behavior when exceeding the maximum number of connections. 
     If True, block and wait for a connection to become available
     (Default: False, will give error when maxconnections is exceeded)
-reset: Should the connection be reset when returned to the pool (Default: True)
 deep_health_check: Don't only check that the connection seems to be ok, try it before getting it from the pool.
     This is a bit slower but guarantees that the connection is healty. Default True
 dsn: The database name. If empty, MIMER_DATABASE is used
@@ -82,7 +81,7 @@ class MimerPool:
 
     def __init__(
             self, dsn:str = '', user:str = '', password:str ='', initialconnections:int = 0, maxunused:int = 0, maxconnections:int = 0, block:bool = False,
-            reset:bool = True, deep_health_check:bool = False, autocommit:bool = False, errorhandler=None):
+            deep_health_check:bool = False, autocommit:bool = False, errorhandler=None):
         """Set up the MimerPy connection pool.
 
         Args:
@@ -92,7 +91,6 @@ class MimerPool:
             block(bool): determines behavior when exceeding the maximum number of connections. 
                 If True, block and wait for a connection to become available
                 (Default: False, will give error when maxconnections is exceeded)
-            reset(bool): Should the connection be reset when returned to the pool (Default: True)
             deep_health_check(bool): Don't only check that the connection seems to be ok, try it before getting it from the pool.
                 This is a bit slower but guarantees that the connection is healty. Default False
             dsn(str): The database name
@@ -111,7 +109,6 @@ class MimerPool:
         self._autocommit = autocommit
         self._errorhandler = errorhandler
         self._block = block
-        self._reset = reset
         self._initialconnections = initialconnections
         self._deep_health_check = deep_health_check
         if maxunused > 0 and maxunused < initialconnections:
