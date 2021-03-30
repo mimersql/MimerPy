@@ -204,7 +204,7 @@ MimerPool Constructor
 .. method:: MimerPool(dsn = None, user = None, password = None, initialconnections = 0, maxunused = 0, maxconnections = 0, block = False, deep_health_check = False, autocommit = False, errorhandler=None) 
   :noindex:
   
-  Constructor for creating and initializing a connection pool for the specified databaseReturns a :class:`MimerPool`
+  Constructor for creating and initializing a connection pool for the specified database. Returns a :class:`MimerPool`
     object. To setting up a default connection pool with a Mimer database the
     following parameters are required:
   
