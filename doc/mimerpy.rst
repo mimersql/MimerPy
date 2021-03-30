@@ -186,6 +186,93 @@ Connection Extensions
 
 .. seealso:: :ref:`Using with <Using_with>` for an example how this is used.
 
+
+.. _poolclass:
+
+Connection pool
+****************
+
+The MimerPy connection pool is an extension to `PEP 249`_.
+
+.. class:: MimerPool
+
+  The :class:`MimerPool` implements the MimerPy connection pool. This is done by using the wrapper class :class:`~PooledConnection` that overide the close() method.
+
+MimerPool Constructor
+------------------------
+
+.. method:: MimerPool(dsn = None, user = None, password = None, initialconnections = 0, maxunused = 0, maxconnections = 0, block = False, deep_health_check = False, autocommit = False, errorhandler=None) 
+  :noindex:
+  
+  Constructor for creating and initializing a connection pool for the specified databaseReturns a :class:`MimerPool`
+    object. To setting up a default connection pool with a Mimer database the
+    following parameters are required:
+  
+    * *dsn* -- Data source name as a string
+    * *user* -- Username as a string
+    * *password* -- Password as a string
+
+    The pools underlying connection's auto-commit feature is initially turned off and the default
+    errorhandler is used. The following parameters for the underlying connections can be set when setting up the pool:
+  
+    * *autocommit* -- If '*autocommit*' = ``False`` or unspecified,
+      auto-commit mode is turned off (as by default). If '*autocommit*'
+      = ``True`` queries will be automatically committed.
+  
+    * *errorhandler* -- If '*errorhandler*' = ``None`` or unspecified,
+      the default errorhandler is used. The user can choose to use their
+      own errorhandler of choice by setting this parameter.
+
+    The following parameters can be set to configure how the pool behaves:
+
+    * *initialconnections* -- Number of connections to open directly. If '*initialconnections*' = `0` or unspecified,
+      no initial connections are made.
+    * *maxunused* -- Maximum number of unused connections in the pool. If '*maxunused*' = `0` or unspecified, 
+      the pool will not shrink automatically.
+    * *maxconnections* -- Maximum number of connections in the pool. If '*maxconnections*' = `0` or unspecified, 
+      the pool will be unlimited in size.
+    * *block* -- Behavior when there are not available connections. If '*block*' = `False` or unspecified, 
+      a :exc:`~MimerPoolExhausted` will be trown if there are no available connections, otherwise the :meth:`get_connection*()`
+      will block until a connection is available.
+    * *deep_health_check* -- More extensive test of the connection state when getting a connection from the pool. 
+      If '*deep_health_check*' = `True`, a simple query is made to verify the connection before returning it. 
+
+MimerPool Methods 
+--------------------------------------
+
+.. method:: MimerPool.get_connection() 
+
+  Get a new :class:`~PooledConnection` from the connection pool.
+
+.. method:: MimerPool.close()
+
+  Close all connections in the pool.
+
+
+.. _pooledconnectionclass:
+
+PooledConnection
+--------------------------------------
+
+.. class:: PooledConnection
+  :noindex:
+
+  The :class:`PooledConnection` is a wrapper for the :class:`Connection` that override :meth:`Connection.close*()` so that instead of closing the connection, it's returned to the pool.
+  
+PooledConnection Methods 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+All methods of :class:`Connection` are available, except :meth:`Connection.close*()`.
+
+.. method:: PooledConnection.close() 
+
+  Return the connection to the pool.
+
+.. note:: If :meth:`~commit` is not performed on a connection, all
+  pending transactions are implicitly rolled back and all data manipulation
+  performed during the transaction is lost.
+
+
+
 .. _cursorclass:
 
 Cursor

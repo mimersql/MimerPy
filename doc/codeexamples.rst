@@ -294,5 +294,43 @@ it fails using recursion::
         else:
             print("Failure!")
 
+Using the connection pool
+-------------------------------
+The following example illustrates how to use the MimerPy connection pool::
+
+    import mimerpy
+    from mimerpy.pool import(MimerPool, MimerPoolError, MimerPoolExhausted)
+
+    pool = None
+
+    """ Create the following table:
+        create table my_tab(id integer)
+    """
+    def insert_row(num):
+        con = pool.get_connection()
+        con.execute("INSERT into my_tab values (:a)", (num))
+        con.commit()
+        con.close()
+
+    def sel_row():
+        con = pool.get_connection()
+        cursor = con.cursor()
+        cursor.execute("select * from my_tab")
+        for value in cursor:
+            print(value)
+        cursor.close()    
+        con.close()
+
+    if __name__ == "__main__":
+        pool = MimerPool(dsn="targetdb", user = "SYSADM", password = "SYSADM", maxconnections=10)
+        ins_values = (1,2,3,4,5)
+        print("Inserting rows")
+        for val in ins_values:
+            insert_row(val)
+        print("Selecting row")
+        sel_row()
+        print("Done")
+        pool.close()
+
 .. Messages
 .. --------------
