@@ -197,7 +197,7 @@ create table monkeyTable (c1 INTEGER,
         b = random.randint(-2**63, 2**63 - 1)
         c = random.randint(-2**15, 2**15 - 1)
         d = str(uuid.uuid4())
-        e = str(uuid.uuid4())
+        e = uuid.uuid4().bytes
         f = str(uuid.uuid4())
         g = random.randint(0,1)
         h = random.random()
@@ -260,7 +260,7 @@ create table monkeyTable (c1 INTEGER,
             b = random.randint(-2**63, 2**63 - 1)
             c = random.randint(-2**15, 2**15 - 1)
             d = str(uuid.uuid4())
-            e = str(uuid.uuid4())
+            e = uuid.uuid4().bytes
             f = str(uuid.uuid4())
             g = random.randint(0,1)
             h = random.random()
@@ -273,7 +273,7 @@ create table monkeyTable (c1 INTEGER,
         b = random.randint(-2**63, 2**63 - 1)
         c = random.randint(-2**15, 2**15 - 1)
         d = str(uuid.uuid4())
-        e = str(uuid.uuid4())
+        e = uuid.uuid4().bytes
         f = str(uuid.uuid4())
         g = random.randint(0,1)
         h = random.random()

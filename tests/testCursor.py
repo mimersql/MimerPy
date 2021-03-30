@@ -1011,15 +1011,14 @@ class TestCursorMethods(unittest.TestCase):
     def test_insert_blob(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jonblob (c1 BLOB(18389)) in pybank")
-            res = ''.join(format(i, 'b') for i in bytearray("Hello there", encoding ='utf-8')) 
-            ablob = res
+            ablob = bytes(bytearray("Hello there", encoding ='utf-8'))
             c.execute("insert INTO jonblob VALUES (?)", (ablob))
             self.tstcon.commit()
             c.execute("select * from jonblob")
             r = c.fetchall()[0]
-            self.assertEqual(r[0].decode("utf-8"), ablob)
+            self.assertEqual(r[0], ablob)
 
-    def test_insert_blob_2(self):
+    def test_insert_blob_21(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jonblob2 (c1 BLOB(64111)) in pybank")
             with open("testCursor.py", 'rb') as input_file:
@@ -1129,7 +1128,7 @@ class TestCursorMethods(unittest.TestCase):
     def test_insert_binary_parameter_markers(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jonbinary2 (c1 BINARY(4)) in pybank")
-            bob = "0x53"
+            bob = b"0x53"
             c.execute("insert INTO jonbinary2 VALUES (?)", (bob))
             self.tstcon.commit()
             c.execute("select * from jonbinary2")
@@ -1540,11 +1539,11 @@ class TestCursorMethods(unittest.TestCase):
     def test_insert_blob_2(self):
         with self.tstcon.cursor() as c:
             c.execute("CREATE TABLE blob_table (blobcolumn BLOB)")
-            blob = ''.join(format(i, 'b') for i in bytearray("Hello there again", encoding ='utf-8')) 
+            blob = bytes(bytearray("Hello there again", encoding ='utf-8'))
             c.execute("INSERT INTO blob_table VALUES (?)", (blob))
             self.tstcon.commit()
             c.execute("SELECT * FROM blob_table")
-            r = c.fetchall()[0][0].decode("utf-8")
+            r = c.fetchall()[0][0]
             self.assertEqual(r, blob)
 
     def test_conflict_drop(self):
@@ -1716,7 +1715,7 @@ create table longboi (c1 char(10),
         with self.tstcon.cursor() as c:
             long = "create table longboi_varbinary (c1 VARBINARY(10)) in pybank"
             c.execute(long)
-            c.execute("insert into longboi_varbinary values (?)", ("x'ABCD01"))
+            c.execute("insert into longboi_varbinary values (?)", (b"x'ABCD01"))
 
             c.execute("SELECT * from longboi_varbinary")
             self.assertEqual(c.fetchall(), [(b"x'ABCD01",)])
