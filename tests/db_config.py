@@ -30,8 +30,11 @@ TSTUSR = dict(dsn      = DBNAME,
 OSUSER = getpass.getuser()
 KEEP_MIMERPY_IDENT = os.environ.get('MIMER_KEEP_MIMERPY_IDENT', 'false') == 'true'
 MIMERPY_STABLE = os.environ.get('MIMERPY_STABLE', 'True')
+MIMERPY_TRACE = os.environ.get('MIMERPY_TRACE')
 
 def setup():
+    if MIMERPY_TRACE:
+        mimerpy._trace()
     syscon = mimerpy.connect(**SYSUSR)
     with syscon.cursor() as c:
         try:
