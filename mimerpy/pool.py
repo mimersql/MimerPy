@@ -227,6 +227,20 @@ class MimerPool:
         except Exception:
             pass
 
+    def __enter__(self):
+        """Support for the with statement
+
+        Returns:
+            MimerPool: The connection pool itself
+        """
+        return self
+
+    def __exit__(self,type, value, traceback):
+        """Support for the with statement
+
+        Close all connections
+        """
+        self.close()
 
 class PooledConnection(Connection):
     """The mimerpy.Connection wrapper class that override the close method."""
@@ -281,4 +295,25 @@ class PooledConnection(Connection):
             self.close()
         except Exception:
             pass
+    
+    def __enter__(self):
+        """Support for the with statement
 
+        Returns:
+            PooledConnection: The connection itself
+        """
+        return self
+
+    def __exit__(self,type, value, traceback):
+        """Support for the with statement
+
+        If a transaction is opened, commit it.
+        """
+        try:
+            if self._transaction:
+                if type is None:
+                    self.commit()
+                else:
+                    self.rollback()
+        finally:
+            self.close()
