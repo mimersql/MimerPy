@@ -122,7 +122,6 @@ class MimerPool:
         self.__cached_connections = []  # The connection pool
         self.__used_connections = [] # Used connections
         self.__pool_lock = Condition()
-        self.__connections = 0
         # Start initial connections if any
         initial_cons = [self.get_connection() for cnt in range(initialconnections)]
         while initial_cons:
@@ -141,7 +140,7 @@ class MimerPool:
     @property
     def connections(self):
         """Total number of active connections."""
-        return self.__connections
+        return len(self.__used_connections) + len(self.__cached_connections)
 
     def get_connection(self):
         """Get a pooled MimerPy connection.
@@ -153,9 +152,9 @@ class MimerPool:
         self.__pool_lock.acquire()
         try:
             if self._block and self._maxconnections > 0:
-                while self.__connections >= self._maxconnections:
+                while self.used_connections >= self._maxconnections:
                     self.__pool_lock.wait()
-            elif self._maxconnections > 0 and self.__connections >= self._maxconnections:
+            elif self._maxconnections > 0 and self.used_connections >= self._maxconnections:
                 raise MimerPoolExhausted
             # Connection limit not reached, get a connection
             # Try to get it from the connection pool
@@ -170,7 +169,6 @@ class MimerPool:
             else:  # No more connections in the pool, create a new one
                 con = PooledConnection(self)
                 self.__used_connections.append(con)
-            self.__connections += 1
         finally:
             self.__pool_lock.release()
 
@@ -188,7 +186,7 @@ class MimerPool:
             #Only cache connections that are ok
             if con.is_open() and (
                 not self._maxunused or (
-                    len(self.__cached_connections) < self._maxunused and self.__connections <= self._maxconnections)
+                    len(self.__cached_connections) < self._maxunused and self.connections <= self._maxconnections)
             ):
                 if con._transaction:
                     con.rollback()  # Rollback all transactions
@@ -197,7 +195,6 @@ class MimerPool:
                 self.__cached_connections.append(con)
             else:  # The connection pool is full, close the connection and discard it.
                 con._close()
-            self.__connections -= 1
             self.__used_connections.remove(con)
             self.__pool_lock.notify()
         finally:
