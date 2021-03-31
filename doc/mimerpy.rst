@@ -231,7 +231,7 @@ MimerPool Constructor
       the pool will not shrink automatically.
     * *maxconnections* -- Maximum number of connections in the pool. If '*maxconnections*' = `0` or unspecified, 
       the pool will be unlimited in size.
-    * *block* -- Behavior when there are not available connections. If '*block*' = `False` or unspecified, 
+    * *block* -- Behavior when there are no available connections. If '*block*' = `False` or unspecified, 
       a :exc:`~MimerPoolExhausted` will be trown if there are no available connections, otherwise the :meth:`get_connection*()`
       will block until a connection is available.
     * *deep_health_check* -- More extensive test of the connection state when getting a connection from the pool. 
