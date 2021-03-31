@@ -9,6 +9,8 @@ running, please visit the `Mimer documentation`_.
 
 .. _Mimer documentation: https://developer.mimer.com/documentation/
 
+.. note:: MimerPy requires Python 3.5 or later. On Windows and MacOS the command to run python3 varies between `python3` and  `python3` depending on what versions you have installed. On Linux the command normally is `python3`. In this guide we use `python3` as command, but you might have to adjust for your environment.
+
 Checking the MimerPy installation
 ---------------------------------
 While the primary use of MimerPy is as a package used by other Python
@@ -20,9 +22,9 @@ For example:
 
 .. code-block:: console
 
-    $ python -m mimerpy
+    $ python3 -m mimerpy
     Use option -h to get help
-    $ python -m mimerpy -h
+    $ python3 -m mimerpy -h
     usage: mimerpy [-h] [-d DATABASE] [-u USER] [-p PASSWORD] [-v] [sql]
 
     A simple command line program for the MimerPy library. It can display the
@@ -41,10 +43,10 @@ For example:
       -p PASSWORD, --password PASSWORD
                             Password for the user
       -v, --version         Display MimerPy and MimerAPI version numbers
-    $ python -m mimerpy -v
+    $ python3 -m mimerpy -v
     Mimerpy  version 1.0.29
     MimerAPI version 11.0.3D
-    $ python -m mimerpy -d pesc110 -u SYSADM -p SYSADM 'select current_date from system.onerow'
+    $ python3 -m mimerpy -d pesc110 -u SYSADM -p SYSADM 'select current_date from system.onerow'
     ('2021-03-09',)
 
 In this way you can connect to a database server and execute a SQL
