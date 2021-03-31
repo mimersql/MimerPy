@@ -141,7 +141,7 @@ class MimerPool:
     @property
     def connections(self):
         """Total number of active connections."""
-        return __connections
+        return self.__connections
 
     def get_connection(self):
         """Get a pooled MimerPy connection.
