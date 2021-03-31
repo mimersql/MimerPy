@@ -105,6 +105,30 @@ Exception inheritance layout:
   not supported by the database.  It is a subclass of
   :exc:`DatabaseError`.
 
+MimerPool Exceptions
+------------------------
+
+This section describes the exceptions for the MimerPy connection pool.
+
+Exception inheritance layout:
+
+::
+
+  Exception
+  └── MimerPoolError
+      └── MimerPoolExhausted
+
+.. exception:: Exception
+
+Base class for the exceptions in the hierarchy above. This is the standard Python `Exception`_.
+
+.. exception:: MimerPoolError
+
+Exception rasied for general MimerPy connection pool errors.
+
+.. exception:: MimerPoolExhausted
+
+Exception raised when the connection pool is exhausted and no new :class:`PooledConnection` can be returned.
 
 Messages
 ------------------------

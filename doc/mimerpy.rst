@@ -192,11 +192,22 @@ Connection Extensions
 Connection pool
 ****************
 
-The MimerPy connection pool is an extension to `PEP 249`_.
+The MimerPy connection pool is an extension to `PEP 249`_. 
+
+Since opening database connections are quite expensive it's good practice to not open and close them for each call. 
+A common technique for this is to use a pool of connections. By using a pool, instead of actually closing a connection it's returned to the pool
+and reamains open and ready for someone else to use. For standalone applications you can simply create a common pool and, instead of passing connections around
+, each method that uses the database simply get a connection from the pool. This is particulary important for web applications where each request would have to create
+a new connection every time, and that would be very expensive. With a pool, you can simple store it in the web applications environment and all requests can use it to
+get a connection to work with. 
+
+Besides performance, connection pooling also makes it possible to handle a lot of requests with a limited amount of connections.
+
+.. seealso:: Read more about connection pooling at https://en.wikipedia.org/wiki/Connection_pool
 
 .. class:: MimerPool
 
-  The :class:`MimerPool` implements the MimerPy connection pool. This is done by using the wrapper class :class:`~PooledConnection` that overide the close() method.
+  The :class:`MimerPool` implements the MimerPy connection pool. This is done by using the wrapper class :class:`~PooledConnection` that overide the :meth:`Connection.close` method.
 
 MimerPool Constructor
 ------------------------
@@ -232,7 +243,7 @@ MimerPool Constructor
     * *maxconnections* -- Maximum number of connections in the pool. If '*maxconnections*' = `0` or unspecified, 
       the pool will be unlimited in size.
     * *block* -- Behavior when there are no available connections. If '*block*' = `False` or unspecified, 
-      a :exc:`~MimerPoolExhausted` will be trown if there are no available connections, otherwise the :meth:`get_connection*()`
+      a :exc:`~MimerPoolExhausted` will be trown if there are no available connections, otherwise the :meth:`MimerPool.get_connection`
       will block until a connection is available.
     * *deep_health_check* -- More extensive test of the connection state when getting a connection from the pool. 
       If '*deep_health_check*' = `True`, a simple query is made to verify the connection before returning it. 
@@ -257,11 +268,11 @@ PooledConnection
 .. class:: PooledConnection
   :noindex:
 
-  The :class:`PooledConnection` is a wrapper for the :class:`Connection` that override :meth:`Connection.close*()` so that instead of closing the connection, it's returned to the pool.
+  The :class:`PooledConnection` is a wrapper for the :class:`Connection` that override :meth:`Connection.close` so that instead of closing the connection, it's returned to the pool.
   
 PooledConnection Methods 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-All methods of :class:`Connection` are available, except :meth:`Connection.close*()`.
+All methods of :class:`Connection` are available, except :meth:`Connection.close`.
 
 .. method:: PooledConnection.close() 
 
