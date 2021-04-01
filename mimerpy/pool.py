@@ -306,14 +306,5 @@ class PooledConnection(Connection):
 
     def __exit__(self,type, value, traceback):
         """Support for the with statement
-
-        If a transaction is opened, commit it.
         """
-        try:
-            if self._transaction:
-                if type is None:
-                    self.commit()
-                else:
-                    self.rollback()
-        finally:
-            self.close()
+        self.close()
