@@ -96,6 +96,16 @@ We can open a new connection and check that the information was committed succes
     >>> cur.close()
     >>> conn.close()
 
+The following example uses ``with`` for a :class:`PooledConnection`
+The actual :class:`MimerPool` connection pool also support the ``with`` statement.
+
+>>> import mimerpy
+>>> pool = MimerPool(dsn="targetdb", user = "SYSADM", password = "SYSADM", maxconnections=10, initialconnections=1)
+>>> with pool.get_connection() as con:
+    ...    print_pool_status("del_rows, in with")
+    ...    con.execute("delete from my_tab")
+    ...    con.commit() 
+
 .. seealso:: :ref:`connectionclass` or :ref:`cursorclass` documentation.
 
 Iterating a result set
