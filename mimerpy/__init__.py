@@ -45,7 +45,7 @@ if plat == 'Windows' and version_info[0] == 3 and version_info[1] >= 8:
     add_dll_directory(path)
 from pkg_resources import get_distribution, DistributionNotFound
 from mimerpy.connectionPy import Connection
-from mimerpy.cursorPy import _define_funcs
+#from mimerpy.cursorPy import _define_funcs
 from mimerpy.mimPyExceptions import *
 from mimerpy.mimPyExceptionHandler import mimerpy_error
 import re
@@ -130,7 +130,7 @@ def _apitrace(prefix=''):
     logger = logging.getLogger("MimerAPI")
     logger.setLevel(logging.INFO)
     _alterfuncs(mimerapi, prefix, logger)
-    _define_funcs()
+    #_define_funcs()
 
 def _altermeths(d, prefix, logger):
     for fn in dir(d):

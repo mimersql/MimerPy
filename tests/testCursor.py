@@ -1203,23 +1203,31 @@ class TestCursorMethods(unittest.TestCase):
             self.tstcon.commit()
             c.execute("select * from jondecimal")
             r = c.fetchall()[0]
-            self.assertEqual(r[0], floatnum)
+            self.assertEqual(r[0], decimal.Decimal(floatnum))
 
-    @unittest.skip
     def test_insert_decimal_decimal(self):
         with self.tstcon.cursor() as c:
-            decimal.getcontext().prec = 5
-            des = decimal.Decimal(1.14)
-            c.execute("create table jondecimal2 (c1 DECIMAL(1,46)) in pybank")
+            decimal.getcontext().prec = 45
+            des = decimal.Decimal("1.14")
+            c.execute("create table jondecimal2 (c1 DECIMAL(3,2)) in pybank")
             c.execute("insert INTO jondecimal2 VALUES (?)", (des))
             self.tstcon.commit()
             c.execute("select * from jondecimal2")
             r = c.fetchall()[0]
             self.assertEqual(r[0], des)
 
+    def test_insert_decimal_none(self):
+        with self.tstcon.cursor() as c:
+            decimal.getcontext().prec = 45
+            c.execute("create table jondecimalnone (c1 DECIMAL(3,2)) in pybank")
+            c.execute("insert INTO jondecimalnone VALUES (?)", (None))
+            self.tstcon.commit()
+            c.execute("select * from jondecimalnone")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], None)
+
     def test_datatype_interval_DAY(self):
         with self.tstcon.cursor() as c:
-            decimal.getcontext().prec = 5
             day = "20005"
             c.execute("create table jonday (c1 INTERVAL DAY(5)) in pybank")
             c.execute("insert INTO jonday VALUES (?)", (day))
@@ -1230,7 +1238,6 @@ class TestCursorMethods(unittest.TestCase):
 
     def test_datatype_interval_HOUR(self):
         with self.tstcon.cursor() as c:
-            decimal.getcontext().prec = 5
             hour = "20005"
             c.execute("create table jonhour (c1 INTERVAL HOUR(5)) in pybank")
             c.execute("insert INTO jonhour VALUES (?)", (hour))
@@ -1241,7 +1248,6 @@ class TestCursorMethods(unittest.TestCase):
 
     def test_datatype_interval_MINUTE(self):
         with self.tstcon.cursor() as c:
-            decimal.getcontext().prec = 5
             minute = "1234567890"
             c.execute("create table jonminute (c1 INTERVAL MINUTE(10)) in pybank")
             c.execute("insert INTO jonminute VALUES (?)", (minute))
@@ -1252,7 +1258,6 @@ class TestCursorMethods(unittest.TestCase):
 
     def test_datatype_interval_year(self):
         with self.tstcon.cursor() as c:
-            decimal.getcontext().prec = 5
             year = "20005"
             c.execute("create table jonyear (c1 INTERVAL year(5)) in pybank")
             c.execute("insert INTO jonyear VALUES (?)", (year))
@@ -1263,7 +1268,6 @@ class TestCursorMethods(unittest.TestCase):
 
     def test_datatype_interval_SECOND(self):
         with self.tstcon.cursor() as c:
-            decimal.getcontext().prec = 5
             second = "20005.000000"
             c.execute("create table jonsecond (c1 INTERVAL SECOND(5)) in pybank")
             c.execute("insert INTO jonsecond VALUES (?)", (second))
@@ -1274,7 +1278,6 @@ class TestCursorMethods(unittest.TestCase):
 
     def test_datatype_interval_SECOND_P(self):
         with self.tstcon.cursor() as c:
-            decimal.getcontext().prec = 5
             second = "12345.67"
             c.execute("create table jonsecondp (c1 INTERVAL SECOND(5,2)) in pybank")
             c.execute("insert INTO jonsecondp VALUES (?)", (second))
