@@ -200,5 +200,73 @@ class TestMimerPool(unittest.TestCase):
         pool.close()
         self.assertEqual(pool.cached_connections, 0)
         self.assertEqual(pool.used_connections, 0)
+
+    def test_pool4_PoolWithStatement(self):
+        with MimerPool(initialconnections=1, maxunused=2, maxconnections=3, block=False,
+                dsn=self.DSN, user=self.USER, password=self.PASSWORD) as pool:
+            self.assertEqual(pool.cached_connections, 1)
+            con = pool.get_connection()
+            from mimerpy.pool import PooledConnection
+            self.assertTrue(isinstance(con, PooledConnection))
+            con.close()
+            db = pool.get_connection()
+            self.assertEqual(pool.cached_connections, 0)
+            self.assertEqual(pool.used_connections, 1)
+            db2 = pool.get_connection()
+            self.assertEqual(pool.cached_connections, 0)
+            self.assertEqual(pool.used_connections, 2)
+            db3 = pool.get_connection()
+            self.assertEqual(pool.cached_connections, 0)
+            self.assertEqual(pool.used_connections, 3)
+            db.autocommit(True)
+            cur = db.execute('select * from system.onerow')
+            r = cur.fetchone()
+            cur.close()
+            db.close()
+            self.assertEqual(pool.cached_connections, 1)
+            self.assertEqual(pool.used_connections, 2)
+            db2.close()
+            self.assertEqual(pool.cached_connections, 2)
+            self.assertEqual(pool.used_connections, 1)
+            db3.close()
+            self.assertEqual(pool.cached_connections, 2)
+            self.assertEqual(pool.used_connections, 0)
+            db = pool.get_connection()
+            self.assertEqual(pool.cached_connections, 1)
+            self.assertEqual(pool.used_connections, 1)
+ 
+        self.assertEqual(pool.cached_connections, 0)
+        self.assertEqual(pool.used_connections, 0)
+ 
+    def test_pool5_PoolConnectionWithStatement(self):
+        pool = MimerPool(
+            initialconnections=1, maxunused=2, maxconnections=3, block=False,
+            dsn=self.DSN, user=self.USER, password=self.PASSWORD)
+        self.assertEqual(pool.cached_connections, 1)
+        with pool.get_connection() as con:
+            from mimerpy.pool import PooledConnection
+            self.assertTrue(isinstance(con, PooledConnection))
+
+        db2 = None
+        with pool.get_connection() as db:
+            self.assertEqual(pool.cached_connections, 0)
+            self.assertEqual(pool.used_connections, 1)
+            db2 = pool.get_connection()
+            self.assertEqual(pool.cached_connections, 0)
+            self.assertEqual(pool.used_connections, 2)
+            cur = db.execute('select * from system.onerow')
+            r = cur.fetchone()
+            cur.close()
+
+        self.assertEqual(pool.cached_connections, 1)
+        self.assertEqual(pool.used_connections, 1)
+        db2.close()
+        self.assertEqual(pool.cached_connections, 2)
+        self.assertEqual(pool.used_connections, 0)
+
+        pool.close()
+        self.assertEqual(pool.cached_connections, 0)
+        self.assertEqual(pool.used_connections, 0)
+
 if __name__ == '__main__':
     unittest.main()
