@@ -27,17 +27,17 @@ Overview of Mimer SQL to Python data types:
 +------------------------+--------------------+
 | FLOAT                  | Float              |
 +------------------------+--------------------+
-| FLOAT(p)               | Float              |
+| FLOAT(p)               | not yet supported  |
 +------------------------+--------------------+
 | REAL                   | Float              |
 +------------------------+--------------------+
-| DECIMAL(p,s)           | Float              |
+| DECIMAL(p,s)           | decimal            |
 +------------------------+--------------------+
 | BINARY                 | bytes              |
 +------------------------+--------------------+
 | VARBINARY(n)           | bytes              |
 +------------------------+--------------------+
-| BLOB(n[K,M,G])         | Str                |
+| BLOB(n[K,M,G])         | bytes              |
 +------------------------+--------------------+
 | NCLOB                  | Str                |
 +------------------------+--------------------+
@@ -55,7 +55,7 @@ Overview of Mimer SQL to Python data types:
 +------------------------+--------------------+
 | TIMESTAMP(s)           | Str                |
 +------------------------+--------------------+
-| UUID                   | Str                |
+| UUID                   | not yet supported  |
 +------------------------+--------------------+
 | NULL                   | NoneType           |
 +------------------------+--------------------+
@@ -93,21 +93,21 @@ within the limits.  If a value is too large or too small for a number
 | Mimer SQL data type    | Range of values      |
 |                        |                      |
 +========================+======================+
-| INTEGER                | -2-31 to 2-31 - 1    |
+| INTEGER                | -2^-31 to 2^-31 - 1  |
 +------------------------+----------------------+
-| INTEGER(p)             | 1 <= p <= 45         |
+| INTEGER(p)             | p decimal digits,    |
+|                        | 1 <= p <= 45         |
 +------------------------+----------------------+
-| BIGINT                 | -2-64 to 2-64 - 1    |
+| BIGINT                 | -2^-64 to 2^-64 - 1  |
 +------------------------+----------------------+
-| SMALLINT               | -2-16 to 2-16 - 1    |
+| SMALLINT               | -2^-16 to 2^-16 - 1  |
 +------------------------+----------------------+
 
-DOUBLE PRECISION, FLOAT, FLOAT(p), REAL, & DECIMAL(p,s)
+DOUBLE PRECISION, FLOAT and REAL
 ------------------------------------------------------------
 ``DOUBLE PRECISION``, ``FLOAT`` and ``REAL`` conform to 64-bit and
 32-bit IEEE floating point numbers. Mimer will not accept NaN, +Inf or
--Inf. And it will convert the distinct value -0.0 to 0.0. ``FLOAT(p)`` are floating point value 
-with p digits in the decimal mantissa. ``DECIMAL(p,s)`` are exact numerical, precision p, scale s.  
+-Inf. And it will convert the distinct value -0.0 to 0.0.
 The approximate limits apply:
 
 +------------------------+-----------------------------------+-----------+
@@ -117,15 +117,18 @@ The approximate limits apply:
 +------------------------+-----------------------------------+-----------+
 | FLOAT                  | - -10^308 to 10^308               | 64-bit    |
 +------------------------+-----------------------------------+-----------+
-| FLOAT(p)               | - 1 <= p <= 45                    | 64-bit    |
-|                        | - Zero or absolute value          |           |
-|                        | - 10^999 to 10^999                |           |
+| REAL                   | - -10^38 to 10^38                 | 32-bit    |
 +------------------------+-----------------------------------+-----------+
-| REAL                   | - -10^38 to 10^38                 | 64-bit    |
-+------------------------+-----------------------------------+-----------+
-| DECIMAL(p,s)           | - 1 <= p <= 45                    | 32-bit    |
-|                        | - 0 <= s <= p                     |           |
-+------------------------+-----------------------------------+-----------+
+
+
+FLOAT(p) and DECIMAL(p,s)
+------------------------------------------------------------
+``FLOAT(p)`` describes a floating point value with p digits in the
+decimal mantissa. This Mimer SQL type is not yet supported in MimerPy.
+
+``DECIMAL(p,s)`` describes a decimal value with p digits, of which s
+digits are after the decimal point. Values of this type are mapped to
+Python decimal objects.
 
 BINARY(n) 
 ---------------

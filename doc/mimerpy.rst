@@ -39,6 +39,8 @@ Constructor
     the default errorhandler is used. The user can choose to use their
     own errorhandler of choice by setting this parameter.
 
+.. seealso:: Information on :ref:`Connection parameters`.
+
 Globals
 ----------
 
