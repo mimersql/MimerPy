@@ -42,6 +42,7 @@ mimerpy_error = {
     -25016:"Illegal scroll mode",
     -25020:"Data conversion error",
     -25030:"Out of memory",
+    -25031:"Login failure",
 }
 
 py_error_nnnnn = {10001:TransactionAbortError,10003:TransactionAbortError,24010:DataError,24011:DataError

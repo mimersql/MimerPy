@@ -99,12 +99,12 @@ We can open a new connection and check that the information was committed succes
 The following example uses ``with`` for a :class:`PooledConnection`
 The actual :class:`MimerPool` connection pool also support the ``with`` statement.
 
->>> import mimerpy
->>> pool = MimerPool(dsn="targetdb", user = "SYSADM", password = "SYSADM", maxconnections=10, initialconnections=1)
->>> with pool.get_connection() as con:
-    ...    print_pool_status("del_rows, in with")
-    ...    con.execute("delete from my_tab")
-    ...    con.commit() 
+  >>> import mimerpy
+  >>> pool = MimerPool(dsn="targetdb", user = "SYSADM", password = "SYSADM", maxconnections=10, initialconnections=1)
+  >>> with pool.get_connection() as con:
+  ...     print_pool_status("del_rows, in with")
+  ...     con.execute("delete from my_tab")
+  ...     con.commit() 
 
 .. seealso:: :ref:`connectionclass` or :ref:`cursorclass` documentation.
 
@@ -122,13 +122,12 @@ The same table that was used in the :ref:`Using with <Using_with>` example is us
   >>> cur.execute("SELECT * from with_table_cursor")
 
       # Iterating the result set
-  >>> for value in cur:
-  ...     print(value)
+  >>> for ix, str in cur:
+  ...     print(ix, str)
   ...
-  # The output
-  (1, 'This is an example')
-  (2, 'on how to use')
-  (3, 'the with functionality.')
+  1 This is an example
+  2 on how to use
+  3 the with functionality.
 
   >>> cur.close()
   >>> conn.close()

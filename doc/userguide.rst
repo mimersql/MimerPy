@@ -7,6 +7,61 @@ User guide
 This chapter of the documentation covers the relationship between
 MimerPy, Mimer SQL and the Mimer SQL C API.
 
+Connection parameters
+---------------------
+You can use a dictionary to store connection parameters. And you can
+omit connection parameters to use default values.
+
+Use a dictionary for connection parameters
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Python allows you to record a set of named parameters as a
+dictionary_, and use it when calling functions. This allows you to
+specify the connection parameters centrally and reuse it everywhere a
+connection needs to be created, like this:
+
+.. _dictionary: https://docs.python.org/3/tutorial/datastructures.html#dictionaries
+.. code-block:: console
+
+    >>> import mimerpy
+    >>> data_source = {'dsn':'mimerDB', 'user':'mimerUser', 'password':'password'}
+
+      # Creating a connection
+    >>> con = mimerpy.connect(**data_source)
+
+Default value for Mimer database
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+If the parameter dsn is set to an empty string ("") or None in the
+:meth:`connect` method, the default database name will be used.
+You can specify the default in two ways:
+
+* Specify a default database in the sqlhosts file (UNIX) or in the
+  database administrator (Windows).
+* Set the environment variable MIMER_DATABASE to the default database name.
+
+Default value for user name and password
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+You can create a Mimer IDENT with the same name as the user in your
+host operating system, and add an OS_USER to that ident. This allows
+the user to log in to Mimer without specifying a password. This only
+works on local databases and not on databases accessed over TCP/IP.
+
+For example (on UNIX):
+
+.. code-block:: console
+
+    $ whoami
+    smith
+    $ bsql
+    Username: SYSADM
+    Password:
+    SQL>create ident smith as user;
+    SQL>alter ident smith add os_user 'smith';
+    SQL>exit;
+    $ python3
+    >>> import mimerpy
+    >>> con=mimerpy.connect()
+
+
 Query structure
 ------------------------
 There are two ways to structure a query in MimerPy, with or without

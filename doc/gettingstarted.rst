@@ -49,9 +49,19 @@ For example:
     $ python3 -m mimerpy -d pesc110 -u SYSADM -p SYSADM 'select current_date from system.onerow'
     ('2021-03-09',)
 
-In this way you can connect to a database server and execute a SQL
-statement.  If the statement returns a result, it will be displayed as
+The last command shows that you can connect to a database by
+specifying a database name, a user name, a password, and then an SQL
+statement. If the statement returns a result, it will be displayed as
 a list of tuples_ (in Python syntax).
+
+If you have defined a default database and an OS_USER, you can omit
+the database connection details and use the following command:
+
+.. code-block:: console
+
+    $ python3 -m mimerpy 'select current_date from system.onerow'
+    ('2021-03-09',)
+
 
 .. _list: https://docs.python.org/3/tutorial/introduction.html#lists
 .. _tuples: https://docs.python.org/3/tutorial/datastructures.html#tuples-and-sequences
@@ -65,24 +75,11 @@ In your Python interpreter:
     >>> import mimerpy
 
       # Creating a connection
-    >>> con = mimerpy.connect(dsn ="mimerDB", user="mimerUser", password="password")
+    >>> con = mimerpy.connect(dsn="mimerDB", user="mimerUser", password="password")
 
 If no errors occurred, a connection has been established.
 
-Python allows you to records a set of named parameters as a
-dictionary_, and use it when calling functions. This allows you to
-record the connection parameters centrally and reuse it everywhere a
-connection needs to be created, like this:
-
-.. _dictionary: https://docs.python.org/3/tutorial/datastructures.html#dictionaries
-.. code-block:: console
-
-    >>> import mimerpy
-    >>> data_source = {'dsn':'mimerDB', 'user':'mimerUser', 'password':'password'}
-
-      # Creating a connection
-    >>> con = mimerpy.connect(**data_source)
-
+.. seealso:: Information on :ref:`Connection parameters`.
 
 Executing statements
 --------------------

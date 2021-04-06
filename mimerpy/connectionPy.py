@@ -78,9 +78,8 @@ class Connection:
 
         (self._session, rc) = mimerapi.mimerBeginSession8(dsn, user, password)
         if rc:
-#            if rc == 90:
-#                (ec, ev) = (DatabaseError, (90, "Login Failure"))
-#            else:
+            if rc == 90:
+                rc = -25031     # Login failure
             (ec, ev) = get_mimerapi_exception(rc, self._session)
             mimerapi.mimerEndSession(self._session)
             self._session = None
