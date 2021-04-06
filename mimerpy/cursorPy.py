@@ -45,7 +45,7 @@ def _define_funcs():
 
     get_funcs = {1: mimerapi.mimerGetString8,
                  2: _pythonGetDecimal,
-                 3: mimerapi.mimerGetString8,
+                 3: mimerapi.mimerGetInt64,
                  4: mimerapi.mimerGetString8,
                  6: mimerapi.mimerGetInt32,
                  10: mimerapi.mimerGetDouble,
@@ -83,7 +83,7 @@ def _define_funcs():
 
     set_funcs = {1: mimerapi.mimerSetString8,
                  2: _pythonSetDecimal,
-                 3: mimerapi.mimerSetString8,
+                 3: mimerapi.mimerSetInt64,
                  4: mimerapi.mimerSetString8,
                  6: mimerapi.mimerSetInt32,
                  10: mimerapi.mimerSetDouble,
