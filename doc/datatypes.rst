@@ -57,6 +57,8 @@ Overview of Mimer SQL to Python data types:
 +------------------------+--------------------+
 | UUID                   | Str                |
 +------------------------+--------------------+
+| INTERVAL               | Str                |
++------------------------+--------------------+
 | NULL                   | NoneType           |
 +------------------------+--------------------+
 
@@ -299,6 +301,52 @@ Consider the following example::
   >>> cursor.execute("insert into uuidtable values(builtin.uuid_from_text(cast(? as varchar(50))))", (struuid))
   >>> connection.commit()
   >>> cursor.execute("select id.as_text() from uuidtable")
+
+INTERVAL 
+------------
+An INTERVAL is a period of time, such as: 3 years, 90 days or 5 minutes and 45 seconds.
+
++-------------------------------+---------------+
+| Mimer SQL Data type           | Range         |
+|                               |               |
++===============================+===============+
+| INTERVAL YEAR(p)              | 1 <= p <= 7   |
++-------------------------------+---------------+
+| INTERVAL YEAR(p) to MONTH     | 1 <= p <= 7   |
++-------------------------------+---------------+
+| INTERVAL MONTH(p)             | 1 <= p <= 7   |
++-------------------------------+---------------+
+| INTERVAL DAY(p)               | 1 <= p <= 7   |
++-------------------------------+---------------+
+| INTERVAL DAY(p) to HOUR       | 1 <= p <= 7   |
++-------------------------------+---------------+
+| INTERVAL DAY(p) to MINUTE     | 1 <= p <= 7   |
++-------------------------------+---------------+
+| INTERVAL DAY(p) to SECOND     | 1 <= p <= 7   |
++-------------------------------+---------------+
+| INTERVAL HOUR(p)              | 1 <= p <= 8   |
++-------------------------------+---------------+
+| INTERVAL HOUR(p) to MINUTE    | 1 <= p <= 8   |
++-------------------------------+---------------+
+| INTERVAL HOUR(p) to SECOND    | 1 <= p <= 8   |
++-------------------------------+---------------+
+| INTERVAL MINUTE(p)            | 1 <= p <= 10  |
++-------------------------------+---------------+
+| INTERVAL MINUTE(p) to SECOND  | 1 <= p <= 10  |
++-------------------------------+---------------+
+| INTERVAL SECOND(p)            | 1 <= p <= 12  |
++-------------------------------+---------------+
+| INTERVAL SECOND(p,s)          | 0 <= s <= 9   |
++-------------------------------+---------------+
+
+Mimer SQL ``NULL`` values will be returned as ``None`` in
+Python. Consider the following example::
+
+  >>> cursor.execute("create table intervaltable (c1 YEAR(5), c2 INTERVAL YEAR(5) TO MONTH)")
+  >>> cursor.execute("insert into intervaltable values (?)", ("2021", "2021-05"))
+
+In the database both values will be stored as ``NULL``. When selected,
+they are both shown as ``None`` in Python.
 
 NULL 
 ------------
