@@ -26,6 +26,102 @@ import collections, decimal
 from types import GeneratorType
 
 
+def _pythonSetDecimal(statement, cur_column, parameter):
+    if parameter is None:
+        rc = mimerapi.mimerSetString8(statement, cur_column, parameter)
+    else: 
+        rc = mimerapi.mimerSetString8(statement, cur_column, str(parameter))
+    return rc
+
+def _pythonGetDecimal(statement, cur_column):
+    rc, val = mimerapi.mimerGetString8(statement, cur_column)
+    if rc >= 0 and val is not None:
+        val = decimal.Decimal(val)
+    return (rc, val)
+
+def _define_funcs():
+    global get_funcs
+    global set_funcs
+
+    get_funcs = {1: mimerapi.mimerGetString8,
+                 2: _pythonGetDecimal,
+                 3: mimerapi.mimerGetString8,
+                 4: mimerapi.mimerGetString8,
+                 6: mimerapi.mimerGetInt32,
+                 10: mimerapi.mimerGetDouble,
+                 11: mimerapi.mimerGetString8,
+                 12: mimerapi.mimerGetString8,
+                 13: mimerapi.mimerGetString8,
+                 14: mimerapi.mimerGetString8,
+                 15: mimerapi.mimerGetString8,
+                 16: mimerapi.mimerGetString8,
+                 17: mimerapi.mimerGetString8,
+                 18: mimerapi.mimerGetString8,
+                 19: mimerapi.mimerGetString8,
+                 20: mimerapi.mimerGetString8,
+                 21: mimerapi.mimerGetString8,
+                 22: mimerapi.mimerGetString8,
+                 23: mimerapi.mimerGetString8,
+                 24: mimerapi.mimerGetString8,
+                 25: mimerapi.mimerGetString8,
+                 26: mimerapi.mimerGetString8,
+                 27: mimerapi.mimerGetString8,
+                 34: mimerapi.mimerGetBinary,
+                 35: mimerapi.mimerGetBinary,
+                 39: mimerapi.mimerGetString8,
+                 40: mimerapi.mimerGetString8,
+                 42: mimerapi.mimerGetBoolean,
+                 48: mimerapi.mimerGetInt32,
+                 50: mimerapi.mimerGetInt32,
+                 52: mimerapi.mimerGetInt64,
+                 63: mimerapi.mimerGetString8,
+                 56: mimerapi.mimerGetDouble,
+                 54: mimerapi.mimerGetDouble,
+                 57: mimerapi.mimerGetBlobData,
+                 58: mimerapi.mimerGetNclobData8,
+                 59: mimerapi.mimerGetNclobData8}
+
+    set_funcs = {1: mimerapi.mimerSetString8,
+                 2: _pythonSetDecimal,
+                 3: mimerapi.mimerSetString8,
+                 4: mimerapi.mimerSetString8,
+                 6: mimerapi.mimerSetInt32,
+                 10: mimerapi.mimerSetDouble,
+                 11: mimerapi.mimerSetString8,
+                 12: mimerapi.mimerSetString8,
+                 13: mimerapi.mimerSetString8,
+                 14: mimerapi.mimerSetString8,
+                 15: mimerapi.mimerSetString8,
+                 16: mimerapi.mimerSetString8,
+                 17: mimerapi.mimerSetString8,
+                 18: mimerapi.mimerSetString8,
+                 19: mimerapi.mimerSetString8,
+                 20: mimerapi.mimerSetString8,
+                 21: mimerapi.mimerSetString8,
+                 22: mimerapi.mimerSetString8,
+                 23: mimerapi.mimerSetString8,
+                 24: mimerapi.mimerSetString8,
+                 25: mimerapi.mimerSetString8,
+                 26: mimerapi.mimerSetString8,
+                 27: mimerapi.mimerSetString8,
+                 34: mimerapi.mimerSetBinary,
+                 35: mimerapi.mimerSetBinary,
+                 39: mimerapi.mimerSetString8,
+                 40: mimerapi.mimerSetString8,
+                 42: mimerapi.mimerSetBoolean,
+                 48: mimerapi.mimerSetInt32,
+                 50: mimerapi.mimerSetInt32,
+                 52: mimerapi.mimerSetInt64,
+                 63: mimerapi.mimerSetString8,
+                 56: mimerapi.mimerSetDouble,
+                 54: mimerapi.mimerSetDouble,
+                 57: mimerapi.mimerSetBlobData,
+                 58: mimerapi.mimerSetNclobData8,
+                 59: mimerapi.mimerSetNclobData8,
+                 501: mimerapi.mimerSetNull}
+
+_define_funcs()
+
 class Cursor:
     """
         MimerSQL Cursor.
@@ -60,8 +156,6 @@ class Cursor:
         self.__statement = None
         self.__mimcursor = False
 
-        self._define_funcs()
-
     def __enter__(self):
         self.__check_if_open()
         return self
@@ -82,87 +176,6 @@ class Cursor:
 
     def __del__(self):
         self.close()
-
-    def _define_funcs(self):
-        global get_funcs
-        global set_funcs
-
-        get_funcs = {1: mimerapi.mimerGetString8,
-                    2: self._pythonGetDecimal,
-                    3: mimerapi.mimerGetString8,
-                    4: mimerapi.mimerGetString8,
-                    6: mimerapi.mimerGetInt32,
-                    10: mimerapi.mimerGetDouble,
-                    11: mimerapi.mimerGetString8,
-                    12: mimerapi.mimerGetString8,
-                    13: mimerapi.mimerGetString8,
-                    14: mimerapi.mimerGetString8,
-                    15: mimerapi.mimerGetString8,
-                    16: mimerapi.mimerGetString8,
-                    17: mimerapi.mimerGetString8,
-                    18: mimerapi.mimerGetString8,
-                    19: mimerapi.mimerGetString8,
-                    20: mimerapi.mimerGetString8,
-                    21: mimerapi.mimerGetString8,
-                    22: mimerapi.mimerGetString8,
-                    23: mimerapi.mimerGetString8,
-                    24: mimerapi.mimerGetString8,
-                    25: mimerapi.mimerGetString8,
-                    26: mimerapi.mimerGetString8,
-                    27: mimerapi.mimerGetString8,
-                    34: mimerapi.mimerGetBinary,
-                    35: mimerapi.mimerGetBinary,
-                    39: mimerapi.mimerGetString8,
-                    40: mimerapi.mimerGetString8,
-                    42: mimerapi.mimerGetBoolean,
-                    48: mimerapi.mimerGetInt32,
-                    50: mimerapi.mimerGetInt32,
-                    52: mimerapi.mimerGetInt64,
-                    63: mimerapi.mimerGetString8,
-                    56: mimerapi.mimerGetDouble,
-                    54: mimerapi.mimerGetDouble,
-                    57: mimerapi.mimerGetBlobData,
-                    58: mimerapi.mimerGetNclobData8,
-                    59: mimerapi.mimerGetNclobData8}
-
-        set_funcs = {1: mimerapi.mimerSetString8,
-                    2: self._pythonSetDecimal,
-                    3: mimerapi.mimerSetString8,
-                    4: mimerapi.mimerSetString8,
-                    6: mimerapi.mimerSetInt32,
-                    10: mimerapi.mimerSetDouble,
-                    11: mimerapi.mimerSetString8,
-                    12: mimerapi.mimerSetString8,
-                    13: mimerapi.mimerSetString8,
-                    14: mimerapi.mimerSetString8,
-                    15: mimerapi.mimerSetString8,
-                    16: mimerapi.mimerSetString8,
-                    17: mimerapi.mimerSetString8,
-                    18: mimerapi.mimerSetString8,
-                    19: mimerapi.mimerSetString8,
-                    20: mimerapi.mimerSetString8,
-                    21: mimerapi.mimerSetString8,
-                    22: mimerapi.mimerSetString8,
-                    23: mimerapi.mimerSetString8,
-                    24: mimerapi.mimerSetString8,
-                    25: mimerapi.mimerSetString8,
-                    26: mimerapi.mimerSetString8,
-                    27: mimerapi.mimerSetString8,
-                    34: mimerapi.mimerSetBinary,
-                    35: mimerapi.mimerSetBinary,
-                    39: mimerapi.mimerSetString8,
-                    40: mimerapi.mimerSetString8,
-                    42: mimerapi.mimerSetBoolean,
-                    48: mimerapi.mimerSetInt32,
-                    50: mimerapi.mimerSetInt32,
-                    52: mimerapi.mimerSetInt64,
-                    63: mimerapi.mimerSetString8,
-                    56: mimerapi.mimerSetDouble,
-                    54: mimerapi.mimerSetDouble,
-                    57: mimerapi.mimerSetBlobData,
-                    58: mimerapi.mimerSetNclobData8,
-                    59: mimerapi.mimerSetNclobData8,
-                    501: mimerapi.mimerSetNull}
 
     def close(self):
         """
@@ -615,19 +628,7 @@ class Cursor:
     def callproc(self):
         self.__raise_exception(-25000)
 
-    def _pythonSetDecimal(self, statement, cur_column, parameter):
-        if parameter != None:
-            rc = mimerapi.mimerSetString8(statement, cur_column, str(parameter))
-        else: 
-            rc = mimerapi.mimerSetString8(statement, cur_column, parameter)
-        return rc
 
-    def _pythonGetDecimal(self, statement, cur_column):
-        func_tuple = mimerapi.mimerGetString8(statement, cur_column)
-        self.__check_mimerapi_error(func_tuple[0], statement)
-        if func_tuple[1] != None:
-            func_tuple = (func_tuple[0], decimal.Decimal(func_tuple[1]))
-        return func_tuple
 
 class ScrollCursor(Cursor):
     """
