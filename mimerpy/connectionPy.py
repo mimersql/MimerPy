@@ -224,6 +224,20 @@ class Connection:
         else:
             self.autocommitmode = False
 
+    def reset(self):
+        """
+        Reset the connection. Close all cursors and do rollback if a transaction
+        is running. Reset auto commit to default.
+        """
+        if self.__cursors:
+            for cur in self.__cursors:
+                cur.close()
+        
+        if self._transaction:
+            self.rollback()
+        
+        self.autocommit(False)
+
     def __raise_exception(self, rc):
         self.errorhandler(self, None, get_error_class(rc),
                           (rc, mimerpy_error[rc]))
