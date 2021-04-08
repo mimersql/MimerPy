@@ -57,7 +57,7 @@ setup (
     name='mimerpy',
     use_scm_version = True,
     setup_requires = ['setuptools_scm'],
-    url='https://www.mimer.com',
+    url='https://developer.mimer.com/mimerpy',
     description='Python database interface for Mimer SQL',
     long_description=open('README.rst').read(),
     long_description_content_type='text/x-rst',
