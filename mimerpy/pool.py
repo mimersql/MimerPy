@@ -188,8 +188,7 @@ class MimerPool:
                 not self._maxunused or (
                     len(self.__cached_connections) < self._maxunused and self.connections <= self._maxconnections)
             ):
-                if con._transaction:
-                    con.rollback()  # Rollback all transactions
+                con.reset()
                 con.autocommit(self._autocommit) # Set autocommit back to how the pool was at setup
                 # The connection pool is not full, so append it to the pool and keep it alive
                 self.__cached_connections.append(con)
@@ -280,6 +279,8 @@ class PooledConnection(Connection):
                     cur = self.execute("select m from system.onerow")
                     r = cur.fetchone()
                     cur.close()
+                    if self.autocommitmode != True:
+                        self.rollback()
                     if r:
                         return True
                     else:
