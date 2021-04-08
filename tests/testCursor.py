@@ -1216,6 +1216,30 @@ class TestCursorMethods(unittest.TestCase):
             r = c.fetchall()[0]
             self.assertEqual(r[0], des)
 
+    # Bör runda av, men ger för tillfället en exception
+    @unittest.skip
+    def test_insert_decimal_decimal2(self):
+        with self.tstcon.cursor() as c:
+            decimal.getcontext().prec = 45
+            des = decimal.Decimal("1.141")
+            c.execute("create table jondecimal2 (c1 DECIMAL(3,2)) in pybank")
+            c.execute("insert INTO jondecimal2 VALUES (?)", (des))
+            self.tstcon.commit()
+            c.execute("select * from jondecimal2")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], des)
+
+    def test_insert_decimal_decimal3(self):
+        with self.tstcon.cursor() as c:
+            decimal.getcontext().prec = 45
+            des = decimal.Decimal("1.14")
+            c.execute("create table jondecimal22 (c1 DECIMAL(3,2)) in pybank")
+            c.execute("insert INTO jondecimal22 VALUES (cast(cast('1.141' as varchar(20)) as DECIMAL(3,2)))")
+            self.tstcon.commit()
+            c.execute("select * from jondecimal22")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], des)
+
     def test_insert_decimal_none(self):
         with self.tstcon.cursor() as c:
             decimal.getcontext().prec = 45

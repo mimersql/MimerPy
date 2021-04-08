@@ -3,7 +3,7 @@ Getting started
 ***************
 
 With MimerPy installed, before proceeding make sure that you have a
-Mimer server of the corresponding version running. If you are
+Mimer server using version 11, or later. If you are
 uncertain if you have a Mimer server running, or need help getting one
 running, please visit the `Mimer documentation`_.
 

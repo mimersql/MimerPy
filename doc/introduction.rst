@@ -13,7 +13,7 @@ To use MimerPy, there is a minimum requirement of Python 3.5 or newer and
 it is dependent on the `Mimer SQL C API`_.
 
 The Mimer SQL C API is a discrete C API that comes with Mimer. The
-Mimer SQL C API and the Mimer server has be of version 11 or newer.
+Mimer SQL C API and the Mimer server have be of version 11 or newer.
 
 MimerPy is under MIT license and is open source. For more information
 regarding this, see :ref:`Legal notice`.

@@ -14,7 +14,7 @@ is included with Mimer.  To access the SQL C API, Mimer has to be
 installed on your device. It can be downloaded and installed from the
 `Mimer developer site`_.
 
-.. note:: MimerPy is only compatible with Mimer 11.0 or newer.
+.. note:: MimerPy is only compatible with Mimer SQL 11.0 or newer.
 
 Installing from PyPI
 ------------------------

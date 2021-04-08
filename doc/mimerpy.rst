@@ -44,6 +44,8 @@ Constructor
 Globals
 ----------
 
+Globlas are a set of read only variables. 
+
 .. data:: __version__
 
   String that describes the version number of the :mod:`mimerpy` module.
@@ -57,7 +59,7 @@ Globals
 
   Integer that states the thread safety of the interface.
 
-  For :mod:`mimerpy` the thread safety is ``1`` this means that threads may share the module,
+  For :mod:`mimerpy` the thread safety is ``1``. This means that threads may share the module,
   but not connections, according with the `PEP 249 threadsafety`_ specification.
 
 .. data:: paramstyle
@@ -149,18 +151,18 @@ Connection Extensions
 .. method:: Connection.autocommit(bool) 
 
   This method is used to turn on or off the auto-commit feature on the
-  connection.  By using this method, from this point onward changes
+  connection. When `autocommit(True)` is called, all statements from this point onward
   are automatically committed.
 
   Turns on auto-commit feature if boolean value ``True`` and turns it
   off if ``False``.
 
-.. Warning:: If :meth:`~autocommit` is called, all changes that have
+.. Warning:: If `autocommit(True)` is called, all changes that have
             not yet been committed during the current transaction are
             rolled back and the auto-commit feature is later turned
             on. To prevent this, either set '*autocommit*' = ``True``
             when opening a connection or use method :meth:`~commit`
-            before using :meth:`~autocommit`.
+            before setting autocommit to True.
 
 .. attribute:: Connection.messages 
 
@@ -196,14 +198,10 @@ Connection pool
 
 The MimerPy connection pool is an extension to `PEP 249`_. 
 
-Since opening database connections are quite expensive it's good practice to not open and close them for each call. 
-A common technique for this is to use a pool of connections. By using a pool, instead of actually closing a connection it's returned to the pool
-and reamains open and ready for someone else to use. For standalone applications you can simply create a common pool and, instead of passing connections around
-, each method that uses the database simply get a connection from the pool. This is particulary important for web applications where each request would have to create
-a new connection every time, and that would be very expensive. With a pool, you can simple store it in the web applications environment and all requests can use it to
-get a connection to work with. 
+Since opening database connections are quite expensive, it is good practice to not open and close them for each call. A common technique for this is to use a pool of connections. By using a pool, instead of being actually closed, a connection is returned to the pool, and remains open and ready for someone else to use. For standalone applications, you can simply create a common pool, and each method that uses the database simply gets a connection from the pool.
+This is particularly important for web applications, since if each request would have to create a new connection every time, it would be very expensive. You can simply store a connection pool in the web applications environment, and each request can get a connection from the pool to work with.
 
-Besides performance, connection pooling also makes it possible to handle a lot of requests with a limited amount of connections.
+Besides improved performance, connection pooling also makes it possible to handle a lot of requests with a limited amount of connections.
 
 .. seealso:: Read more about connection pooling at https://en.wikipedia.org/wiki/Connection_pool
 

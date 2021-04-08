@@ -40,7 +40,7 @@ Using `with`
 ---------------------------
 .. _Using_with:
 
-The ``with`` statement is a useful tool as it allows the user to open a connection or cursor without having to explicitly close it and changes done within the with's scope are automatically comitted.
+The ``with`` statement is a useful tool as it allows the user to open a connection or cursor without having to explicitly close it. Changes done within the with's scope are automatically comitted.
 
 The following example uses ``with`` for a :class:`Connection`::
 
@@ -137,7 +137,7 @@ The same table that was used in the :ref:`Using with <Using_with>` example is us
 Scrolling
 ------------------------
 
-This example shows how a :class:`ScrollCursor` and its attribute :attr:`rownumber`:
+This example shows how a :class:`ScrollCursor` and its attribute :attr:`rownumber`
 can be used and::
 
   >>> import mimerpy
@@ -212,7 +212,7 @@ Executemany
 ------------------------
 
 In the above examples values have been inserted into tables by subsequently
-performing several executes.However, this can be done by using the method
+performing several executes. However, this can be done by using the method
 :meth:`executemany` once. See the following example::
 
   >>> import mimerpy
@@ -233,9 +233,9 @@ performing several executes.However, this can be done by using the method
 
 Transaction loop
 ------------------------
-It is often useful to redo a transaction if it fails. There is a never a
-guarantee that a transaction completes, but a program can be written so it
-retries when it fails. The following example is one way of retrying a
+It is often useful to redo a transaction if it fails. There is never a
+guarantee that a transaction completes. However, a program can be written so it
+retries if it fails. The following example is one way of retrying a
 failed transaction::
 
     import mimerpy
@@ -273,8 +273,7 @@ failed transaction::
 
 Alternative Transaction loop
 -------------------------------
-The following example is alternative way of retrying a transaction if
-it fails using recursion::
+The following example is alternative way of retrying a transaction if it fails using recursion:::
 
     import mimerpy
     from mimerpy.mimPyExceptions import DatabaseError, TransactionAbortError
