@@ -102,6 +102,18 @@ _v = re.findall(r'^\d+\.\d+\.\d+$', __version__)
 version = _v[0] if len(_v) else ''
 version_info = tuple([int(x) for x in version.split(".")]) if len(version) else ()
 mimerapi.__version__ = mimerapi.mimerAPIVersion().rstrip()
+(_a, _b, _c, _d) = re.findall(r'^(\d+)\.(\d+)\.(\d)+(.)',
+                              mimerapi.__version__)[0]
+mimerapi._version_tuple = (int(_a), int(_b), int(_c), _d)
+if mimerapi._version_tuple < (11, 0, 5, 'A'):
+    raise NotSupportedError((-25000, "MimerPy requires a MimerAPI of version 11.0.5A or newer. You have %s. Please upgrade your Mimer installation." % mimerapi.__version__))
+elif mimerapi._version_tuple < (11, 0, 5, 'B'):
+    # First supported version
+    mimerapi._level = 1
+else:
+    # String access to DECIMAL(p,s) and FLOAT(p). Map to Python decimal
+    mimerapi._level = 2
+
 
 def _tracefunc(func, prefix, logger):
     @functools.wraps(func)
