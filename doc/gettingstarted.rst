@@ -3,8 +3,8 @@ Getting started
 ***************
 
 With MimerPy installed, before proceeding make sure that you have a
-Mimer server using version 11, or later. If you are
-uncertain if you have a Mimer server running, or need help getting one
+Mimer SQL database server using version 11, or later. If you are
+uncertain if you have a Mimer SQL server running, or need help getting one
 running, please visit the `Mimer documentation`_.
 
 .. _Mimer documentation: https://developer.mimer.com/documentation/
@@ -16,7 +16,7 @@ Checking the MimerPy installation
 While the primary use of MimerPy is as a package used by other Python
 programs, it is possible to use it a a stand-alone Python
 program. This makes it easy to check if MimerPy works as intended and
-can connect to a started Mimer database server.
+can connect to a started Mimer SQL database server.
 
 For example:
 
@@ -103,7 +103,7 @@ start executing statements:
   >>> con.commit()
 
 Remember that in Python all :meth:`execute`-statements have to be
-committed, or they will be rolled back after the connection is
+committed (unless autocommitmode=true), or they will be rolled back after the connection is
 closed. See :ref:`cursorclass` for more information.
 
 Running your first program

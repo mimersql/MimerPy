@@ -2,7 +2,7 @@
 Installation guide
 ******************
 
-The following section covers how to install MimerPy on your device.
+The following section covers how to install MimerPy.
 
 .. _sec-SQL-api:
 
@@ -10,9 +10,9 @@ Mimer SQL C API
 ------------------------
 
 MimerPy requires the `Mimer SQL C API`_. This is a discrete C API that
-is included with Mimer.  To access the SQL C API, Mimer has to be
-installed on your device. It can be downloaded and installed from the
-`Mimer developer site`_.
+is included with Mimer SQL.  To access the SQL C API, Mimer SQL has to be
+installed. It can be downloaded and installed from the
+`Mimer SQL developer site`_.
 
 .. note:: MimerPy is only compatible with Mimer SQL 11.0 or newer.
 
@@ -80,6 +80,6 @@ Alternatively you can download the Python-dev package in any preferable way.
 
 The Mimer SQL C API is required.
 
-.. note:: The error “mimerapi.h: No such file or directory”, is caused by Mimer not being installed or a Mimer version older than 11.
+.. note:: The error “mimerapi.h: No such file or directory”, is caused by Mimer SQL not being installed or a Mimer SQL version older than 11.
 
-.. _Mimer developer site: https://developer.mimer.com
+.. _Mimer SQL developer site: https://developer.mimer.com

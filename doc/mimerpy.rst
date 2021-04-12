@@ -7,7 +7,7 @@ The module
 
 .. _PEP 249: https://www.python.org/dev/peps/pep-0249/
 
-The :mod:`mimerpy` module enables the creation of connections to Mimer
+The :mod:`mimerpy` module enables the creation of connections to Mimer SQL
 databases and the opening of cursors to execute Mimer SQL statements.
 
 Constructor
@@ -17,7 +17,7 @@ Constructor
 
   Constructor for creating a connection to the specified database
   using the :class:`Connection` class. Returns a :class:`Connection`
-  object. To establish a default connection with a Mimer database the
+  object. To establish a default connection with a Mimer SQL database the
   following parameters are required:
 
   * *dsn* -- Data source name as a string
@@ -79,7 +79,7 @@ Connection
 
 .. Class:: Connection
 
-  The class Connection is used to establish a connection with a Mimer database.
+  The class Connection is used to establish a connection with a Mimer SQL database.
 
 Connection Methods 
 --------------------------------------
@@ -216,7 +216,7 @@ MimerPool Constructor
   :noindex:
   
   Constructor for creating and initializing a connection pool for the specified database. Returns a :class:`MimerPool`
-    object. To setting up a default connection pool with a Mimer database the
+    object. To setting up a default connection pool with a Mimer SQL database the
     following parameters are required:
   
     * *dsn* -- Data source name as a string

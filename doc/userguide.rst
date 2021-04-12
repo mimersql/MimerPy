@@ -28,8 +28,8 @@ connection needs to be created, like this:
       # Creating a connection
     >>> con = mimerpy.connect(**data_source)
 
-Default value for Mimer database
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Default value for Mimer SQL database
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 If the parameter dsn is set to an empty string ("") or None in the
 :meth:`connect` method, the default database name will be used.
 You can specify the default in two ways:
@@ -40,9 +40,9 @@ You can specify the default in two ways:
 
 Default value for user name and password
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-You can create a Mimer IDENT with the same name as the user in your
+You can create a Mimer SQL IDENT with the same name as the user in your
 host operating system, and add an OS_USER to that ident. This allows
-the user to log in to Mimer without specifying a password. This only
+the user to log in to Mimer SQL without specifying a password. This only
 works on local databases and not on databases accessed over TCP/IP.
 
 For example (on UNIX):
@@ -72,7 +72,7 @@ Without parameter markers
 
 Executing a query without parameter markers is done with the Mimer SQL
 syntax.  If you are looking for help with basic elements of the SQL
-language and Mimer SQL please visit `Mimer documentation`_.  Consider
+language and Mimer SQL please visit `Mimer SQL documentation`_.  Consider
 the following example::
 
   >>> con = mimerpy.connect(dsn ="mimerDB", user="mimerUser", password="password")
@@ -81,8 +81,8 @@ the following example::
 
 There are some drawbacks using constant literals in SQL expressions:
 
-* The SQL server will compile each new SQL statement into an
-  intermediate executable representation. The server maintains a cache
+* The SQL database server will compile each new SQL statement into an
+  intermediate executable representation. The database server maintains a cache
   of statements it has already compiled. If it finds the exact same
   SQL string, it can reuse an old compiled statement. Use parameter
   markers to keep the statements identical and reusable.
@@ -96,7 +96,7 @@ With parameter markers
 
 Executing queries with parameter markers should be done following a few rules.
 According to the `PEP 249`_ parameter markers should be a list of tuples.
-Mimer uses the ``qmark`` parameter style. This means parameter markers are of
+Mimer SQL uses the ``qmark`` parameter style. This means parameter markers are of
 question mark style, e.g...WHERE name=?
 
 When executing to a single column, the rules can be bent a bit::
@@ -131,7 +131,7 @@ see :ref:`Executemany`.
 .. If you are looking for a more formal guide please visit the `Mimer documentation`_
 
 .. _PEP 249: https://www.python.org/dev/peps/pep-0249/
-.. _mimer documentation: https://developer.mimer.com/documentation/
+.. _Mimer SQL documentation: https://developer.mimer.com/documentation/
 
 
 Transaction control
@@ -140,12 +140,12 @@ Transaction control
 Every time an :meth:`execute` is called from a connection or a cursor,
 a transaction, if not already open, starts.  The transaction is
 supposed to be open until a :meth:`rollback` or a :meth:`commit` is
-performed. Unfortunately this is not always true.  If a DDL statement
-is executed the transaction will implicitly end.  Because of this
-there are some limitations and a few things to keep in mind while
+performed. Unfortunately this is not always true.  If a Data Definition
+Language(DDL) statement is executed the transaction will implicitly end. 
+Because of this there are some limitations and a few things to keep in mind while
 using the current version MimerPy.
 
-* DLL and DML statements should (can) not be mixed in the same transaction.
+* DLL and Data Manipulation Language (DML) statements should (can) not be mixed in the same transaction.
 * DDL statement are always committed.
 
 In most sequences of DDL and DML mixing, MimerPy will raise a
@@ -181,8 +181,8 @@ This is what is done in the first example implicitly.
 .. note:: If you wish to bypass this problem, :meth:`autocommit` can
           be used and none of this applies.
 
-Mimer SQL DML & DDL cheat sheet
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Mimer SQL DML and DDL cheat sheet
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 +----------+----------+
 | DML      | DDL      |
 |          |          |

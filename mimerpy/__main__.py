@@ -28,7 +28,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog = "mimerpy", description="""
 A simple command line program for the MimerPy library. It can
 display the version number of the MimerPy library (-v switch) or
-connect to a Mimer database server and execute a singe SQL
+connect to a Mimer SQL database server and execute a singe SQL
 statement (provide database, user, and password arguments and a
 SQL statement).
 """)

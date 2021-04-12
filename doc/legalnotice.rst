@@ -7,9 +7,9 @@ Legal Notice
 MimerPy is under the MIT license, making it open source. However, it's
 dependencies, the Mimer SQL C API, is not open source and under a
 different license. You can find more legal information and help on the
-`Mimer website`_.
+`Mimer Information Technology website`_.
 
-.. _Mimer website: https://www.mimer.com
+.. _Mimer Information Technology website: https://www.mimer.com
 
 License
 ------------------------

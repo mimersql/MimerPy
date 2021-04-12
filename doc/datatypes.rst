@@ -1,6 +1,6 @@
-*****************************
-Python and Mimer data types
-*****************************
+**********************************
+Python and Mimer SQL data types
+**********************************
 
 This section discusses the relationship between Python3 data types and
 Mimer SQL data types.
@@ -39,7 +39,7 @@ Overview of Mimer SQL to Python data types:
 +------------------------+--------------------+
 | BLOB(n[K,M,G])         | bytes              |
 +------------------------+--------------------+
-| NCLOB                  | Str                |
+| NCLOB(n)               | Str                |
 +------------------------+--------------------+
 | CHAR(n)                | Str                |
 +------------------------+--------------------+
@@ -67,7 +67,7 @@ BOOLEAN
 ------------
 
 In Python all objects can act as a ``BOOLEAN``. With this in mind, a parameter
-marker insert can be performed with any Python object to a Mimer ``BOOLEAN`` 
+marker insert can be performed with any Python object to a Mimer SQL ``BOOLEAN`` 
 column and MimerPy will accept this. Consider the following example::
 
   >>> cur.execute("create table booltable(c1 BOOLEAN)")
@@ -82,7 +82,7 @@ Types`_.
 
 .. _Built-in Types: https://docs.python.org/3/library/stdtypes.html#truth-value-testing
 
-INTEGER, INTEGER(p), BIGINT & SMALLINT
+INTEGER, INTEGER(p), BIGINT, and SMALLINT
 ----------------------------------------------------
 
 Because Python3 only uses one data type for the four corresponding
@@ -108,7 +108,7 @@ within the limits.  If a value is too large or too small for a number
 DOUBLE PRECISION, FLOAT and REAL
 ------------------------------------------------------------
 ``DOUBLE PRECISION``, ``FLOAT`` and ``REAL`` conform to 64-bit and
-32-bit IEEE floating point numbers. Mimer will not accept NaN, +Inf or
+32-bit IEEE floating point numbers. Mimer SQL will not accept NaN, +Inf or
 -Inf. And it will convert the distinct value -0.0 to 0.0.
 The approximate limits apply:
 
@@ -297,13 +297,6 @@ Example usage of ``TIMESTAMP``::
 Universally Unique Identifier (UUID)
 ------------------------------------------
 Universally Unique Identifier is currently not implemented in the Mimer API. 
-Consider the following example::
-
-  >>> cursor.execute("create table uuidtable( id BUILTIN.UUID)")
-  >>> struuid = str(uuid.uuid4())
-  >>> cursor.execute("insert into uuidtable values(builtin.uuid_from_text(cast(? as varchar(50))))", (struuid))
-  >>> connection.commit()
-  >>> cursor.execute("select id.as_text() from uuidtable")
 
 INTERVAL 
 ------------

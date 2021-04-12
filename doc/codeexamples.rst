@@ -4,7 +4,7 @@ Code examples
 
 .. _more-examples:
 
-The following section shows a few short and useful examples how to use :mod:`mimerpy` efficiently with the correct syntax.
+The following section shows a few short and useful examples how to use :mod:`mimerpy` efficiently.
 
 The aim of these examples are to illustrate some useful methods and clarify the correct usage of the module's content.
 
