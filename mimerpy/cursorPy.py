@@ -33,11 +33,34 @@ def _pythonSetDecimal(statement, cur_column, parameter):
         rc = mimerapi.mimerSetString8(statement, cur_column, str(parameter))
     return rc
 
+def _pythonSetDecimal2(statement, cur_column, parameter):
+    if mimerapi._level >= 2:
+        return _pythonSetDecimal(statement, cur_column, parameter)
+    return -25102
+
 def _pythonGetDecimal(statement, cur_column):
     rc, val = mimerapi.mimerGetString8(statement, cur_column)
     if rc >= 0 and val is not None:
         val = decimal.Decimal(val)
     return (rc, val)
+
+def _pythonGetDecimal2(statement, cur_column):
+    if mimerapi._level >= 2:
+        return _pythonGetDecimal(statement, cur_column)
+    return (-25102, None)
+
+def _pythonGetInt(statement, col):
+    if mimerapi._level >= 2:
+        rc, val = mimerapi.mimerGetString8(statement, col)
+        if rc >= 0:
+            return (0, int(val.rstrip(".")))
+        return (rc, None)
+    return mimerapi.mimerGetInt64(statement, col)
+
+def _pythonSetInt(statement, col, par):
+    if mimerapi._level >= 2:
+        return mimerapi.mimerSetString8(statement, col, str(par))
+    return mimerapi.mimerSetInt64(statement, col, par)
 
 def _define_funcs():
     global get_funcs
@@ -45,8 +68,8 @@ def _define_funcs():
 
     get_funcs = {1: mimerapi.mimerGetString8,
                  2: _pythonGetDecimal,
-                 3: mimerapi.mimerGetInt64,
-                 4: mimerapi.mimerGetString8,
+                 3: _pythonGetInt,
+                 4: _pythonGetDecimal2,
                  6: mimerapi.mimerGetInt32,
                  10: mimerapi.mimerGetDouble,
                  11: mimerapi.mimerGetString8,
@@ -83,8 +106,8 @@ def _define_funcs():
 
     set_funcs = {1: mimerapi.mimerSetString8,
                  2: _pythonSetDecimal,
-                 3: mimerapi.mimerSetInt64,
-                 4: mimerapi.mimerSetString8,
+                 3: _pythonSetInt,
+                 4: _pythonSetDecimal2,
                  6: mimerapi.mimerSetInt32,
                  10: mimerapi.mimerSetDouble,
                  11: mimerapi.mimerSetString8,
