@@ -43,16 +43,12 @@ if plat == 'Windows' and version_info[0] == 3 and version_info[1] >= 8:
     CloseKey(inner_key)
     CloseKey(root)
     add_dll_directory(path)
-from pkg_resources import get_distribution, DistributionNotFound
-from mimerpy.connectionPy import Connection
-from mimerpy.cursorPy import _define_funcs
-from mimerpy.mimPyExceptions import *
-from mimerpy.mimPyExceptionHandler import mimerpy_error
-import re
+
 import mimerapi
 import mimerpy
-import functools
-import logging
+import re
+
+from pkg_resources import get_distribution, DistributionNotFound
 
 #
 #  Set version number from tag in git
@@ -63,7 +59,38 @@ except DistributionNotFound:
     # Package is not installed
     pass
 
+#
+# Set globals in mimerpy module and version in mimerapi module
+#
+apilevel = '2.0'
+threadsafety = '1'
+paramstyle = 'qmark'
+_v = re.findall(r'^\d+\.\d+\.\d+$', __version__)
+version = _v[0] if len(_v) else ''
+version_info = tuple([int(x) for x in version.split(".")]) if len(version) else ()
+mimerapi.__version__ = mimerapi.mimerAPIVersion().rstrip()
 
+
+#
+#  Check MimerAPI required version and set function level
+#
+from mimerpy.mimPyExceptions import *
+from mimerpy.mimPyExceptionHandler import mimerpy_error
+
+(_a, _b, _c, _d) = re.findall(r'^(\d+)\.(\d+)\.(\d)+(.)',
+                              mimerapi.__version__)[0]
+mimerapi._version_tuple = (int(_a), int(_b), int(_c), _d)
+if mimerapi._version_tuple < (11, 0, 5, 'A'):
+    raise NotSupportedError((-25101, mimerpy_error[-25101]))
+elif mimerapi._version_tuple < (11, 0, 5, 'B'):
+    # First supported version
+    mimerapi._level = 1
+else:
+    # String access to DECIMAL(p,s) and FLOAT(p). Map to Python decimal
+    mimerapi._level = 2
+
+
+from mimerpy.connectionPy import Connection
 
 def connect(dsn='', user='', password='',
             autocommit=False, errorhandler=None):
@@ -95,13 +122,12 @@ def connect(dsn='', user='', password='',
     """
     return Connection(dsn, user, password, autocommit, errorhandler)
 
-apilevel = '2.0'
-threadsafety = '1'
-paramstyle = 'qmark'
-_v = re.findall(r'^\d+\.\d+\.\d+$', __version__)
-version = _v[0] if len(_v) else ''
-version_info = tuple([int(x) for x in version.split(".")]) if len(version) else ()
-mimerapi.__version__ = mimerapi.mimerAPIVersion().rstrip()
+#
+#  Tracing and logging
+#
+import functools
+import logging
+from mimerpy.cursorPy import _define_funcs
 
 def _tracefunc(func, prefix, logger):
     @functools.wraps(func)
