@@ -4,9 +4,9 @@ Release Notes
 
 .. _sec-release-notes:
 
-MimerPy Version 1.0
+MimerPy Version 1.1
 -------------------
-MimerPy version 1.0 is the first public version.
+MimerPy version 1.1 is the first public version.
 
 Known problems:
 
