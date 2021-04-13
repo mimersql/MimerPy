@@ -1414,6 +1414,17 @@ class TestCursorMethods(unittest.TestCase):
             r = c.fetchall()[0]
             self.assertEqual(r[0], floatnum)
 
+    @unittest.skip
+    def test_datatype_numeric(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table floatptable (c1 numeric(5,2)) in pybank")
+            floatnum = str(322.13)
+            c.execute("insert INTO floatptable VALUES (?)", (floatnum))
+            self.tstcon.commit()
+            c.execute("select * from floatptable")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], floatnum)
+
     @unittest.skipUnless(db_config.MIMERPY_STABLE == False, "Currently gives incorrect error message")
     def test_insert_decimal_invalid(self):
         with self.tstcon.cursor() as c:
