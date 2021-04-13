@@ -33,7 +33,7 @@ def _pythonSetDecimal(statement, cur_column, parameter):
         rc = mimerapi.mimerSetString8(statement, cur_column, str(parameter))
     return rc
 
-def _pythonSetDecimal2(statement, cur_column, parameter):
+def _pythonSetDecimalF(statement, cur_column, parameter):
     if mimerapi._level >= 2:
         return _pythonSetDecimal(statement, cur_column, parameter)
     return -25102
@@ -44,7 +44,7 @@ def _pythonGetDecimal(statement, cur_column):
         val = decimal.Decimal(val)
     return (rc, val)
 
-def _pythonGetDecimal2(statement, cur_column):
+def _pythonGetDecimalF(statement, cur_column):
     if mimerapi._level >= 2:
         return _pythonGetDecimal(statement, cur_column)
     return (-25102, None)
@@ -68,8 +68,9 @@ def _define_funcs():
 
     get_funcs = {1: mimerapi.mimerGetString8,
                  2: _pythonGetDecimal,
+                 31: _pythonGetDecimal,
                  3: _pythonGetInt,
-                 4: _pythonGetDecimal2,
+                 4: _pythonGetDecimalF,
                  6: mimerapi.mimerGetInt32,
                  10: mimerapi.mimerGetDouble,
                  11: mimerapi.mimerGetString8,
@@ -106,8 +107,9 @@ def _define_funcs():
 
     set_funcs = {1: mimerapi.mimerSetString8,
                  2: _pythonSetDecimal,
+                 31: _pythonSetDecimal,
                  3: _pythonSetInt,
-                 4: _pythonSetDecimal2,
+                 4: _pythonSetDecimalF,
                  6: mimerapi.mimerSetInt32,
                  10: mimerapi.mimerSetDouble,
                  11: mimerapi.mimerSetString8,
