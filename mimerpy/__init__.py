@@ -44,10 +44,7 @@ if plat == 'Windows' and version_info[0] == 3 and version_info[1] >= 8:
     CloseKey(root)
     add_dll_directory(path)
 
-import mimerapi
 import mimerpy
-import re
-
 from pkg_resources import get_distribution, DistributionNotFound
 
 #
@@ -59,9 +56,13 @@ except DistributionNotFound:
     # Package is not installed
     pass
 
+
 #
 # Set globals in mimerpy module and version in mimerapi module
 #
+import mimerapi
+import re
+
 apilevel = '2.0'
 threadsafety = '1'
 paramstyle = 'qmark'
