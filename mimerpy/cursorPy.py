@@ -52,13 +52,13 @@ def _pythonGetDecimal2(statement, cur_column):
 def _pythonGetInt(statement, col):
     if mimerapi._level >= 2:
         rc, val = mimerapi.mimerGetString8(statement, col)
-        if rc >= 0:
+        if rc >= 0 and val is not None:
             return (0, int(val.rstrip(".")))
         return (rc, None)
     return mimerapi.mimerGetInt64(statement, col)
 
 def _pythonSetInt(statement, col, par):
-    if mimerapi._level >= 2:
+    if mimerapi._level >= 2 and par is not None:
         return mimerapi.mimerSetString8(statement, col, str(par))
     return mimerapi.mimerSetInt64(statement, col, par)
 
