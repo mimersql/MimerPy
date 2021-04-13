@@ -296,7 +296,7 @@ Example usage of ``TIMESTAMP``::
 
 Universally Unique Identifier (UUID)
 ------------------------------------------
-Universally Unique Identifier is currently not implemented in the Mimer API. 
+Universally Unique Identifier is currently not implemented. 
 
 INTERVAL 
 ------------

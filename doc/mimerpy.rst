@@ -1,5 +1,5 @@
 **************************
-The :mod:`mimerpy` module
+The MimerPy module
 **************************
 
 The module
@@ -7,7 +7,7 @@ The module
 
 .. _PEP 249: https://www.python.org/dev/peps/pep-0249/
 
-The :mod:`mimerpy` module enables the creation of connections to Mimer SQL
+The MimerPy module enables the creation of connections to Mimer SQL
 databases and the opening of cursors to execute Mimer SQL statements.
 
 Constructor
@@ -199,7 +199,7 @@ Connection pool
 The MimerPy connection pool is an extension to `PEP 249`_. 
 
 Since opening database connections are quite expensive, it is good practice to not open and close them for each call. A common technique for this is to use a pool of connections. By using a pool, instead of being actually closed, a connection is returned to the pool, and remains open and ready for someone else to use. For standalone applications, you can simply create a common pool, and each method that uses the database simply gets a connection from the pool.
-This is particularly important for web applications, since if each request would have to create a new connection every time, it would be very expensive. You can simply store a connection pool in the web applications environment, and each request can get a connection from the pool to work with.
+This is particularly important for web applications, since if each request would have to create a new connection every time, it would be very expensive. You can simply store it in the web application's environment, and each request can get a connection from the pool to work with.
 
 Besides improved performance, connection pooling also makes it possible to handle a lot of requests with a limited amount of connections.
 
@@ -401,7 +401,7 @@ Cursor Attributes
   to ``None``.
 
   ``name`` provides the name of the result column and ``type_code``
-  specifies the native Mimer SQL C API type code for the column.
+  specifies the native MimerAPI type code for the column.
 
 .. attribute:: Cursor.rowcount 
 
