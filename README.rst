@@ -2,13 +2,13 @@ MimerPy: Python database interface for Mimer SQL
 ==================================================
 MimerPy is an adapter for Mimer SQL version 11 in Python_ which implements the
 `PEP 249`_ specification.  It allows the user to access Mimer SQL through Python. MimerPy is
-implemented on top of a Cpython wrapper of the native MimerAPI interface.
+implemented on top of a Cpython wrapper of the native Mimer API interface.
 
 Requirements:
 
 * A Mimer SQL version 11 or later installation on the client side
 * A Mimer SQL version 11 or later database server
-* MimerPy is currently supported on Linux, MacOS and Windows.
+* MimerPy is currently supported on Linux, and Windows.
 * Python 3.5 or later
 
 The source code for MimerPy resides on GitHub_. Installable packages
@@ -16,7 +16,7 @@ can be found on PyPi_. To install, use the command:
 
 .. code-block:: console
 
-    pip3 install mimerpy
+    python3 -m pip install mimerpy
 
 The source for the MimerPy manual is stored together with the source
 in the doc/ directory. We recommend reading it on the

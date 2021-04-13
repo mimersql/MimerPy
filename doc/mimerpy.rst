@@ -401,7 +401,7 @@ Cursor Attributes
   to ``None``.
 
   ``name`` provides the name of the result column and ``type_code``
-  specifies the native MimerAPI type code for the column.
+  specifies the native Mimer API type code for the column.
 
 .. attribute:: Cursor.rowcount 
 
