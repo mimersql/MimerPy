@@ -9,7 +9,7 @@ running, please visit the `Mimer documentation`_.
 
 .. _Mimer documentation: https://developer.mimer.com/documentation/
 
-.. note:: MimerPy requires Python 3.5 or later. On Windows and MacOS the command to run python3 varies between `python3` and  `python3` depending on what versions you have installed. On Linux the command normally is `python3`. In this guide we use `python3` as command, but you might have to adjust for your environment.
+.. note:: MimerPy requires Python 3.5 or later. On Windows the command to run python3 varies between `python` and  `python3` depending on what versions you have installed. On Linux the command normally is `python3`. In this guide we use `python3` as command, but you might have to adjust for your environment.
 
 Checking the MimerPy installation
 ---------------------------------
@@ -42,10 +42,10 @@ For example:
       -u USER, --user USER  User name to use in connection
       -p PASSWORD, --password PASSWORD
                             Password for the user
-      -v, --version         Display MimerPy and MimerAPI version numbers
+      -v, --version         Display MimerPy and Mimer API version numbers
     $ python3 -m mimerpy -v
     Mimerpy  version 1.0.29
-    MimerAPI version 11.0.3D
+    Mimer API version 11.0.3D
     $ python3 -m mimerpy -d pesc110 -u SYSADM -p SYSADM 'select current_date from system.onerow'
     ('2021-03-09',)
 
