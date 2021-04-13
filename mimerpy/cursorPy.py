@@ -99,7 +99,7 @@ def _define_funcs():
                  52: mimerapi.mimerGetInt64,
                  63: mimerapi.mimerGetString8,
                  56: mimerapi.mimerGetDouble,
-                 54: mimerapi.mimerGetDouble,
+                 54: mimerapi.mimerGetFloat,
                  57: mimerapi.mimerGetBlobData,
                  58: mimerapi.mimerGetNclobData8,
                  59: mimerapi.mimerGetNclobData8}
@@ -137,7 +137,7 @@ def _define_funcs():
                  52: mimerapi.mimerSetInt64,
                  63: mimerapi.mimerSetString8,
                  56: mimerapi.mimerSetDouble,
-                 54: mimerapi.mimerSetDouble,
+                 54: mimerapi.mimerSetFloat,
                  57: mimerapi.mimerSetBlobData,
                  58: mimerapi.mimerSetNclobData8,
                  59: mimerapi.mimerSetNclobData8,
