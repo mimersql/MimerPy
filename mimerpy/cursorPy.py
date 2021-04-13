@@ -52,13 +52,13 @@ def _pythonGetDecimal2(statement, cur_column):
 def _pythonGetInt(statement, col):
     if mimerapi._level >= 2:
         rc, val = mimerapi.mimerGetString8(statement, col)
-        if rc >= 0:
+        if rc >= 0 and val is not None:
             return (0, int(val.rstrip(".")))
         return (rc, None)
     return mimerapi.mimerGetInt64(statement, col)
 
 def _pythonSetInt(statement, col, par):
-    if mimerapi._level >= 2:
+    if mimerapi._level >= 2 and par is not None:
         return mimerapi.mimerSetString8(statement, col, str(par))
     return mimerapi.mimerSetInt64(statement, col, par)
 
@@ -99,7 +99,7 @@ def _define_funcs():
                  52: mimerapi.mimerGetInt64,
                  63: mimerapi.mimerGetString8,
                  56: mimerapi.mimerGetDouble,
-                 54: mimerapi.mimerGetDouble,
+                 54: mimerapi.mimerGetFloat,
                  57: mimerapi.mimerGetBlobData,
                  58: mimerapi.mimerGetNclobData8,
                  59: mimerapi.mimerGetNclobData8}
@@ -137,7 +137,7 @@ def _define_funcs():
                  52: mimerapi.mimerSetInt64,
                  63: mimerapi.mimerSetString8,
                  56: mimerapi.mimerSetDouble,
-                 54: mimerapi.mimerSetDouble,
+                 54: mimerapi.mimerSetFloat,
                  57: mimerapi.mimerSetBlobData,
                  58: mimerapi.mimerSetNclobData8,
                  59: mimerapi.mimerSetNclobData8,
