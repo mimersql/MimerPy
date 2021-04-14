@@ -22,7 +22,7 @@
 
 from mimerpy.mimPyExceptionHandler import *
 import mimerapi
-import collections, decimal
+import collections, decimal, uuid
 from types import GeneratorType
 
 
@@ -53,18 +53,29 @@ def _pythonGetInt(statement, col):
     if mimerapi._level >= 2:
         rc, val = mimerapi.mimerGetString8(statement, col)
         if rc >= 0 and val is not None:
-            return (0, int(val.rstrip(".")))
+            return (0, int(val))
         return (rc, None)
     return mimerapi.mimerGetInt64(statement, col)
 
-def _pythonSetInt(statement, col, par):
-    if mimerapi._level >= 2 and par is not None:
-        return mimerapi.mimerSetString8(statement, col, str(par))
-    return mimerapi.mimerSetInt64(statement, col, par)
+def _pythonSetInt(statement, col, val):
+    if mimerapi._level >= 2 and val is not None:
+        return mimerapi.mimerSetString8(statement, col, str(val))
+    return mimerapi.mimerSetInt64(statement, col, val)
+
+def _pythonGetUUID(statement, col):
+    rc, val = mimerapi.mimerGetUUID(statement, col)
+    if rc >= 0 and val is not None:
+        return (0, uuid.UUID(bytes=val))
+    return (rc, None)
+
+def _pythonSetUUID(statement, col, val):
+    return mimerapi.mimerSetUUID(statement, col, val.bytes)
 
 def _define_funcs():
     global get_funcs
     global set_funcs
+
+    TYPEID_MASK = 0x40000000
 
     get_funcs = {1: mimerapi.mimerGetString8,
                  2: _pythonGetDecimal,
@@ -103,7 +114,9 @@ def _define_funcs():
                  54: mimerapi.mimerGetFloat,
                  57: mimerapi.mimerGetBlobData,
                  58: mimerapi.mimerGetNclobData8,
-                 59: mimerapi.mimerGetNclobData8}
+                 59: mimerapi.mimerGetNclobData8,
+                 TYPEID_MASK | 8104: _pythonGetUUID,
+    }
 
     set_funcs = {1: mimerapi.mimerSetString8,
                  2: _pythonSetDecimal,
@@ -143,7 +156,9 @@ def _define_funcs():
                  57: mimerapi.mimerSetBlobData,
                  58: mimerapi.mimerSetNclobData8,
                  59: mimerapi.mimerSetNclobData8,
-                 501: mimerapi.mimerSetNull}
+                 501: mimerapi.mimerSetNull,
+                 TYPEID_MASK | 8104: _pythonSetUUID,
+    }
 
 _define_funcs()
 

@@ -47,6 +47,7 @@
  * Error codes. Match with mimPyExceptionHandler.py.
  */
 enum {
+      MIMERPY_DATA_CONVERSION_ERROR = -25020,
       MIMERPY_NOMEM = -25030
 };
 
@@ -1514,8 +1515,6 @@ static PyObject* mimerSetBinary(PyObject* self, PyObject* args)
  *                args 3:     A bytes-like object.
  *
  *  @returns    Return code 0 = OK, < 0 if error.
- *
- *  @remarks    Only supported in version 11 or above of the Micro C API.
  */
 /* *********************************************************************/
 {
@@ -1525,7 +1524,7 @@ static PyObject* mimerSetBinary(PyObject* self, PyObject* args)
     char *value;
 
     if (!PyArg_ParseTuple(args, "Liy#", &statement, &parameter_number, &value,
-                          &parse_length)){
+                          &parse_length)) {
         return NULL;
     }
 
@@ -1698,13 +1697,17 @@ static PyObject* mimerGetUUID(PyObject* self, PyObject* args)
     int rc, parameter_number;
     unsigned char uuid[16];
 
-     if (!PyArg_ParseTuple(args, "Li", &statement, &parameter_number)) {
+    if (!PyArg_ParseTuple(args, "Li", &statement, &parameter_number)) {
         return NULL;
+    }
+
+    if (MimerIsNull((MimerStatement)statement, parameter_number) > 0) {
+        return Py_BuildValue("is", 0, NULL);
     }
 
     rc = MimerGetUUID((MimerStatement)statement, parameter_number, uuid);
 
-    return Py_BuildValue("is", rc, &uuid);
+    return Py_BuildValue("iy#", rc, &uuid, 16);
 }
 
 
@@ -1724,17 +1727,24 @@ static PyObject* mimerSetUUID(PyObject* self, PyObject* args)
  *                args 2:     A number identifying the parameter.
  *
  *  @returns    Return code 0 = OK, < 0 if error.
- *
  */
 /* *********************************************************************/
 {
     pyptr statement;
+    Py_ssize_t len;
     int rc, parameter_number;
-    unsigned char uuid[16];
-    if (!PyArg_ParseTuple(args, "Lis", &statement, &parameter_number, uuid)) {
+    unsigned char *uuid;
+
+    if (!PyArg_ParseTuple(args, "Liy#", &statement, &parameter_number,
+                          &uuid, &len)) {
         return NULL;
     }
-    rc = MimerSetUUID((MimerStatement)statement, parameter_number, uuid);
+
+    if (len == 16) {
+        rc = MimerSetUUID((MimerStatement)statement, parameter_number, uuid);
+    } else {
+        rc = MIMERPY_DATA_CONVERSION_ERROR;
+    }
 
     return Py_BuildValue("i", rc);
 }

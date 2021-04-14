@@ -18,6 +18,9 @@ Known problems:
 * The methods :meth:`setinputsizes` and :meth:`setoutputsize` are not
   implemented for cursors.
 
+* Accessing values with the type builtin.uuid in Mimer SQL requires a
+  MimerAPI of version 11.0.5B or later.
+
 * Accessing values with the type FLOAT(p) in Mimer SQL requires a
   MimerAPI of version 11.0.5B or later.
 
