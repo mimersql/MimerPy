@@ -57,8 +57,8 @@ SQL statement).
 
     if args.version:
         something = True
-        print("MimerPy  version %s" % mimerpy.__version__)
-        print("MimerAPI version %s" % mimerapi.__version__)
+        print("MimerPy   version %s" % mimerpy.__version__)
+        print("Mimer API version %s" % mimerapi.__version__)
 
     if args.sql:
         something = True

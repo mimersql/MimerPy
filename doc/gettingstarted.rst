@@ -44,8 +44,8 @@ For example:
                             Password for the user
       -v, --version         Display MimerPy and Mimer API version numbers
     $ python3 -m mimerpy -v
-    Mimerpy  version 1.0.29
-    Mimer API version 11.0.3D
+    Mimerpy   version 1.1.0
+    Mimer API version 11.0.5B
     $ python3 -m mimerpy -d pesc110 -u SYSADM -p SYSADM 'select current_date from system.onerow'
     ('2021-03-09',)
 

@@ -43,8 +43,8 @@ mimerpy_error = {
     -25020:"Data conversion error",
     -25030:"Out of memory",
     -25031:"Login failure",
-    -25101:("The operation requires MimerAPI version 11.0.5A or newer. You have %s." % mimerapi.__version__),
-    -25102:("The operation requires MimerAPI version 11.0.5B or newer. You have %s." % mimerapi.__version__),
+    -25101:("The operation requires Mimer API version 11.0.5A or newer. You have %s." % mimerapi.__version__),
+    -25102:("The operation requires Mimer API version 11.0.5B or newer. You have %s." % mimerapi.__version__),
 }
 
 py_error_nnnnn = {10001:TransactionAbortError,10003:TransactionAbortError,24010:DataError,24011:DataError
