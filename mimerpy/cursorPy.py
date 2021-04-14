@@ -157,8 +157,7 @@ class Cursor:
 
     def __init__(self, connection, session):
         """
-            Creates a cursor . For more information please visit
-            http://developer.mimer.com/python.
+            Creates a MimerPy cursor.
 
             session
                 reference to MimerSession sessionhandle.
