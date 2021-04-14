@@ -23,3 +23,6 @@ Known problems:
 
 * Accessing integer values larger than 2**63 with the type INTEGER(p)
   in Mimer SQL requires a MimerAPI of version 11.0.5B or later.
+
+* Using method :meth:`callproc` to call a Stored Procedure is not yet
+  supported.
