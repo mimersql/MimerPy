@@ -21,11 +21,9 @@ Alternatively you can download the Python-dev package in any preferable way.
 
 .. note:: The error “Python.h: No such file or directory”, is solved by downloading the -dev package.
 
-The Mimer SQL C API is required.
+You need to install the Mimer SQL C API and have a Mimer SQL database server of version 11 or newer.
 
 .. note:: The error “mimerapi.h: No such file or directory”, is caused by Mimer SQL not being installed or a Mimer SQL version older than 11.
-
-You need to install the Mimer SQL C API and have a Mimer SQL database server of version 11 or newer.
 
 .. _sec-SQL-api:
 

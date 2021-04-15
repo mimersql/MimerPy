@@ -166,8 +166,8 @@ Connection Extensions
 
 .. attribute:: Connection.messages 
 
-  List where an exception class and value is appended to as a tuple
-  that the interface receives from the underlying database. If the
+  List where an exception class and value is appended to as a tuple.
+  The tuple interfaces and receives from the underlying database. If the
   connection has at least one cursor, then the error is appended to
   the cursor's messages attribute, otherwise the error is appended to
   the connection's messages attribute. The aim of this attribute is to
@@ -429,8 +429,8 @@ Cursor Extensions
 
 .. attribute:: Cursor.messages 
 
-  List where an exception class and value is appended to as a tuple
-  that the interface receives from the underlying database.  The aim
+  List where an exception class and value is appended to as a tuple.
+  The tuple interfaces and receives from the underlying database.  The aim
   of this attribute is to eliminate the need for a Warning exception
   which often causes problems.
 

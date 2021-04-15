@@ -40,7 +40,7 @@ Using `with`
 ---------------------------
 .. _Using_with:
 
-The ``with`` statement is a useful tool as it allows the user to open a connection or cursor without having to explicitly close it. Changes done within the with's scope are automatically comitted.
+The Python ``with`` statement is a useful tool as it allows the user to open a connection or cursor without having to explicitly close it. Changes done within the with's scope are automatically comitted.
 
 The following example uses ``with`` for a :class:`Connection`::
 
