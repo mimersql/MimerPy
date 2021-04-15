@@ -115,6 +115,8 @@ def _define_funcs():
                  57: mimerapi.mimerGetBlobData,
                  58: mimerapi.mimerGetNclobData8,
                  59: mimerapi.mimerGetNclobData8,
+# Delete one variant when Robert has settled
+                 8104: _pythonGetUUID,
                  TYPEID_MASK | 8104: _pythonGetUUID,
     }
 
@@ -157,6 +159,8 @@ def _define_funcs():
                  58: mimerapi.mimerSetNclobData8,
                  59: mimerapi.mimerSetNclobData8,
                  501: mimerapi.mimerSetNull,
+# Delete one variant when Robert has settled
+                 8104: _pythonSetUUID,
                  TYPEID_MASK | 8104: _pythonSetUUID,
     }
 
