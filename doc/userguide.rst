@@ -97,7 +97,8 @@ With parameter markers
 Executing queries with parameter markers should be done following a few rules.
 According to the `PEP 249`_ parameter markers should be a list of tuples.
 Mimer SQL uses the ``qmark`` parameter style. This means parameter markers are of
-question mark style, e.g...WHERE name=?
+question mark style, e.g...WHERE name=?. Dictionaries can also be used as parameter markers. 
+The key(s) in the dictionary have to match up with the corresponding column you want to manipulate.  
 
 When executing to a single column, the rules can be bent a bit::
 
@@ -105,20 +106,22 @@ When executing to a single column, the rules can be bent a bit::
   >>> cur.execute("create table ptable(c1 NVARCHAR(128))")
 
       # Executing a statement using parametermarkers
-  >>> cur.execute("INSERT INTO ptable VALUES (?)", "bar")    # Correct
-  >>> cur.execute("INSERT INTO ptable VALUES (?)", ("bar"))  # Correct
-  >>> cur.execute("INSERT INTO ptable VALUES (?)", ("bar",)) # Correct
-  >>> cur.execute("INSERT INTO ptable VALUES (?)", ["bar"])  # Correct
+  >>> cur.execute("INSERT INTO ptable VALUES (?)", "bar")      # Correct
+  >>> cur.execute("INSERT INTO ptable VALUES (?)", ("bar"))    # Correct
+  >>> cur.execute("INSERT INTO ptable VALUES (?)", ("bar",))   # Correct
+  >>> cur.execute("INSERT INTO ptable VALUES (?)", ["bar"])    # Correct
+  >>> cur.execute("INSERT INTO ptable VALUES (:a)", {'a':bar}) # Correct
 
 When executing to multiple columns, the rules are more strict::
 
       # Creating a table
-  >>> cur.execute("create table ptable(c1 NVARCHAR(128), c2 INTEGER, c3 FLOAT) in testbank")
+  >>> cur.execute("create table ptable(c1 NVARCHAR(128), c2 INTEGER, c3 FLOAT)")
 
       # Executing a statement using parametermarkers
-  >>> cur.execute("INSERT INTO ptable VALUES (?,?,?)", ("bar",314,41.23)) # Correct
-  >>> cur.execute("INSERT INTO ptable VALUES (?,?,?)", ["bar",314,41.23]) # Correct
-  >>> cur.execute("INSERT INTO ptable VALUES (?,?,?)", "bar",314,41.23)   # Incorrect
+  >>> cur.execute("INSERT INTO ptable VALUES (?,?,?)", ("bar",314,41.23))                 # Correct
+  >>> cur.execute("INSERT INTO ptable VALUES (?,?,?)", ["bar",314,41.23])                 # Correct
+  >>> cur.execute("INSERT INTO ptable VALUES (?,?,?)", "bar",314,41.23)                   # Incorrect
+  >>> cur.execute("INSERT INTO ptable VALUES (:a,:b,:c)", {'a':"bar",'b':314,'c':41.23})  # Correct
 
 The same rules apply when using :meth:`~executemany`. For an example,
 see :ref:`Executemany`.
