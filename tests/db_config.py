@@ -38,6 +38,7 @@ SYSADM_PWD = 'SYSADM'
 import mimerpy
 import os
 import getpass
+from platform import system
 
 # Connection arguments for SYSADM
 SYSUSR = dict(dsn      = DBNAME,
@@ -50,6 +51,10 @@ TSTUSR = dict(dsn      = DBNAME,
               password = 'PySecret')
 
 OSUSER = getpass.getuser()
+plat = system()
+if plat == 'Windows':
+    OSUSER = os.getenv("USERDOMAIN") + "\\" + OSUSER 
+
 KEEP_MIMERPY_IDENT = os.environ.get('MIMER_KEEP_MIMERPY_IDENT', 'false') == 'true'
 MIMERPY_STABLE = os.environ.get('MIMERPY_STABLE', 'True')
 MIMERPY_TRACE = os.environ.get('MIMERPY_TRACE')
@@ -73,8 +78,8 @@ def setup():
     tstcon = mimerpy.connect(**TSTUSR)
     with tstcon.cursor() as c:
         c.execute("CREATE DATABANK PYBANK")
-        c.execute("CREATE IDENT %s AS USER" % OSUSER)
-        c.execute("ALTER IDENT %s ADD OS_USER '%s'" % (OSUSER, OSUSER))
+        c.execute(F"CREATE IDENT \"{OSUSER}\" AS USER")
+        c.execute(F"ALTER IDENT \"{OSUSER}\" ADD OS_USER '{OSUSER}' ")
     tstcon.commit()
     return (syscon, tstcon)
 

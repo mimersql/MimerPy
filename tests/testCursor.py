@@ -21,7 +21,7 @@
 # See license for more details.
 
 import unittest, time, math, random, uuid, decimal
-import mimerpy
+import mimerpy, mimerapi
 from mimerpy.mimPyExceptions import *
 import db_config
 
@@ -1402,36 +1402,6 @@ class TestCursorMethods(unittest.TestCase):
             c.execute("select * from jonmts")
             r = c.fetchall()
             self.assertEqual(r[0][0], minute)
-
-    @unittest.skip
-    def test_datatype_float_p(self):
-        with self.tstcon.cursor() as c:
-            c.execute("create table floatptable (c1 FLOAT(5)) in pybank")
-            floatnum = str(3.123)
-            c.execute("insert INTO floatptable VALUES (?)", (floatnum))
-            self.tstcon.commit()
-            c.execute("select * from floatptable")
-            r = c.fetchall()[0]
-            self.assertEqual(r[0], floatnum)
-
-    @unittest.skip
-    def test_datatype_numeric(self):
-        with self.tstcon.cursor() as c:
-            c.execute("create table floatptable (c1 numeric(5,2)) in pybank")
-            floatnum = str(322.13)
-            c.execute("insert INTO floatptable VALUES (?)", (floatnum))
-            self.tstcon.commit()
-            c.execute("select * from floatptable")
-            r = c.fetchall()[0]
-            self.assertEqual(r[0], floatnum)
-
-    @unittest.skipUnless(db_config.MIMERPY_STABLE == False, "Currently gives incorrect error message")
-    def test_insert_decimal_invalid(self):
-        with self.tstcon.cursor() as c:
-            c.execute("create table jondecimal2 (c1 DECIMAL(5,2)) in pybank")
-            floatnum = '32423.23234'
-            #with self.assertRaises(ProgrammingError):
-            c.execute("insert INTO jondecimal2 VALUES (?)", (floatnum))
             
     def test_insert_bool(self):
         with self.tstcon.cursor() as c:
@@ -1954,6 +1924,36 @@ create table longboi (c1 char(10),
         print("table created --------------- ")
         b.execute("insert into boberror values (:a, :b)", (3, 'bob'))
         a.close()
+
+
+    if (mimerapi._level == 2):
+        def test_datatype_float_p(self):
+            with self.tstcon.cursor() as c:
+                c.execute("create table floatptable (c1 FLOAT(5)) in pybank")
+                floatnum = str(3.123)
+                c.execute("insert INTO floatptable VALUES (?)", (floatnum))
+                self.tstcon.commit()
+                c.execute("select * from floatptable")
+                r = c.fetchall()[0]
+                self.assertEqual(r[0], decimal.Decimal(floatnum))
+
+        def test_datatype_numeric(self):
+            with self.tstcon.cursor() as c:
+                c.execute("create table floatnumericptable (c1 numeric(5,2)) in pybank")
+                floatnum = str(322.13)
+                c.execute("insert INTO floatnumericptable VALUES (?)", (floatnum))
+                self.tstcon.commit()
+                c.execute("select * from floatnumericptable")
+                r = c.fetchall()[0]
+                self.assertEqual(r[0], decimal.Decimal(floatnum))
+
+        @unittest.skipUnless(db_config.MIMERPY_STABLE == False, "Currently gives incorrect error message")
+        def test_insert_decimal_invalid(self):
+            with self.tstcon.cursor() as c:
+                c.execute("create table jondecimal2 (c1 DECIMAL(5,2)) in pybank")
+                floatnum = '32423.23234'
+                #with self.assertRaises(ProgrammingError):
+                c.execute("insert INTO jondecimal2 VALUES (?)", (floatnum))
 
 
 if __name__ == '__main__':
