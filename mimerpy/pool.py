@@ -215,7 +215,7 @@ class MimerPool:
                     con._close()
                 except Exception:
                     pass
-            self.__pool_lock.notifyAll()
+            self.__pool_lock.notify_all()
         finally:
             self.__pool_lock.release()
 
