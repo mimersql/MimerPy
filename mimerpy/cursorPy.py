@@ -693,7 +693,7 @@ class ScrollCursor(Cursor):
         """
         super(ScrollCursor, self).execute(*arg)
 
-        # If a resulet set is produced, it is fetched.
+        # If a result set is produced, it is fetched.
         if (self._Cursor__mimcursor):
             self.__result_set = super(ScrollCursor, self).fetchall()
             self.rowcount = len(self.__result_set)

@@ -210,7 +210,7 @@ class Connection:
     def autocommit(self, mode):
         """
 
-        Turns autocommit mode on or off. Defualt is false.
+        Turns autocommit mode on or off. Default is false.
         By using this method, from this point onward changes are autocommitted.
 
         arg

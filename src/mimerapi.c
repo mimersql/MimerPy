@@ -241,7 +241,7 @@ static PyObject* mimerBeginTransaction(PyObject* self, PyObject* args)
 static PyObject* mimerEndTransaction(PyObject* self, PyObject* args)
 /* *********************************************************************/
 /**
- *  @brief      Commmits or rollbacks a transaction.
+ *  @brief      Commits or rollbacks a transaction.
  *
  *  @author     Erik Gunne & Magdalena Boström
  *  @date       2017-06-16
@@ -290,7 +290,7 @@ static PyObject* mimerBeginStatement8(PyObject* self, PyObject* args)
  *
  *  @returns    Tuple.
  *              Tuple[0]: Return code 0 = OK, < 0 if error.
- *              Tuple[1]: Statmenthandle.
+ *              Tuple[1]: Statementhandle.
  *
  *  @remarks    Between the preparation and the time of execution, the
  *              the application may supply any number of parameters to be
@@ -1652,7 +1652,7 @@ static PyObject* mimerGetBoolean(PyObject* self, PyObject* args)
  *              Tuple[1]: Same as Tuple[0].
  *
  *  @remarks    Py_BuildValue does not support returning a python bool object.
- *              The reutrn value is given as a int bool(0 == ture, 1 == false).
+ *              The return value is given as a int bool(0 == true, 1 == false).
  */
 /* *********************************************************************/
 {
@@ -1668,7 +1668,7 @@ static PyObject* mimerGetBoolean(PyObject* self, PyObject* args)
 
     rc = MimerGetBoolean((MimerStatement)statement, parameter_number);
 
-    /* Expected output from get funtions is always two values. */
+    /* Expected output from get functions is always two values. */
     return Py_BuildValue("ii", rc, rc);
 }
 
@@ -1869,7 +1869,7 @@ static PyMethodDef mimerapiMethods[] =
     {"mimerSetString8", (PyCFunction)mimerSetString8, METH_VARARGS,
      "Sets an string parameter."},
     {"mimerSetDouble", (PyCFunction)mimerSetDouble, METH_VARARGS,
-     "Sets an double folating point parameter."},
+     "Sets a double floating point parameter."},
     {"mimerGetError8", (PyCFunction)mimerGetError8, METH_VARARGS,
      "Returns error message."},
     {"mimerSetBlobData", (PyCFunction)mimerSetBlobData, METH_VARARGS,
@@ -1906,7 +1906,7 @@ static PyMethodDef mimerapiMethods[] =
 };
 
 /**
-* Module defintion struct.
+* Module definition struct.
 */
 static struct PyModuleDef mimerapi = {
     PyModuleDef_HEAD_INIT,

@@ -139,7 +139,7 @@ Connection Attributes
 ----------------------------------------
 .. attribute:: Connection.autocommitmode 
 
-  Attribute determines if the connection will auto-commmit any changes
+  Attribute determines if the connection will auto-commit any changes
   or if :meth:`~commit` has to be performed explicitly.  This is set
   to ``False`` by default unless otherwise stated when opening the
   connection or by using the :meth:`~autocommit` method to change this
@@ -207,7 +207,7 @@ Besides improved performance, connection pooling also makes it possible to handl
 
 .. class:: MimerPool
 
-  The :class:`MimerPool` implements the MimerPy connection pool. This is done by using the wrapper class :class:`~PooledConnection` that overide the :meth:`Connection.close` method.
+  The :class:`MimerPool` implements the MimerPy connection pool. This is done by using the wrapper class :class:`~PooledConnection` that override the :meth:`Connection.close` method.
 
 MimerPool Constructor
 ------------------------
@@ -243,7 +243,7 @@ MimerPool Constructor
     * *maxconnections* -- Maximum number of connections in the pool. If '*maxconnections*' = `0` or unspecified, 
       the pool will be unlimited in size.
     * *block* -- Behavior when there are no available connections. If '*block*' = `False` or unspecified, 
-      a :exc:`~MimerPoolExhausted` will be trown if there are no available connections, otherwise the :meth:`MimerPool.get_connection`
+      a :exc:`~MimerPoolExhausted` will be thrown if there are no available connections, otherwise the :meth:`MimerPool.get_connection`
       will block until a connection is available.
     * *deep_health_check* -- More extensive test of the connection state when getting a connection from the pool. 
       If '*deep_health_check*' = `True`, a simple query is made to verify the connection before returning it. 

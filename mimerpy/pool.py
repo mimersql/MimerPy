@@ -34,7 +34,7 @@ block: determines behavior when exceeding the maximum number of connections.
     If True, block and wait for a connection to become available
     (Default: False, will give error when maxconnections is exceeded)
 deep_health_check: Don't only check that the connection seems to be ok, try it before getting it from the pool.
-    This is a bit slower but guarantees that the connection is healty. Default True
+    This is a bit slower but guarantees that the connection is healthy. Default True
 dsn: The database name. If empty, MIMER_DATABASE is used
 user: The database username
 password: The database password
@@ -54,7 +54,7 @@ will not actually close the connections but rather return them to the pool.
     conn = pool.get_connection()
 
     ...Do your work
-    conn.close() #This will not necesarily close the connection, but it might depending on how the pool is configured
+    conn.close() #This will not necessarily close the connection, but it might depending on how the pool is configured
 
 """
 
@@ -92,7 +92,7 @@ class MimerPool:
                 If True, block and wait for a connection to become available
                 (Default: False, will give error when maxconnections is exceeded)
             deep_health_check(bool): Don't only check that the connection seems to be ok, try it before getting it from the pool.
-                This is a bit slower but guarantees that the connection is healty. Default False
+                This is a bit slower but guarantees that the connection is healthy. Default False
             dsn(str): The database name
             user(str): The database username
             password(str): The database password

@@ -3,7 +3,7 @@ Introduction
 *************
 
 MimerPy is an adapter for Mimer SQL in Python_ which implements the
-Python Database API specfication `PEP 249`_.
+Python Database API specification `PEP 249`_.
 
 The adapter allows the user to access the powerful tools and
 advantages of Mimer SQL through Python.  MimerPy is implemented as a

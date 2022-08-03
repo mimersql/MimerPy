@@ -618,7 +618,7 @@ class TestScrollCursorMethods(unittest.TestCase):
             with self.assertRaises(DataError):
                 c.execute("insert INTO jon17 VALUES (?)", (nvar))
 
-    # &&&& Gives a Warning we dont catch atm
+    # &&&& Gives a Warning we don't catch atm
     def test_valid_double_insert(self):
         with self.tstcon.cursor(scrollable = True) as c:
             c.execute("create table jon16 (c1 REAL, c2 DOUBLE PRECISION)")

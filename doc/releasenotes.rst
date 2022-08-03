@@ -10,7 +10,7 @@ MimerPy version 1.1 is the first public version.
 
 Known problems:
 
-* DDL and DML statments can not be mixed in one transaction.
+* DDL and DML statements can not be mixed in one transaction.
   DDL statements are always committed
 
 * DDL statements in a transaction can not be rolled back.

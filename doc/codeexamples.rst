@@ -40,7 +40,7 @@ Using `with`
 ---------------------------
 .. _Using_with:
 
-The Python ``with`` statement is a useful tool as it allows the user to open a connection or cursor without having to explicitly close it. Changes done within the with's scope are automatically comitted.
+The Python ``with`` statement is a useful tool as it allows the user to open a connection or cursor without having to explicitly close it. Changes done within the with's scope are automatically committed.
 
 The following example uses ``with`` for a :class:`Connection`::
 
@@ -265,7 +265,7 @@ failed transaction::
             laps = laps + 1
 
         if result == 1: 
-            print("Succsess!")
+            print("Success!")
         else:
             print("Failure!")
 
@@ -298,7 +298,7 @@ The following example is alternative way of retrying a transaction if it fails u
         con = mimerpy.connect(dsn="pymeme", user = "SYSADM", password = "SYSADM")
         result = important_transaction(con)
         if result == 1: 
-            print("Succsess!")
+            print("Success!")
         else:
             print("Failure!")
 

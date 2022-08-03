@@ -125,7 +125,7 @@ Base class for the exceptions in the hierarchy above. This is the standard Pytho
 
 .. exception:: MimerPoolError
 
-Exception rasied for general MimerPy connection pool errors.
+Exception raised for general MimerPy connection pool errors.
 
 .. exception:: MimerPoolExhausted
 

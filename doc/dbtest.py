@@ -9,10 +9,10 @@ cur = con.cursor()
 # Creating a databank
 cur.execute("create databank bankoftest")
 
-# Createing a table
+# Creating a table
 cur.execute("create table test_table(c1 NVARCHAR(128)) in bankoftest")
 
-# Instering a string
+# Inserting a string
 cur.execute("insert into test_table values ('Using mimerPy is easy!')")
 
 # Selecting the inserted string

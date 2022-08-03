@@ -124,7 +124,7 @@ class TestCursorMethods(unittest.TestCase):
             for gal in range(100):
                 c.execute("select c1 from bob356 where c1 > (?)", (gal))
                 r = c.fetchall()
-                # &&&& Check resultset
+                # &&&& Check result set
 
     def test_select_no_commit(self):
         with self.tstcon.cursor() as c:
@@ -743,7 +743,7 @@ class TestCursorMethods(unittest.TestCase):
             with self.assertRaises(DataError):
                 c.execute("insert INTO jon17 VALUES (?)", (nvar))
 
-    # &&&& Gives a Warning we dont catch atm
+    # &&&& Gives a Warning we don't catch atm
     def test_valid_double_insert(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jon16 (c1 REAL, c2 DOUBLE PRECISION)"

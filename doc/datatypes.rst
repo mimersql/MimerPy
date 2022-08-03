@@ -74,7 +74,7 @@ column and MimerPy will accept this. Consider the following example::
 
   >>> cur.executemany("insert into booltable values (?)", [(None,), (1,), (0,), (3.1415,), ("potato",), ('banana',)])
 
-All of the paramarkers are of accepted Python boolean types and in the
+All of the parameter markers are of accepted Python boolean types and in the
 database these values will be stored as ``False``, ``True``,
 ``False``, ``True``, ``True`` and ``True``. For more information on
 Python3 built-in types and truth values testing please visit `Built-in
