@@ -148,7 +148,7 @@ Language(DDL) statement is executed the transaction will implicitly end.
 Because of this there are some limitations and a few things to keep in mind while
 using the current version MimerPy.
 
-* DLL and Data Manipulation Language (DML) statements should (can) not be mixed in the same transaction.
+* DDL and Data Manipulation Language (DML) statements should (can) not be mixed in the same transaction.
 * DDL statement are always committed.
 
 In most sequences of DDL and DML mixing, MimerPy will raise a
