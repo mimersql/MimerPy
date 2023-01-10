@@ -17,7 +17,7 @@ demonstrating how to
 install and use the product through simple guides and easy to read examples.
 
 .. _Python: https://www.python.org/
-.. _PEP 249: https://www.python.org/dev/peps/pep-0249/
+.. _PEP 249: https://peps.python.org/pep-0249/
 .. _Mimer SQL C API: https://developer.mimer.com/mimerapi
 
 Contents:

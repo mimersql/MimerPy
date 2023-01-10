@@ -6,7 +6,7 @@ Exceptions
 .. _Mimer SQL Documentation: https://developer.mimer.com/documentation
 .. _Documentation page: https://developer.mimer.com/documentation
 .. _Exception: https://docs.python.org/3/library/exceptions.html#Exception
-.. _PEP 249: https://www.python.org/dev/peps/pep-0249/
+.. _PEP 249: https://peps.python.org/pep-0249/
 
 The following section describes the implementation of the exception hierarchy
 stated in the DB-API `PEP 249`_.

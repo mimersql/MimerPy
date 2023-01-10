@@ -5,7 +5,7 @@ The MimerPy module
 The module
 ****************
 
-.. _PEP 249: https://www.python.org/dev/peps/pep-0249/
+.. _PEP 249: https://peps.python.org/pep-0249/
 
 The MimerPy module enables the creation of connections to Mimer SQL
 databases and the opening of cursors to execute Mimer SQL statements.
@@ -75,7 +75,7 @@ Globlas are a set of read only variables.
 Connection
 ****************
 
-.. _PEP 249 threadsafety: https://www.python.org/dev/peps/pep-0249/#threadsafety
+.. _PEP 249 threadsafety: https://peps.python.org/pep-0249/#threadsafety
 
 .. Class:: Connection
 
