@@ -74,5 +74,5 @@ If you wish to install the built distribution, you can download it from `PyPI`_ 
 
 .. _GitHub: https://github.com/mimersql/MimerPy
 .. _PyPI: https://pypi.python.org/pypi
-.. _Mimer SQL C API: https://developer.mimer.com/mimerapi
+.. _Mimer SQL C API: https://developer.mimer.com/article/mimer-sql-c-api/
 .. _Mimer SQL developer site: https://developer.mimer.com

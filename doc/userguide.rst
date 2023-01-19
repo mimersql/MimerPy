@@ -134,7 +134,7 @@ see :ref:`Executemany`.
 .. If you are looking for a more formal guide please visit the `Mimer documentation`_
 
 .. _PEP 249: https://peps.python.org/pep-0249/
-.. _Mimer SQL documentation: https://developer.mimer.com/documentation/
+.. _Mimer SQL documentation: https://developer.mimer.com/products/documentation/
 
 
 Transaction control

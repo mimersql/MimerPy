@@ -3,8 +3,8 @@ Exceptions
 **********
 
 .. _ref-exceptions:
-.. _Mimer SQL Documentation: https://developer.mimer.com/documentation
-.. _Documentation page: https://developer.mimer.com/documentation
+.. _Mimer SQL Documentation: https://developer.mimer.com/products/documentation/
+.. _Documentation page: https://developer.mimer.com/products/documentation/
 .. _Exception: https://docs.python.org/3/library/exceptions.html#Exception
 .. _PEP 249: https://peps.python.org/pep-0249/
 
