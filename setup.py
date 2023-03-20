@@ -30,6 +30,7 @@ bits = platform.architecture()[0][0:2]
 incDirs = []
 libDirs = []
 libs = ['mimerapi']
+extraLinkArgs = []
 
 if plat == 'Linux':
     pass
@@ -62,6 +63,13 @@ elif plat == 'Windows':
     else: 
         raise Exception('Unsupported windows version, have to be 32 or 64 bits: ' + bits)
     incDirs.append(path + 'dev\\include')
+elif plat == 'OpenVMS':
+    incDirs = ['MIMER$LIB']
+    libs = []
+    if bits == '64':
+        extraLinkArgs = [',MIMER$LIB:MIMER$API64/OPT']
+    else:
+        extraLinkArgs = [',MIMER$LIB:MIMER$API/OPT']
 else:
     raise Exception('Unsupported platform: ' + plat)
 
@@ -72,6 +80,7 @@ extensions = [
               include_dirs = incDirs,
               library_dirs = libDirs,
               libraries = libs,
+              extra_link_args = extraLinkArgs,
               sources = sources),
     ]
 
