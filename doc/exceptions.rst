@@ -16,7 +16,7 @@ Database Exceptions
 
 The database exceptions are defined in :mod:`mimerpy.mimPyExceptions`.
 
-.. seealso:: :ref:`Transaction loop`, for an example how this can be used.
+.. seealso:: :ref:`Error handling`, for an example how this can be used.
 
 Exception inheritance layout:
 

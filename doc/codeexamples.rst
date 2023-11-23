@@ -208,6 +208,7 @@ can be used and::
 
 .. seealso:: :ref:`scrollcursorclass` documentation.
 
+
 Executemany
 ------------------------
 
@@ -230,6 +231,38 @@ performing several executes. However, this can be done by using the method
   >>> conn.close()
 
 .. seealso:: :ref:`cursorclass` documentation.
+
+Error handling
+------------------------
+This example shows how to handle error situations using the database execptions::
+    
+    import mimerpy
+    from mimerpy.mimPyExceptions import DataError, DatabaseError, IntegrityError
+
+    def insert_row(con):
+        try: 
+            cursor = con.cursor()
+            cursor.execute("INSERT into mytable values (:a, :b)", (5, 5.5))
+        except IntegrityError as e:
+            print("Integrity error :", e)
+            return 0
+        except DataError as e:  
+            print("Data error:", e.message)
+            return 0
+        except DatabaseError as e:
+            print("Unhandled database error:", e.message)
+            print("Mimer error code: ", e.errno )
+            return 0
+        return 1
+
+    if __name__ == "__main__":
+        con = mimerpy.connect(dsn="pymeme", user = "SYSADM", password = "SYSADM")
+        result = insert_row(con)
+        if result == 1: 
+            print("Succsess!")
+        else:
+            print("Failure!")
+
 
 Transaction loop
 ------------------------
