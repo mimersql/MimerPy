@@ -14,11 +14,15 @@ stated in the DB-API `PEP 249`_.
 Database Exceptions
 ------------------------
 
+The database exceptions are defined in :mod:`mimerpy.mimPyExceptions`.
+
+.. seealso:: :ref:`Transaction loop`, for an example how this can be used.
+
 Exception inheritance layout:
 
 ::
 
-  StandardError
+  Exception
   ├── Warning
   └── Error
       ├── InterfaceError
@@ -31,21 +35,21 @@ Exception inheritance layout:
           ├── ProgrammingError
           └── NotSupportedError
 
-.. exception:: StandardError
+.. exception:: Exception
 
-  Base class for the exceptions in the hierarchy above. Itself is in
-  the current implementation a subclass of the Python `Exception`_.
+  Base class for the exceptions in the hierarchy above. 
+  The built-in Python `Exception`_.
 
 .. exception:: Warning
 
   Exception raised for important warnings like data truncations while
-  inserting, etc.  It is a subclass of :exc:`StandardError`.
+  inserting, etc.  It is a subclass of :exc:`Exception`.
 
 .. exception:: Error
 
   Exception that is the base class of all other error exceptions. Can be used
   to catch all errors with one single except statement.
-  It is a subclass of :exc:`StandardError`.
+  It is a subclass of :exc:`Exception`.
 
 .. exception:: InterfaceError
 
@@ -120,8 +124,9 @@ Exception inheritance layout:
       └── MimerPoolExhausted
 
 .. exception:: Exception
+  :noindex:
 
-Base class for the exceptions in the hierarchy above. This is the standard Python `Exception`_.
+Base class for the exceptions in the hierarchy above. This is the built-in Python `Exception`_.
 
 .. exception:: MimerPoolError
 
