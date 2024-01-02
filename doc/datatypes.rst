@@ -240,8 +240,8 @@ The CHARACTER VARYING, abbreviated CHAR VARYING or VARCHAR, data type stores str
 
 Example usage of ``VARCHAR(n)``::
  
- >>> cursor.execute("create table varchar_table (c1 NVARCHAR(128), c1 NVARCHAR(256)")
- >>> cursor.execute("insert into varchar_table values (:a, :b)", ("Hey", "my string")))
+ >>> cursor.execute("create table varchar_table (c1 VARCHAR(128), c2 VARCHAR(256))")
+ >>> cursor.execute("insert into varchar_table values (:a, :b:null)", {'a':"Hey", 'b':None})
 
 NCHAR(n) 
 ----------------
@@ -251,8 +251,8 @@ When Mimer SQL stores values in a column defined as NATIONAL CHARACTER, it right
 
 Example usage of ``NVARCHAR``::
 
- >>> cursor.execute("create table nchar_table(c1 nchar(5), c2 nchar(12))")
- >>> cursor.execute("insert into nchar_table values (:a,:b)", "nchar table"))
+ >>> cursor.execute("create table nchar_table(c1 nchar(5), c2 nchar(6))")
+ >>> cursor.execute("insert into nchar_table values (?,?)", ("nchar", "tables"))
 
 NVARCHAR(n) 
 ----------------
@@ -262,8 +262,8 @@ The NATIONAL CHARACTER VARYING, abbreviated NVARCHAR, NATIONAL CHAR VARYING or N
 
 Example usage of ``NVARCHAR(n)``::
 
- >>> cursor.execute("create table nvarchar_table (c1 NVARCHAR(128), c1 NVARCHAR(256)")
- >>> cursor.execute("insert into nvarchar_table values (:a, :b)", ("Hey", "my string"))
+ >>> cursor.execute("create table nvarchar_table (c1 NVARCHAR(128), c2 NVARCHAR(256))")
+ >>> cursor.execute("insert into nvarchar_table values (:a, :b:null)", {'a':"Hey", 'b':None})
 
 DATE 
 ----------
