@@ -118,11 +118,11 @@ When executing to multiple columns, the rules are more strict::
   >>> cur.execute("create table ptable(c1 NVARCHAR(128), c2 INTEGER, c3 FLOAT)")
 
       # Executing a statement using parametermarkers
-  >>> cur.execute("INSERT INTO ptable VALUES (?,?,?)", ("bar",314,41.23))                      # Correct
-  >>> cur.execute("INSERT INTO ptable VALUES (?,?,?)", ["bar",314,41.23])                      # Correct
-  >>> cur.execute("INSERT INTO ptable VALUES (?,?,?)", "bar",314,41.23)                        # Incorrect
-  >>> cur.execute("INSERT INTO ptable VALUES (:a,:b,:c)", {'a':"bar",'b':314,'c':41.23})       # Correct
-  >>> cur.execute("INSERT INTO ptable VALUES (:a:null,:b,:c)", {'a':None,'b':314,'c':41.23})  # Correct
+  >>> cur.execute("INSERT INTO ptable VALUES (?,?,?)", ("bar",314,41.23))                    # Correct
+  >>> cur.execute("INSERT INTO ptable VALUES (?,?,?)", ["bar",314,41.23])                    # Correct
+  >>> cur.execute("INSERT INTO ptable VALUES (?,?,?)", "bar",314,41.23)                      # Incorrect
+  >>> cur.execute("INSERT INTO ptable VALUES (:a,:b,:c)", {'a':"bar",'b':314,'c':41.23})     # Correct
+  >>> cur.execute("INSERT INTO ptable VALUES (:a:null,:b,:c)", {'a':None,'b':314,'c':41.23}) # Correct
 
 The same rules apply when using :meth:`~executemany`. For an example,
 see :ref:`Executemany`.
