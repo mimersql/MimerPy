@@ -125,7 +125,8 @@ class Connection:
 
             if (self._transaction):
                 rc_value = mimerapi.mimerEndTransaction(self._session, 1)
-                self.__check_mimerapi_error(rc_value, self._session)
+                if (rc_value != -24101):
+                    self.__check_mimerapi_error(rc_value, self._session)
                 self._transaction = False
             rc_value = mimerapi.mimerEndSession(self._session)
             self.__check_mimerapi_error(rc_value, self._session)
@@ -141,15 +142,17 @@ class Connection:
 
         """
         self.__check_if_open()
-        rc_value = mimerapi.mimerEndTransaction(self._session, 1)
-        self.__check_mimerapi_error(rc_value, self._session)
+        if (self._transaction):
+            rc_value = mimerapi.mimerEndTransaction(self._session, 1)
+            self.__check_mimerapi_error(rc_value, self._session)
         self._transaction = False
 
     def commit(self):
         """Commits any pending transaction."""
         self.__check_if_open()
-        rc_value = mimerapi.mimerEndTransaction(self._session, 0)
-        self.__check_mimerapi_error(rc_value, self._session)
+        if (self._transaction):
+            rc_value = mimerapi.mimerEndTransaction(self._session, 0)
+            self.__check_mimerapi_error(rc_value, self._session)
         self._transaction = False
 
     def cursor(self, **kwargs):

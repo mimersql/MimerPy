@@ -86,7 +86,7 @@ extensions = [
 
 setup (
     name='mimerpy',
-    version = '1.1.3',
+    version = '1.1.4',
     url='https://developer.mimer.com/mimerpy',
     description='Python database interface for Mimer SQL',
     long_description=open('README.rst').read(),
