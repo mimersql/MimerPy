@@ -51,6 +51,7 @@ TSTUSR = dict(dsn      = DBNAME,
               password = 'PySecret')
 
 OSUSER = getpass.getuser()
+OSIDENT = getpass.getuser()
 plat = system()
 if plat == 'Windows':
     OSUSER = os.getenv("USERDOMAIN") + "\\" + OSUSER 
@@ -78,8 +79,8 @@ def setup():
     tstcon = mimerpy.connect(**TSTUSR)
     with tstcon.cursor() as c:
         c.execute("CREATE DATABANK PYBANK")
-        c.execute(F"CREATE IDENT \"{OSUSER}\" AS USER")
-        c.execute(F"ALTER IDENT \"{OSUSER}\" ADD OS_USER '{OSUSER}' ")
+        c.execute(F"CREATE IDENT \"{OSIDENT}\" AS USER")
+        c.execute(F"ALTER IDENT \"{OSIDENT}\" ADD OS_USER '{OSUSER}' ")
     tstcon.commit()
     return (syscon, tstcon)
 
