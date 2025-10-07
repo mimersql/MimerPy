@@ -116,14 +116,9 @@ def build_extensions():
         sources=["src/mimerpy/mimerapi.c"]
     )]
 
-def read_version():
-    with open("VERSION") as f:
-        return f.read().strip()
-
-
 if __name__ == "__main__":
     setup(
         name="mimerpy",
-        version=read_version(),
+        use_scm_version=True,
         ext_modules=build_extensions(),
     )

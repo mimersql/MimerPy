@@ -44,24 +44,10 @@ if plat == 'Windows' and version_info[0] == 3 and version_info[1] >= 8:
     CloseKey(root)
     add_dll_directory(path)
 
-from pathlib import Path
 try:
-    from importlib.metadata import version, PackageNotFoundError
-except ImportError:  # for Python < 3.8
-    from importlib_metadata import version, PackageNotFoundError
-
-def _get_version():
-    try:
-        return version(__name__)
-    except PackageNotFoundError:
-        # Fallback for running from source tree
-        version_file = Path(__file__).resolve().parent.parent / "VERSION"
-        if version_file.is_file():
-            return version_file.read_text().strip()
-        return "0.0.0"
-
-__version__ = _get_version()
-del _get_version
+    from ._version import version as __version__
+except ImportError:
+    __version__ = "0.0.0"  # fallback if not built
 
 
 #
