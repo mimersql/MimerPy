@@ -24,12 +24,37 @@
 
 import platform, os, sys, subprocess, ast, re
 
-# --- Välj setuptools eller distutils beroende på plattform ---
+# --- Choose between setuptools and distutils depending on platform plattform ---
 if platform.system() == 'OpenVMS':
     from distutils.core import setup, Extension
 else:
     from setuptools import setup, Extension
 
+# --- Detect OpenVMS and warn about build isolation ---
+if platform.system() == "OpenVMS":
+    import importlib.util
+    missing = []
+    for pkg in ("setuptools", "wheel"):
+        if importlib.util.find_spec(pkg) is None:
+            missing.append(pkg)
+    if missing:
+        print(
+            f"\nWARNING: On OpenVMS, build isolation does not work reliably.\n"
+            f"The following packages must be preinstalled globally: {', '.join(missing)}\n"
+            f"Please run:\n"
+            f"    python -m pip install {' '.join(missing)}\n"
+            f"and then reinstall using:\n"
+            f"    python -m pip install --no-build-isolation mimerpy\n"
+        )
+        sys.exit(1)
+    else:
+        print(
+            "\nNOTE: Running on OpenVMS — build isolation will not be used.\n"
+            "Make sure 'setuptools' and 'wheel' are installed globally.\n"
+            "Install using:\n"
+            "    python -m pip install --no-build-isolation mimerpy\n"
+        )
+        
 def build_extensions():
     plat = platform.system()
     bits = platform.architecture()[0][0:2]
@@ -46,32 +71,32 @@ def build_extensions():
     elif plat == 'Darwin':
         brew_prefix = None
         try:
-            brew_prefix = subprocess.check_output(["brew","--prefix"], text=True).strip()
+            brew_prefix = subprocess.check_output(["brew", "--prefix"], text=True).strip()
         except (OSError, subprocess.CalledProcessError):
             pass
         if brew_prefix:
-            incDirs = [os.path.join(brew_prefix,"include")]
-            libDirs = [os.path.join(brew_prefix,"lib")]
+            incDirs = [os.path.join(brew_prefix, "include")]
+            libDirs = [os.path.join(brew_prefix, "lib")]
         else:
-            incDirs = ['/usr/local/include','/opt/homebrew/include']
-            libDirs = ['/usr/local/lib','/opt/homebrew/lib']
-        if machine in ("arm64","aarch64"):
-            extraLinkArgs = ["-arch","arm64"]
+            incDirs = ['/usr/local/include', '/opt/homebrew/include']
+            libDirs = ['/usr/local/lib', '/opt/homebrew/lib']
+        if machine in ("arm64", "aarch64"):
+            extraLinkArgs = ["-arch", "arm64"]
         elif machine in ("x86_64",):
-            extraLinkArgs = ["-arch","x86_64"]
+            extraLinkArgs = ["-arch", "x86_64"]
 
     elif plat == 'Windows':
-        libs = ['mimapi'+bits]
+        libs = ['mimapi' + bits]
         from winreg import HKEY_LOCAL_MACHINE, KEY_READ, KEY_WOW64_64KEY
         from winreg import ConnectRegistry, OpenKeyEx, QueryValueEx, CloseKey, EnumKey
-        root = ConnectRegistry(None,HKEY_LOCAL_MACHINE)
-        mimer_key = OpenKeyEx(root,r"SOFTWARE\\Mimer\\Mimer SQL",0,KEY_READ | KEY_WOW64_64KEY)
+        root = ConnectRegistry(None, HKEY_LOCAL_MACHINE)
+        mimer_key = OpenKeyEx(root, r"SOFTWARE\\Mimer\\Mimer SQL", 0, KEY_READ | KEY_WOW64_64KEY)
         index = 0
         version_key = None
         while True:
             try:
-                key = EnumKey(mimer_key,index)
-                if key not in ("License","SQLHosts"):
+                key = EnumKey(mimer_key, index)
+                if key not in ("License", "SQLHosts"):
                     version_key = key
                     break
                 index += 1
@@ -79,22 +104,22 @@ def build_extensions():
                 break
         if not version_key:
             raise RuntimeError("Could not find installed Mimer SQL version in registry.")
-        inner_key = OpenKeyEx(mimer_key,version_key)
-        path = QueryValueEx(inner_key,'PathName')[0]
+        inner_key = OpenKeyEx(mimer_key, version_key)
+        path = QueryValueEx(inner_key, 'PathName')[0]
         CloseKey(inner_key)
         CloseKey(root)
-        if bits=='64':
-            libDirs = [os.path.join(path,'dev','lib','amd64')]
-        elif bits=='32':
-            libDirs = [os.path.join(path,'dev','lib','x86')]
+        if bits == '64':
+            libDirs = [os.path.join(path, 'dev', 'lib', 'amd64')]
+        elif bits == '32':
+            libDirs = [os.path.join(path, 'dev', 'lib', 'x86')]
         else:
             raise Exception(f'Unsupported Windows version: {bits}')
-        incDirs.append(os.path.join(path,'dev','include'))
+        incDirs.append(os.path.join(path, 'dev', 'include'))
 
     elif plat == 'OpenVMS':
         incDirs = ['MIMER$LIB']
         libs = []
-        extraLinkArgs = [',MIMER$LIB:MIMER$API64/OPT'] if bits=='64' else [',MIMER$LIB:MIMER$API/OPT']
+        extraLinkArgs = [',MIMER$LIB:MIMER$API64/OPT'] if bits == '64' else [',MIMER$LIB:MIMER$API/OPT']
 
     else:
         raise Exception(f'Unsupported platform: {plat}')
@@ -108,7 +133,8 @@ def build_extensions():
         sources=["src/mimerpy/mimerapi.c"]
     )]
 
-# --- Läs version från _version.py ---
+
+# --- Read version from _version.py ---
 fallback_version = "1.2.1"
 version = fallback_version
 try:
@@ -119,21 +145,24 @@ try:
 except FileNotFoundError:
     pass
 
+
 def format_people(lst):
     if isinstance(lst, list):
-        return ", ".join([p.get("name","") for p in lst if isinstance(p, dict)])
+        return ", ".join([p.get("name", "") for p in lst if isinstance(p, dict)])
     return lst
 
+
 def format_list(lst):
-    if isinstance(lst,list):
+    if isinstance(lst, list):
         return lst
     return [lst]
+
 
 plat = platform.system()
 
 if plat == "OpenVMS":
-    # Klassisk setuptools/distutils, ingen PEP-517
-    # --- Läs metadata från pyproject.toml robust för arrays ---
+    # Classic setuptools/distutils, ingen PEP-517
+    # --- Read metadata from pyproject.toml ---
     metadata = {}
     pyproject_file = "pyproject.toml"
     if os.path.exists(pyproject_file):
@@ -147,7 +176,7 @@ if plat == "OpenVMS":
             lines = [l.strip() for l in block.splitlines() if l.strip() and not l.strip().startswith("#")]
             for line in lines:
                 if "=" in line:
-                    key,val = line.split("=",1)
+                    key, val = line.split("=", 1)
                     key = key.strip()
                     val = val.strip()
                     try:
@@ -155,24 +184,35 @@ if plat == "OpenVMS":
                     except Exception:
                         val_parsed = val.strip('"').strip("'")
                     metadata[key] = val_parsed
-    
+
     setup(
         name="mimerpy",
         version=version,
-        description=metadata.get("description",""),
-        long_description=open(metadata.get("readme","README.rst")).read() if metadata.get("readme") else "",
+        description=metadata.get("description", ""),
+        long_description=open(metadata.get("readme", "README.rst")).read() if metadata.get("readme") else "",
         long_description_content_type="text/x-rst",
-        author=format_people(metadata.get("authors",[])),
-        maintainer=format_people(metadata.get("maintainers",[])),
-        license=metadata.get("license","MIT"),
-        classifiers=format_list(metadata.get("classifiers",[])),
-        keywords=" ".join(format_list(metadata.get("keywords",[]))),
+        author=format_people(metadata.get("authors", [])),
+        maintainer=format_people(metadata.get("maintainers", [])),
+        license=metadata.get("license", "MIT"),
+        classifiers=format_list(metadata.get("classifiers", [])),
+        keywords=" ".join(format_list(metadata.get("keywords", []))),
         ext_modules=build_extensions(),
     )
+
 else:
-    # Modern setup på andra plattformar, version från _version.py
+    # Modern setup on other platforms, generate _version.py via setuptools_scm
     setup(
         name="mimerpy",
-        version=version,
+        use_scm_version={
+            "write_to": "src/mimerpy/_version.py",
+            "version_scheme": "guess-next-dev",
+            "local_scheme": "node-and-date",
+        },
         ext_modules=build_extensions(),
     )
+
+# Comment:
+# On modern platforms, setuptools_scm is used to automatically generate _version.py
+# based on the latest Git tag. This ensures that the version is always correct,
+# even when building from CI or an sdist, without needing to manually remove _version.py.
+# On OpenVMS, classic distutils with a static version is used instead, for maximum compatibility.
