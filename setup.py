@@ -14,8 +14,7 @@
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
 # See license for more details.
@@ -23,8 +22,13 @@
 # This setup.py is now optional — it only exists to handle
 # platform-specific logic for locating Mimer API headers and libraries.
 
-from setuptools import setup, Extension
-import platform, os, sys, subprocess
+import platform, os, sys, subprocess, ast, re
+
+# --- Välj setuptools eller distutils beroende på plattform ---
+if platform.system() == 'OpenVMS':
+    from distutils.core import setup, Extension
+else:
+    from setuptools import setup, Extension
 
 def build_extensions():
     plat = platform.system()
@@ -40,69 +44,57 @@ def build_extensions():
         pass
 
     elif plat == 'Darwin':
-        # Detect Homebrew prefix for both Intel and ARM macOS
         brew_prefix = None
         try:
-            brew_prefix = subprocess.check_output(
-                ["brew", "--prefix"], text=True
-            ).strip()
+            brew_prefix = subprocess.check_output(["brew","--prefix"], text=True).strip()
         except (OSError, subprocess.CalledProcessError):
             pass
-
         if brew_prefix:
-            incDirs = [os.path.join(brew_prefix, "include")]
-            libDirs = [os.path.join(brew_prefix, "lib")]
+            incDirs = [os.path.join(brew_prefix,"include")]
+            libDirs = [os.path.join(brew_prefix,"lib")]
         else:
-            # fallback to default macOS locations
-            incDirs = ['/usr/local/include', '/opt/homebrew/include']
-            libDirs = ['/usr/local/lib', '/opt/homebrew/lib']
-
-        # macOS ARM64 specific tweaks (Apple Silicon)
-        if machine in ("arm64", "aarch64"):
-            extraLinkArgs = ["-arch", "arm64"]
+            incDirs = ['/usr/local/include','/opt/homebrew/include']
+            libDirs = ['/usr/local/lib','/opt/homebrew/lib']
+        if machine in ("arm64","aarch64"):
+            extraLinkArgs = ["-arch","arm64"]
         elif machine in ("x86_64",):
-            extraLinkArgs = ["-arch", "x86_64"]
+            extraLinkArgs = ["-arch","x86_64"]
 
     elif plat == 'Windows':
-        libs = ['mimapi' + bits]
-        from winreg import (
-            HKEY_LOCAL_MACHINE, KEY_READ, KEY_WOW64_64KEY,
-            ConnectRegistry, OpenKeyEx, QueryValueEx, CloseKey, EnumKey
-        )
-        root = ConnectRegistry(None, HKEY_LOCAL_MACHINE)
-        mimer_key = OpenKeyEx(root, r"SOFTWARE\\Mimer\\Mimer SQL", 0, KEY_READ | KEY_WOW64_64KEY)
+        libs = ['mimapi'+bits]
+        from winreg import HKEY_LOCAL_MACHINE, KEY_READ, KEY_WOW64_64KEY
+        from winreg import ConnectRegistry, OpenKeyEx, QueryValueEx, CloseKey, EnumKey
+        root = ConnectRegistry(None,HKEY_LOCAL_MACHINE)
+        mimer_key = OpenKeyEx(root,r"SOFTWARE\\Mimer\\Mimer SQL",0,KEY_READ | KEY_WOW64_64KEY)
         index = 0
-        version = None
+        version_key = None
         while True:
             try:
-                key = EnumKey(mimer_key, index)
-                if key not in ("License", "SQLHosts"):
-                    version = key
+                key = EnumKey(mimer_key,index)
+                if key not in ("License","SQLHosts"):
+                    version_key = key
                     break
                 index += 1
             except OSError:
                 break
-        if not version:
+        if not version_key:
             raise RuntimeError("Could not find installed Mimer SQL version in registry.")
-
-        inner_key = OpenKeyEx(mimer_key, version)
-        path = QueryValueEx(inner_key, 'PathName')[0]
+        inner_key = OpenKeyEx(mimer_key,version_key)
+        path = QueryValueEx(inner_key,'PathName')[0]
         CloseKey(inner_key)
         CloseKey(root)
-
-        if bits == '64':
-            libDirs = [os.path.join(path, 'dev', 'lib', 'amd64')]
-        elif bits == '32':
-            libDirs = [os.path.join(path, 'dev', 'lib', 'x86')]
+        if bits=='64':
+            libDirs = [os.path.join(path,'dev','lib','amd64')]
+        elif bits=='32':
+            libDirs = [os.path.join(path,'dev','lib','x86')]
         else:
             raise Exception(f'Unsupported Windows version: {bits}')
-
-        incDirs.append(os.path.join(path, 'dev', 'include'))
+        incDirs.append(os.path.join(path,'dev','include'))
 
     elif plat == 'OpenVMS':
         incDirs = ['MIMER$LIB']
         libs = []
-        extraLinkArgs = [',MIMER$LIB:MIMER$API64/OPT'] if bits == '64' else [',MIMER$LIB:MIMER$API/OPT']
+        extraLinkArgs = [',MIMER$LIB:MIMER$API64/OPT'] if bits=='64' else [',MIMER$LIB:MIMER$API/OPT']
 
     else:
         raise Exception(f'Unsupported platform: {plat}')
@@ -116,9 +108,71 @@ def build_extensions():
         sources=["src/mimerpy/mimerapi.c"]
     )]
 
-if __name__ == "__main__":
+# --- Läs version från _version.py ---
+fallback_version = "1.2.1"
+version = fallback_version
+try:
+    version_ns = {}
+    with open("src/mimerpy/_version.py") as f:
+        exec(f.read(), version_ns)
+    version = version_ns.get("__version__", fallback_version)
+except FileNotFoundError:
+    pass
+
+def format_people(lst):
+    if isinstance(lst, list):
+        return ", ".join([p.get("name","") for p in lst if isinstance(p, dict)])
+    return lst
+
+def format_list(lst):
+    if isinstance(lst,list):
+        return lst
+    return [lst]
+
+plat = platform.system()
+
+if plat == "OpenVMS":
+    # Klassisk setuptools/distutils, ingen PEP-517
+    # --- Läs metadata från pyproject.toml robust för arrays ---
+    metadata = {}
+    pyproject_file = "pyproject.toml"
+    if os.path.exists(pyproject_file):
+        with open(pyproject_file) as f:
+            content = f.read()
+        project_block = re.search(r"\[project\](.*?)\n\[", content, re.DOTALL)
+        if project_block is None:
+            project_block = re.search(r"\[project\](.*)", content, re.DOTALL)
+        if project_block:
+            block = project_block.group(1)
+            lines = [l.strip() for l in block.splitlines() if l.strip() and not l.strip().startswith("#")]
+            for line in lines:
+                if "=" in line:
+                    key,val = line.split("=",1)
+                    key = key.strip()
+                    val = val.strip()
+                    try:
+                        val_parsed = ast.literal_eval(val)
+                    except Exception:
+                        val_parsed = val.strip('"').strip("'")
+                    metadata[key] = val_parsed
+    
     setup(
         name="mimerpy",
-        use_scm_version=True,
+        version=version,
+        description=metadata.get("description",""),
+        long_description=open(metadata.get("readme","README.rst")).read() if metadata.get("readme") else "",
+        long_description_content_type="text/x-rst",
+        author=format_people(metadata.get("authors",[])),
+        maintainer=format_people(metadata.get("maintainers",[])),
+        license=metadata.get("license","MIT"),
+        classifiers=format_list(metadata.get("classifiers",[])),
+        keywords=" ".join(format_list(metadata.get("keywords",[]))),
+        ext_modules=build_extensions(),
+    )
+else:
+    # Modern setup på andra plattformar, version från _version.py
+    setup(
+        name="mimerpy",
+        version=version,
         ext_modules=build_extensions(),
     )
