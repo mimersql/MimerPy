@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=77", "setuptools-scm>=8", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mimerpy"
+dynamic = ["version"]
+description = "Python database interface for Mimer SQL"
+readme = "README.rst"
+requires-python = ">=3.9"
+
+license = "MIT"
+license-files = ["LICENSE.txt"]
+authors = [
+  { name = "Erik Gunne", email = "mimerpy@mimer.com" },
+  { name = "Magdalena Boström", email = "mimerpy@mimer.com" },
+  { name = "Mimer Information Technology AB", email = "mimerpy@mimer.com" }
+]
+maintainers = [
+  { name = "Mimer Information Technology AB", email = "mimerpy@mimer.com" }
+]
+keywords = ["Mimer", "MimerSQL", "Database", "SQL", "PEP249"]
+
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "Topic :: Software Development :: Build Tools",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+
+[project.urls]
+Homepage = "https://developer.mimer.com/mimerpy"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools_scm]
+write_to = "src/mimerpy/_version.py"
+version_scheme = "guess-next-dev"
+local_scheme = "node-and-date"

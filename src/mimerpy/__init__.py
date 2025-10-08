@@ -44,17 +44,10 @@ if plat == 'Windows' and version_info[0] == 3 and version_info[1] >= 8:
     CloseKey(root)
     add_dll_directory(path)
 
-import mimerpy
-from pkg_resources import get_distribution, DistributionNotFound
-
-#
-#  Set version number from tag in git
-#
 try:
-    __version__ = get_distribution(__name__).version
-except DistributionNotFound:
-    # Package is not installed
-    pass
+    from ._version import version as __version__
+except ImportError:
+    __version__ = "0.0.0"  # fallback if not built
 
 
 #

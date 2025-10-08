@@ -137,7 +137,7 @@ class TestMimerPool(unittest.TestCase):
         cons = []
         try:
             while True and available_cons < max_cons:
-                c = mimerpy.mimerpy.connect(dsn = self.DSN, user=self.USER, password=self.PASSWORD)
+                c = mimerpy.connect(dsn = self.DSN, user=self.USER, password=self.PASSWORD)
                 cons.append(c)
                 available_cons = available_cons +1
         except (mimerpy.mimPyExceptions.OperationalError):
