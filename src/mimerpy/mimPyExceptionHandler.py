@@ -21,7 +21,7 @@
 # See license for more details.
 
 from mimerpy.mimPyExceptions import *
-import mimerapi
+from mimerpy import mimerapi
 
 # When adding new MimerAPI error codes:
 #  - Use the range -25xxx

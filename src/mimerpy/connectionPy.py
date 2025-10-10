@@ -20,7 +20,7 @@
 #
 # See license for more details.
 
-import mimerapi
+from mimerpy import mimerapi
 import weakref
 from mimerpy.cursorPy import *
 from mimerpy.mimPyExceptionHandler import *

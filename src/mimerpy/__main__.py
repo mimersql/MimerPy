@@ -21,7 +21,7 @@
 # See license for more details.
 
 import mimerpy
-import mimerapi
+from mimerpy import mimerapi
 import argparse
 
 if __name__ == '__main__':

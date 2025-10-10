@@ -21,7 +21,8 @@
 # See license for more details.
 
 import unittest, time, math, random, uuid, decimal
-import mimerpy, mimerapi
+import mimerpy
+from mimerpy import mimerapi
 from mimerpy.mimPyExceptions import *
 import db_config
 

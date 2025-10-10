@@ -53,7 +53,7 @@ except ImportError:
 #
 # Set globals in mimerpy module and version in mimerapi module
 #
-import mimerapi
+from mimerpy import mimerapi
 import re
 
 apilevel = '2.0'
