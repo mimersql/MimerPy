@@ -987,16 +987,22 @@ class TestCursorMethods(unittest.TestCase):
             with self.assertRaises(ProgrammingError):
                 c.fetchall()
 
-    @unittest.skip
     def test_UUID_one(self):
         with self.tstcon.cursor() as c:
             c.execute("create table uuidtable( id BUILTIN.UUID) in pybank")
-            vuuid = uuid.uuid4().bytes
+            vuuid = uuid.uuid4()
             c.execute("insert into uuidtable values(?)", (vuuid))
             self.tstcon.commit()
+            c.execute("insert into uuidtable values(?)", (vuuid.bytes))
+            self.tstcon.commit()
+            c.execute("insert into uuidtable values(?)", (str(vuuid)))
+            self.tstcon.commit()
             c.execute("select id.as_text() from uuidtable")
-            r = c.fetchall()[0][0]
-            self.assertEqual(r, vuuid)
+            rows = [uuid.UUID(r[0]) for r in c.fetchall()]
+
+            # all must match vuuid
+            for r in rows:
+                self.assertEqual(r, vuuid)
 
     
     def test_UUID_two(self):

@@ -24,6 +24,8 @@ from mimerpy.mimPyExceptionHandler import *
 from mimerpy import mimerapi
 import collections, decimal, uuid
 from types import GeneratorType
+import uuid
+import string
 
 
 def _pythonSetDecimal(statement, cur_column, parameter):
@@ -69,7 +71,26 @@ def _pythonGetUUID(statement, col):
     return (rc, None)
 
 def _pythonSetUUID(statement, col, val):
-    return mimerapi.mimerSetUUID(statement, col, val.bytes)
+    if val is None:
+        return mimerapi.mimerSetUUID(statement, col, None)
+
+    if isinstance(val, uuid.UUID):
+        v = val.bytes
+    elif isinstance(val, (bytes, bytearray, memoryview)):
+        # allow raw 16-byte input
+        v = bytes(val)
+    elif isinstance(val, str):
+        # accepts both hyphenated and hex-only UUID strings
+        try:
+            v = uuid.UUID(val).bytes
+        except ValueError:
+            # invalid string representation
+            return mimerapi.MIMERPY_DATA_CONVERSION_ERROR
+    else:
+        # unsupported type
+        return mimerapi.MIMERPY_DATA_CONVERSION_ERROR
+
+    return mimerapi.mimerSetUUID(statement, col, v)
 
 def _define_funcs():
     global get_funcs
