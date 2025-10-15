@@ -21,7 +21,7 @@
 # See license for more details.
 
 from mimerpy.mimPyExceptionHandler import *
-import mimerapi
+from mimerpy import mimerapi
 import collections, decimal, uuid
 from types import GeneratorType
 

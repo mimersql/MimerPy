@@ -20,30 +20,6 @@
 #
 # See license for more details.
 
-from platform import system
-from sys import version_info
-plat = system()
-if plat == 'Windows' and version_info[0] == 3 and version_info[1] >= 8:
-    from os import add_dll_directory
-    from winreg import HKEY_LOCAL_MACHINE, KEY_READ, KEY_WOW64_64KEY, ConnectRegistry, OpenKeyEx, QueryValueEx, CloseKey, EnumKey, OpenKeyEx
-    root = ConnectRegistry(None, HKEY_LOCAL_MACHINE)
-    mimer_key = OpenKeyEx(root, r"SOFTWARE\Mimer\Mimer SQL", 0,  KEY_READ | KEY_WOW64_64KEY)
-    index = 0
-    while True:
-        try:
-            key = EnumKey(mimer_key,index)
-            if key != "License" and key != "SQLHosts":
-                version = key
-                break
-            index = index + 1
-        except OSError:
-            break
-    inner_key = OpenKeyEx(mimer_key, version)
-    path = QueryValueEx(inner_key, 'PathName')[0]
-    CloseKey(inner_key)
-    CloseKey(root)
-    add_dll_directory(path)
-
 try:
     from ._version import version as __version__
 except ImportError:
@@ -53,7 +29,7 @@ except ImportError:
 #
 # Set globals in mimerpy module and version in mimerapi module
 #
-import mimerapi
+from mimerpy import mimerapi
 import re
 
 apilevel = '2.0'
