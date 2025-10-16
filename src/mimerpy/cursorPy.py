@@ -137,6 +137,9 @@ def _define_funcs():
                  58: mimerapi.mimerGetNclobData8,
                  59: mimerapi.mimerGetNclobData8,
                  8104: _pythonGetUUID,
+                 8036: mimerapi.mimerGetGisLocation,
+                 8020: mimerapi.mimerGetGisLatitude,
+                 8004: mimerapi.mimerGetGisLongitude,
     }
 
     set_funcs = {1: mimerapi.mimerSetString8,
@@ -179,6 +182,9 @@ def _define_funcs():
                  59: mimerapi.mimerSetNclobData8,
                  501: mimerapi.mimerSetNull,
                  8104: _pythonSetUUID,
+                 8036: mimerapi.mimerSetGisLocation,
+                 8020: mimerapi.mimerSetGisLatitude,
+                 8004: mimerapi.mimerSetGisLongitude,
     }
 
 _define_funcs()

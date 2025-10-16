@@ -1015,27 +1015,42 @@ class TestCursorMethods(unittest.TestCase):
             r = c.fetchall()[0][0]
             self.assertEqual(r, vuuid)
 
-    @unittest.skip
-    def test_datatype_GIS_one(self):
-        with self.tstcon.cursor() as c:
-            vuuid = '40.75,-74.0'
-            c.execute("create table gistable2( id BUILTIN.GIS_LATITUDE) in pybank")
-            c.execute("insert into gistable2 values(BUILTIN.GIS_LOCATION(40.75,-74.0))")
-            self.tstcon.commit()
-            c.execute("select id.as_text() from uuidtable2")
-            r = c.fetchall()[0][0]
-            self.assertEqual(r, vuuid)
 
-    @unittest.skip
+    def test_datatype_GIS_stdtypes(self):
+        # Works with all versions of Mimer API. Uses standard types and functions to handle values
+        with self.tstcon.cursor() as c:
+            c.execute("create table gistable_std(LOC BUILTIN.GIS_LOCATION, LAT BUILTIN.GIS_LATITUDE, LON BUILTIN.GIS_LONGITUDE, CORD BUILTIN.GIS_COORDINATE) in pybank")
+            x,y = 40.75,-74.0
+            c.execute("insert into gistable_std(LOC, LAT, LON) values(BUILTIN.GIS_LOCATION(cast(? as float),cast(? as float)), BUILTIN.GIS_LATITUDE(cast(? as float)), BUILTIN.GIS_LONGITUDE(cast(? as float)))", (x, y, x, y))
+            self.tstcon.commit()
+            c.execute("select loc.as_text from gistable_std")
+            r = c.fetchall()[0][0]
+            self.assertEqual(r, 'N404500.0000,W0740000.0000')
+            c.execute("select lat.as_double from gistable_std")
+            r = c.fetchall()[0][0]
+            self.assertEqual(r, x)
+            c.execute("select lon.as_double from gistable_std")
+            r = c.fetchall()[0][0]
+            self.assertEqual(r, y)
+
+
+    @unittest.skipUnless(float(mimerapi._level) >= 3.0, "Requires MimerPy API level ≥ 3.0")
     def test_datatype_GIS(self):
         with self.tstcon.cursor() as c:
-            c.execute("create table gistable2( id BUILTIN.GIS_LATITUDE) in pybank")
+            c.execute("create table gistable(LOC BUILTIN.GIS_LOCATION, LAT BUILTIN.GIS_LATITUDE, LON BUILTIN.GIS_LONGITUDE) in pybank")
             x,y = 40.75,-74.0
-            c.execute("insert into gistable2 values(BUILTIN.GIS_LOCATION(?,?))", (x,y))
+            c.execute("insert into gistable(LOC, LAT, LON) values(?,?,?)", ((x, y), x, y))
             self.tstcon.commit()
-            #c.execute("select id.as_text() from uuidtable2")
-            #r = c.fetchall()[0][0]
-            #self.assertEqual(r, vuuid)
+            c.execute("select loc from gistable")
+            r = c.fetchall()[0][0]
+            self.assertEqual(r, (x,y))
+            c.execute("select lat from gistable")
+            r = c.fetchall()[0][0]
+            self.assertEqual(r, x)
+            c.execute("select lon from gistable")
+            r = c.fetchall()[0][0]
+            self.assertEqual(r, y)
+
 
     def test_insert_blob(self):
         with self.tstcon.cursor() as c:

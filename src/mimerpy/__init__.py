@@ -35,31 +35,20 @@ import re
 apilevel = '2.0'
 threadsafety = '1'
 paramstyle = 'qmark'
-_v = re.findall(r'^\d+\.\d+\.\d+$', __version__)
-version = _v[0] if len(_v) else ''
-version_info = tuple([int(x) for x in version.split(".")]) if len(version) else ()
+# Accept both release and dev versions, e.g. 1.3.1.dev1+geb9c067d3.d20251016
+m = re.match(r'^(\d+\.\d+\.\d+)', __version__)
+if m:
+    version = m.group(1)
+    version_info = tuple(int(x) for x in version.split("."))
+else:
+    version = __version__
+    version_info = ()
+
 mimerapi.__version__ = mimerapi.mimerAPIVersion().rstrip()
 
 
-#
-#  Check MimerAPI required version and set function level
-#
 from mimerpy.mimPyExceptions import *
 from mimerpy.mimPyExceptionHandler import mimerpy_error
-
-(_a, _b, _c, _d) = re.findall(r'^(\d+)\.(\d+)\.(\d)+(.)',
-                              mimerapi.__version__)[0]
-mimerapi._version_tuple = (int(_a), int(_b), int(_c), _d)
-if mimerapi._version_tuple < (11, 0, 5, 'A'):
-    raise NotSupportedError((-25101, mimerpy_error[-25101]))
-elif mimerapi._version_tuple < (11, 0, 5, 'B'):
-    # First supported version
-    mimerapi._level = 1
-else:
-    # String access to DECIMAL(p,s) and FLOAT(p). Map to Python decimal
-    mimerapi._level = 2
-
-
 from mimerpy.connectionPy import Connection
 
 def connect(dsn='', user='', password='',

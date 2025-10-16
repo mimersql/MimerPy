@@ -163,10 +163,45 @@ def _bind(name, restype, *argtypes):
     return fn
 
 # ---------------------------------------------------------------------------
+#  Base API version binding (required first)
+# ---------------------------------------------------------------------------
+_MimerAPIVersion            = _bind('MimerAPIVersion', c_char_p)
+
+def mimerAPIVersion() -> str:
+    try:
+        s = _MimerAPIVersion()
+        return s.decode('ascii', 'ignore') if s else ''
+    except Exception as e:
+        return ''
+
+# ---------------------------------------------------------------------------
+#  Determine Mimer API level
+# ---------------------------------------------------------------------------
+import re
+from mimerpy.mimPyExceptions import NotSupportedError
+from mimerpy.mimPyExceptionHandler import mimerpy_error
+
+__version__ = mimerAPIVersion().rstrip()
+
+try:
+    _a, _b, _c, _d = re.findall(r"^(\d+)\.(\d+)\.(\d+)(.)", __version__)[0]
+    _version_tuple = (int(_a), int(_b), int(_c), _d)
+except Exception:
+    _version_tuple = (0, 0, 0, 'A')
+
+if _version_tuple < (11, 0, 5, 'A'):
+    raise NotSupportedError((-25101, mimerpy_error[-25101]))
+elif _version_tuple < (11, 0, 5, 'B'):
+    _level = 1
+elif _version_tuple < (11, 0, 8, 'A'):
+    _level = 2
+else:
+    _level = 3
+
+# ---------------------------------------------------------------------------
 # Native symbols
 # ---------------------------------------------------------------------------
 
-_MimerAPIVersion            = _bind('MimerAPIVersion', c_char_p)
 _MimerBeginSession8         = _bind('MimerBeginSession8', c_int32, c_char_p, c_char_p, c_char_p, POINTER(MimerSession))
 _MimerEndSession            = _bind('MimerEndSession', c_int32, POINTER(MimerSession))
 _MimerBeginTransaction      = _bind('MimerBeginTransaction', c_int32, MimerSession, c_int32)
@@ -212,6 +247,18 @@ _MimerSetBoolean            = _bind('MimerSetBoolean', c_int32, MimerStatement, 
 _MimerGetBoolean            = _bind('MimerGetBoolean', c_int32, MimerStatement, c_int16)
 _MimerGetUUID               = _bind('MimerGetUUID', c_int32, MimerStatement, c_int16, c_void_p)
 _MimerSetUUID               = _bind('MimerSetUUID', c_int32, MimerStatement, c_int16, c_void_p)
+# GIS bindings
+class MimerGisLocation(ctypes.Structure):
+    _fields_ = [("latitude", c_double), ("longitude", c_double)]
+
+if _level >= 3:
+    _MimerGetGisLocation  = _bind('MimerGetGisLocation',  c_int32, MimerStatement, c_int16, POINTER(MimerGisLocation))
+    _MimerSetGisLocation  = _bind('MimerSetGisLocation',  c_int32, MimerStatement, c_int16, MimerGisLocation)
+    _MimerGetGisLatitude  = _bind('MimerGetGisLatitude',  c_int32, MimerStatement, c_int16, POINTER(c_double))
+    _MimerSetGisLatitude  = _bind('MimerSetGisLatitude',  c_int32, MimerStatement, c_int16, c_double)
+    _MimerGetGisLongitude = _bind('MimerGetGisLongitude', c_int32, MimerStatement, c_int16, POINTER(c_double))
+    _MimerSetGisLongitude = _bind('MimerSetGisLongitude', c_int32, MimerStatement, c_int16, c_double)
+
 
 # ---------------------------------------------------------------------------
 # Minimal tracking (buffers + pending bind errors)
@@ -278,13 +325,6 @@ def _set_utf8_cstring_keep(stmt: int, raw: bytes) -> c_char_p:
 # ---------------------------------------------------------------------------
 # API wrappers
 # ---------------------------------------------------------------------------
-
-def mimerAPIVersion() -> str:
-    try:
-        s = _MimerAPIVersion()
-        return s.decode('ascii', 'ignore') if s else ''
-    except Exception as e:
-        return ''
 
 def mimerBeginSession8(db_name: str, user: str, password: str):
     sess = MimerSession()
@@ -683,6 +723,65 @@ def mimerSetUUID(statement_ptr: int, parameter_number: int, uuid_bytes: bytes):
     _keep_buffer(sp, buf)
     return int(_MimerSetUUID(MimerStatement(sp), _arg_i16(parameter_number), ctypes.cast(buf, c_void_p)))
 
+def mimerGetGisLocation(statement_ptr: int, parameter_number: int):
+    if _level < 3:
+        raise NotImplementedError("GIS datatypes are not supported by this Mimer API level")
+    sp = int(statement_ptr)
+    if _MimerIsNull(MimerStatement(sp), _arg_i16(parameter_number)) == 1:
+        return (0, None)
+    loc = MimerGisLocation()
+    rc = _MimerGetGisLocation(MimerStatement(sp), _arg_i16(parameter_number), byref(loc))
+    if rc < 0:
+        return (int(rc), None)
+    return (int(rc), (float(loc.latitude), float(loc.longitude)))
+
+def mimerSetGisLocation(statement_ptr: int, parameter_number: int, value):
+    if _level < 3:
+        raise NotImplementedError("GIS datatypes are not supported by this Mimer API level")
+    sp = int(statement_ptr)
+    if value is None:
+        return int(_MimerSetNull(MimerStatement(sp), _arg_i16(parameter_number)))
+    try:
+        lat, lon = map(float, value)
+    except Exception:
+        _set_stmt_error(sp, MIMERPY_DATA_CONVERSION_ERROR)
+        return int(MIMERPY_DATA_CONVERSION_ERROR)
+    loc = MimerGisLocation(lat, lon)
+    return int(_MimerSetGisLocation(MimerStatement(sp), _arg_i16(parameter_number), loc))
+
+def mimerGetGisLatitude(statement_ptr: int, parameter_number: int):
+    if _level < 3:
+        raise NotImplementedError("GIS datatypes are not supported by this Mimer API level")
+    sp = int(statement_ptr)
+    out = c_double()
+    rc = _MimerGetGisLatitude(MimerStatement(sp), _arg_i16(parameter_number), byref(out))
+    return (int(rc), float(out.value))
+
+def mimerSetGisLatitude(statement_ptr: int, parameter_number: int, value):
+    if _level < 3:
+        raise NotImplementedError("GIS datatypes are not supported by this Mimer API level")
+    sp = int(statement_ptr)
+    if value is None:
+        return int(_MimerSetNull(MimerStatement(sp), _arg_i16(parameter_number)))
+    return int(_MimerSetGisLatitude(MimerStatement(sp), _arg_i16(parameter_number), c_double(float(value))))
+
+def mimerGetGisLongitude(statement_ptr: int, parameter_number: int):
+    if _level < 3:
+        raise NotImplementedError("GIS datatypes are not supported by this Mimer API level")
+    sp = int(statement_ptr)
+    out = c_double()
+    rc = _MimerGetGisLongitude(MimerStatement(sp), _arg_i16(parameter_number), byref(out))
+    return (int(rc), float(out.value))
+
+def mimerSetGisLongitude(statement_ptr: int, parameter_number: int, value):
+    if _level < 3:
+        raise NotImplementedError("GIS datatypes are not supported by this Mimer API level")
+    sp = int(statement_ptr)
+    if value is None:
+        return int(_MimerSetNull(MimerStatement(sp), _arg_i16(parameter_number)))
+    return int(_MimerSetGisLongitude(MimerStatement(sp), _arg_i16(parameter_number), c_double(float(value))))
+
+
 def mimerSetNull(statement_ptr: int, parameter_number: int, _ignored=None):
     sp = int(statement_ptr)
     return int(_MimerSetNull(MimerStatement(sp), _arg_i16(parameter_number)))
@@ -708,6 +807,9 @@ __all__ = [
     'mimerSetInt32', 'mimerSetInt64', 'mimerSetString8', 'mimerSetDouble', 'mimerSetFloat',
     'mimerSetBinary', 'mimerSetBoolean', 'mimerSetUUID',
     'mimerSetBlobData', 'mimerSetNclobData8', 'mimerSetNull',
+    'mimerGetGisLocation', 'mimerSetGisLocation',
+    'mimerGetGisLatitude', 'mimerSetGisLatitude',
+    'mimerGetGisLongitude', 'mimerSetGisLongitude',
     'mimerClearBuffers',
     '__version__', '_version_tuple', '_level'
 ]
