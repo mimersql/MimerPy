@@ -20,8 +20,8 @@
 #
 # See license for more details.
 
-from mimerpy.mimPyExceptions import *
-from mimerpy.mimPyErrorCodes import (
+from .mimPyExceptions import *
+from .mimPyErrorCodes import (
     mimerpy_error,
     py_error_nnnnn,
     py_error_nnnnx,

@@ -23,7 +23,7 @@
 Contains all MimerPy error code tables and mappings used by the exception system.
 Separated from mimPyExceptions and mimPyExceptionHandler to avoid circular imports.
 """
-from mimerpy.mimPyExceptions import (
+from .mimPyExceptions import (
     DatabaseError, DataError, IntegrityError, InternalError,
     InterfaceError, NotSupportedError, OperationalError,
     ProgrammingError, TransactionAbortError

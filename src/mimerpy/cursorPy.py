@@ -20,8 +20,8 @@
 #
 # See license for more details.
 
-from mimerpy.mimPyExceptionHandler import *
-from mimerpy import mimerapi
+from .mimPyExceptionHandler import *
+from . import mimerapi
 import collections, decimal, uuid
 from types import GeneratorType
 import uuid

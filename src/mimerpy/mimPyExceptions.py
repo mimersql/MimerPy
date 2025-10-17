@@ -125,4 +125,4 @@ class NotSupportedError(DatabaseError):
     """
 
 # Error code mappings are now defined in mimPyErrorCodes to avoid circular imports.
-from mimerpy.mimPyErrorCodes import mimerpy_error
+from .mimPyErrorCodes import mimerpy_error

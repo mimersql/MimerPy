@@ -43,7 +43,6 @@ errorhandler: Custom errorhandler
 
 Example: If you want a pool of at least ten connections using the database 'mimerdb':
 
-    from mimerpy import mimerapi 
     from MimerPool import MimerPool
     pool = MimerPool('mimerdb', 'username', 'password', 10)
     or
@@ -59,8 +58,8 @@ will not actually close the connections but rather return them to the pool.
 """
 
 from threading import Condition
-from mimerpy import mimerapi
-from mimerpy.connectionPy import Connection
+from .connectionPy import Connection
+from .mimPyExceptions import OperationalError
 
 
 class MimerPoolError(Exception):

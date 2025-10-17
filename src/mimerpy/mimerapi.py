@@ -22,6 +22,10 @@
 """
 mimerapi.py — pure-Python ctypes wrapper for Mimer SQL C API.
 
+The mimerarpi module provides low-level access to the Mimer SQL C API and
+is not meant to be used directly by application code. Instead, use the mimerpy
+module which provides a DB-API 2.0 compliant interface on top of mimerapi
+
 Notes:
 - Safe mimerGetError8 (null-guard) to avoid segfaults on ended/invalid handles.
 - Keep Python buffers alive until EndStatement, or upon explicit reuse in BeginStatement8.
@@ -178,8 +182,8 @@ def mimerAPIVersion() -> str:
 #  Determine Mimer API level
 # ---------------------------------------------------------------------------
 import re
-from mimerpy.mimPyExceptions import NotSupportedError
-from mimerpy.mimPyExceptionHandler import mimerpy_error
+from .mimPyExceptions import NotSupportedError
+from .mimPyExceptionHandler import mimerpy_error
 
 __version__ = mimerAPIVersion().rstrip()
 
@@ -791,25 +795,5 @@ def mimerTestMalloc(v: int):
     return 0
 
 __all__ = [
-    'mimerAPIVersion', 'mimerGetError8',
-    'mimerBeginSession8', 'mimerEndSession',
-    'mimerBeginTransaction', 'mimerEndTransaction',
-    'mimerBeginStatement8', 'mimerEndStatement',
-    'mimerOpenCursor', 'mimerCloseCursor',
-    'mimerExecuteStatement8', 'mimerExecute',
-    'mimerAddBatch',
-    'mimerParameterCount', 'mimerParameterName8', 'mimerParameterType',
-    'mimerColumnCount', 'mimerColumnType', 'mimerColumnName8',
-    'mimerFetch',
-    'mimerGetInt32', 'mimerGetInt64', 'mimerGetString8', 'mimerGetDouble', 'mimerGetFloat',
-    'mimerGetBinary', 'mimerGetBoolean', 'mimerGetUUID',
-    'mimerGetBlobData', 'mimerGetNclobData8',
-    'mimerSetInt32', 'mimerSetInt64', 'mimerSetString8', 'mimerSetDouble', 'mimerSetFloat',
-    'mimerSetBinary', 'mimerSetBoolean', 'mimerSetUUID',
-    'mimerSetBlobData', 'mimerSetNclobData8', 'mimerSetNull',
-    'mimerGetGisLocation', 'mimerSetGisLocation',
-    'mimerGetGisLatitude', 'mimerSetGisLatitude',
-    'mimerGetGisLongitude', 'mimerSetGisLongitude',
-    'mimerClearBuffers',
     '__version__', '_version_tuple', '_level'
 ]

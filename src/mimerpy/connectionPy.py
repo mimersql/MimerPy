@@ -20,10 +20,10 @@
 #
 # See license for more details.
 
-from mimerpy import mimerapi
+from . import mimerapi
 import weakref
-from mimerpy.cursorPy import *
-from mimerpy.mimPyExceptionHandler import *
+from .cursorPy import *
+from .mimPyExceptionHandler import *
 import sys
 
 def defaulterrorhandler(connection, cursor, errorclass, errorvalue):
