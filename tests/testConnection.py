@@ -115,6 +115,10 @@ class TestConnectionMethods(unittest.TestCase):
             wrong = db_config.TSTUSR.copy()
             wrong['password'] = 'wrong'
             a = mimerpy.connect(**wrong)
+        with self.assertRaises(ProgrammingError):
+            wrong = db_config.TSTUSR.copy()
+            wrong['password'] = 'wrong'
+            a = mimerpy.connect(**wrong)
 
     def test_connect_invalid_login_2(self):
         with self.assertRaises(DatabaseError):
@@ -126,10 +130,6 @@ class TestConnectionMethods(unittest.TestCase):
             wrong['warpspeed'] = 'extra'
             a = mimerpy.connect(**wrong)
 
-    @unittest.skip("Connection cleanup failure")
-    def test_connect_invalid_login_3(self):
-        with self.assertRaises(IntegrityError):
-            a = mimerpy.connect()
 
     def test_weakref(self):
         from weakref import ref

@@ -1127,7 +1127,7 @@ class TestCursorMethods(unittest.TestCase):
             self.assertEqual(r[0], ablob)
 
     # Might have to up your bufferpool memory to run this
-    @unittest.skip
+    #@unittest.skip
     def test_insert_blob_1gb(self):
         with self.tstcon.cursor() as c:
             ablob = (1024).to_bytes(1024 * 1000000,byteorder='big') 
@@ -1260,27 +1260,25 @@ class TestCursorMethods(unittest.TestCase):
             r = c.fetchall()[0]
             self.assertEqual(r[0], des)
 
-    # Bör runda av, men ger för tillfället en exception
-    @unittest.skip
     def test_insert_decimal_decimal2(self):
         with self.tstcon.cursor() as c:
             decimal.getcontext().prec = 45
             des = decimal.Decimal("1.141")
-            c.execute("create table jondecimal2 (c1 DECIMAL(3,2)) in pybank")
-            c.execute("insert INTO jondecimal2 VALUES (?)", (des))
+            c.execute("create table jondecimal22 (c1 DECIMAL(3,2)) in pybank")
+            c.execute("insert INTO jondecimal22 VALUES (?)", (des))
             self.tstcon.commit()
-            c.execute("select * from jondecimal2")
+            c.execute("select * from jondecimal22")
             r = c.fetchall()[0]
-            self.assertEqual(r[0], des)
+            self.assertEqual(r[0], decimal.Decimal("1.14"))
 
     def test_insert_decimal_decimal3(self):
         with self.tstcon.cursor() as c:
             decimal.getcontext().prec = 45
             des = decimal.Decimal("1.14")
-            c.execute("create table jondecimal22 (c1 DECIMAL(3,2)) in pybank")
-            c.execute("insert INTO jondecimal22 VALUES (cast(cast('1.141' as varchar(20)) as DECIMAL(3,2)))")
+            c.execute("create table jondecimal3 (c1 DECIMAL(3,2)) in pybank")
+            c.execute("insert INTO jondecimal3 VALUES (cast(cast('1.141' as varchar(20)) as DECIMAL(3,2)))")
             self.tstcon.commit()
-            c.execute("select * from jondecimal22")
+            c.execute("select * from jondecimal3")
             r = c.fetchall()[0]
             self.assertEqual(r[0], des)
 
@@ -1669,7 +1667,6 @@ class TestCursorMethods(unittest.TestCase):
             c.execute("SELECT * from with_table_cursor1")
 
     # these are the test examples for the documentaion
-    @unittest.skip
     def test_for_doc_2(self):
         with self.tstcon.cursor() as c:
             c.execute("CREATE TABLE with_table_connection1(c1 INTEGER,"
@@ -1790,15 +1787,15 @@ create table longboi (c1 char(10),
             c.execute("SELECT * from longboi_bigint")
             self.assertEqual(c.fetchall(), [(-2**63,)])
 
-    @unittest.skip
     def test_data_type_precision_integer(self):
         with self.tstcon.cursor() as c:
             long = "create table longboi_integer45(c1 INTEGER(45)) in pybank"
             c.execute(long)
-            c.execute("insert into longboi_integer45 values (?)", str(2**145))
-
+            int45val = str(2**145)
+            c.execute("insert into longboi_integer45 values (?)", int45val)
             c.execute("SELECT * from longboi_integer45")
-            self.assertEqual(c.fetchall(), [(str(2**140),)])
+            int45res= c.fetchall()[0][0]
+            self.assertEqual(str(int45res), int45val)
 
     def test_parameter_name(self):
         with self.tstcon.cursor() as c:
@@ -1932,7 +1929,7 @@ create table longboi (c1 char(10),
 
     @unittest.skip
     def test_help(self):
-        a = mimerpy.connect(dsn=self.dbName, user=self.usrName, password=self.psw)
+        a = mimerpy.connect(**db_config.TSTUSR)
         b = a.cursor()
         help(b)
         b.close()
@@ -1940,7 +1937,7 @@ create table longboi (c1 char(10),
 
     @unittest.skip
     def test_error(self):
-        a = mimerpy.connect(dsn=self.dbName, user=self.usrName, password=self.psw)
+        a = mimerpy.connect(**db_config.TSTUSR)
         b = a.cursor()
         b.execute("create table boberror (c1 INTEGER,  c2 NVARCHAR(10)) in pybank")
         print("table created --------------- ")
@@ -1972,10 +1969,10 @@ create table longboi (c1 char(10),
         @unittest.skipUnless(db_config.MIMERPY_STABLE == False, "Currently gives incorrect error message")
         def test_insert_decimal_invalid(self):
             with self.tstcon.cursor() as c:
-                c.execute("create table jondecimal2 (c1 DECIMAL(5,2)) in pybank")
+                c.execute("create table jondecimal4 (c1 DECIMAL(5,2)) in pybank")
                 floatnum = '32423.23234'
                 #with self.assertRaises(ProgrammingError):
-                c.execute("insert INTO jondecimal2 VALUES (?)", (floatnum))
+                c.execute("insert INTO jondecimal4 VALUES (?)", (floatnum))
 
 
 if __name__ == '__main__':
