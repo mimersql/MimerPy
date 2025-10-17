@@ -7,23 +7,10 @@ The following section covers how to install MimerPy.
 Requirements
 ------------------------
 
-MimerPy can currently run with Python3.5 or later, keep in mind
+MimerPy can currently run with Python3.6 or later, keep in mind
 to use the correct versions if you have multiple versions installed.
 
-If you are running on Ubuntu or Linux, some Python header files are needed for the installation. To install all the
-required files use the command:
-
-.. code-block:: console
-
-    $ sudo apt-get install python3-dev
-
-Alternatively you can download the Python-dev package in any preferable way.
-
-.. note:: The error “Python.h: No such file or directory”, is solved by downloading the -dev package.
-
 You need to install the Mimer SQL C API and have a Mimer SQL database server of version 11 or newer.
-
-.. note:: The error “mimerapi.h: No such file or directory”, is caused by Mimer SQL not being installed or a Mimer SQL version older than 11.
 
 .. _sec-SQL-api:
 
@@ -63,14 +50,22 @@ To build MimerPy's source use the command:
 
 .. code-block:: console
 
-    $ python3 setup.py build
-    $ python3 setup.py install
+    $ python3 -m build
+    $ python3 -m pip install -e .
 
-If you wish to install the built distribution, you can download it from `PyPI`_ and then use pip to install:
+If you wish to install the release distribution manually, you can download it from `PyPI`_ and then use pip to install:
 
+To use the source distribution, use the command:
 .. code-block:: console
 
-  $ python3 -m pip install mimerpy-current.version.tar.gz
+  $ python3 -m pip install mimerpy-<version>.tar.gz
+
+You can also use the pre-built wheel file using the command:
+.. code-block:: console
+
+  $ python3 -m pip install mimerpy-<version>-py3-none-any.whl
+
+
 
 .. _GitHub: https://github.com/mimersql/MimerPy
 .. _PyPI: https://pypi.org/

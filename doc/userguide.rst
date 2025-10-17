@@ -5,7 +5,7 @@ User guide
 .. _mimer-syntax:
 
 This chapter of the documentation covers the relationship between
-MimerPy, Mimer SQL and the Mimer SQL C API.
+MimerPy and Mimer SQL.
 
 Connection parameters
 ---------------------

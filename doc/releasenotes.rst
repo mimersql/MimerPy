@@ -29,3 +29,25 @@ Known problems:
 
 * Using method :meth:`callproc` to call a Stored Procedure is not yet
   supported.
+
+
+MimerPy Version 1.3.0
+---------------------
+MimerPy version 1.3.0 is a major release that uses `ctypes` and dynamic bindings
+to the Mimer SQL C API.
+
+Major changes:
+
+* MimerPy is now implemented using `ctypes` to access the Mimer SQL C API.
+  This removes the need for a C compiler on all platforms.
+* MimerPy now requires Python 3.6 or later.
+
+MimerPy Version 1.3.1
+---------------------
+MimerPy version 1.3.1 adds support for UUID and GIS datatypes in Mimer SQL.
+
+Major changes:
+* Support for the UUID datatype BUILTIN.UUID added.
+* Support for GIS datatypes added. This include BUILTIN.GIS_LOCATION, BUILTIN.GIS_LATITUDE,
+  and BUILTIN.GIS_LONGITUDE. This requires Mimer SQL version 11.0.8E or later.
+

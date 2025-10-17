@@ -6,10 +6,10 @@ MimerPy is an adapter for Mimer SQL in Python_ which implements the
 Python Database API specfication `PEP 249`_.
 
 The adapter allows the user to access the powerful tools and
-advantages of Mimer SQL through Python.  MimerPy is implemented as a
-CPython wrapper of the `Mimer SQL C API`_.
+advantages of Mimer SQL through Python.  MimerPy uses `ctypes` to do
+dynamic binding to the `Mimer SQL C API`_.
 
-To use MimerPy, there is a minimum requirement of Python 3.5 or newer and
+To use MimerPy, there is a minimum requirement of Python 3.6 or newer and
 it is dependent on the `Mimer SQL C API`_.
 
 The Mimer SQL C API is a discrete C API that comes with Mimer SQL. The

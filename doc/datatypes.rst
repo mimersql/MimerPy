@@ -55,7 +55,13 @@ Overview of Mimer SQL to Python data types:
 +------------------------+--------------------+
 | TIMESTAMP(s)           | Str                |
 +------------------------+--------------------+
-| UUID                   | uuid               |
+| BUILTIN.UUID           | uuid.UUID          |
++------------------------+--------------------+
+| BUILTIN.GIS_LOCATION   | (Float,Float)      |
++------------------------+--------------------+
+| BUILTIN.GIS_LATITUDE   | Float              |
++------------------------+--------------------+
+| BUILTIN.GIS_LONGITUDE  | Float              |
 +------------------------+--------------------+
 | INTERVAL               | Str                |
 +------------------------+--------------------+
@@ -296,7 +302,21 @@ Example usage of ``TIMESTAMP``::
 
 Universally Unique Identifier (UUID)
 ------------------------------------------
-Universally Unique Identifier is currently not implemented. 
+The Mimer SQL UUID data type BUILTIN.UUID is handled by the Python built-in uuid module.
+It is also possible to use strings and bytearrays to represent UUID values in MimerPy, but using the uuid module is recommended
+
+A BUILTIN.UUID is returned as a uuid.UUID object in Python.
+
+Example usage of ``BUILTIN.UUID``::
+
+  >>> import uuid
+  >>> cursor.execute("create table uuidtable (c1 BUILTIN.UUID)")
+  >>> uid = uuid.uuid4()
+  >>> uuid_byte = uid.bytes
+  >>> uuid_str = str(uid)
+  >>> cursor.execute("insert into uuidtable values (?)", (uid,))
+  >>> cursor.execute("insert into uuidtable values (?)", (uuid_byte,))
+  >>> cursor.execute("insert into uuidtable values (?)", (uuid_str,))
 
 INTERVAL 
 ------------
@@ -339,6 +359,26 @@ Consider the following example::
 
   >>> cursor.execute("create table intervaltable (c1 YEAR(5), c2 INTERVAL YEAR(5) TO MONTH)")
   >>> cursor.execute("insert into intervaltable values (?)", ("2021", "2021-05"))
+
+
+BUILTIN.GIS_LOCATION, BUILTIN.GIS_LATITUDE, and BUILTIN.GIS_LONGITUDE 
+----------
+BUILTIN.GIS_LOCATION is used to store a geographic location as a pair of latitude and longitude coordinates.
+
+BUILTIN.GIS_LATITUDE is used to store the latitude coordinate and BUILTIN.GIS_LONGITUDE is used 
+to store the longitude coordinate of a geographic location.
+
+To work with BUILTIN.GIS_LOCATION in MimerPy, use a tuple with two float values representing latitude and longitude.
+BUILTIN.GIS_LATITUDE and BUILTIN.GIS_LONGITUDE are represented as float values in Python.
+MimerPy returns BUILTIN.GIS_LOCATION as a tuple of two float values, and BUILTIN.GIS_LATITUDE and BUILTIN.GIS_LONGITUDE as float values.
+
+Example usage of ``BUILTIN.GIS_LOCATION``, ``BUILTIN.GIS_LATITUDE``, and ``BUILTIN.GIS_LONGITUDE``::
+
+ >>> cursor.execute("create table gistable (loc BUILTIN.GIS_LOCATION, lat BUILTIN.GIS_LATITUDE, lon BUILTIN.GIS_LONGITUDE)")
+ >>> lat = 23.21
+ >>> lon = -45.67
+ >>> loc = (37.21, -51.62)
+ >>> cursor.execute("insert INTO gistable VALUES (?, ?, ?)", (loc, lat, lon))
 
 NULL 
 ------------

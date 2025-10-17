@@ -9,7 +9,7 @@ running, please visit the `Mimer documentation`_.
 
 .. _Mimer documentation: https://developer.mimer.com/products/documentation/
 
-.. note:: MimerPy requires Python 3.5 or later. On Windows the command to run python3 varies between `python` and  `python3` depending on what versions you have installed. On Linux the command normally is `python3`. In this guide we use `python3` as command, but you might have to adjust for your environment.
+.. note:: MimerPy requires Python 3.6 or later. On Windows the command to run python3 varies between `python` and  `python3` depending on what versions you have installed. On Linux the command normally is `python3`. In this guide we use `python3` as command, but you might have to adjust for your environment.
 
 Checking the MimerPy installation
 ---------------------------------
