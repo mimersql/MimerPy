@@ -27,9 +27,8 @@ except ImportError:
 
 
 #
-# Set globals in mimerpy module and version in mimerapi module
+# Set globals in mimerpy module
 #
-from mimerpy import mimerapi
 import re
 
 apilevel = '2.0'
@@ -44,11 +43,9 @@ else:
     version = __version__
     version_info = ()
 
-mimerapi.__version__ = mimerapi.mimerAPIVersion().rstrip()
-
 
 from mimerpy.mimPyExceptions import *
-from mimerpy.mimPyExceptionHandler import mimerpy_error
+from mimerpy.mimPyErrorCodes import mimerpy_error
 from mimerpy.connectionPy import Connection
 
 def connect(dsn='', user='', password='',

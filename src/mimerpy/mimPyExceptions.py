@@ -123,3 +123,6 @@ class NotSupportedError(DatabaseError):
         is not supported by the database.
 
     """
+
+# Error code mappings are now defined in mimPyErrorCodes to avoid circular imports.
+from mimerpy.mimPyErrorCodes import mimerpy_error
