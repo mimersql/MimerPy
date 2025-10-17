@@ -997,9 +997,14 @@ class TestCursorMethods(unittest.TestCase):
             self.tstcon.commit()
             c.execute("insert into uuidtable values(?)", (str(vuuid)))
             self.tstcon.commit()
+            c.execute("select id from uuidtable")
+            rows = [r[0] for r in c.fetchall()]
+            # all must match vuuid
+            for r in rows:
+                self.assertEqual(r, vuuid)
+            #Test again using string representation
             c.execute("select id.as_text() from uuidtable")
             rows = [uuid.UUID(r[0]) for r in c.fetchall()]
-
             # all must match vuuid
             for r in rows:
                 self.assertEqual(r, vuuid)
