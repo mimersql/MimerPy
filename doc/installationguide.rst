@@ -56,11 +56,13 @@ To build MimerPy's source use the command:
 If you wish to install the release distribution manually, you can download it from `PyPI`_ and then use pip to install:
 
 To use the source distribution, use the command:
+
 .. code-block:: console
 
   $ python3 -m pip install mimerpy-<version>.tar.gz
 
 You can also use the pre-built wheel file using the command:
+
 .. code-block:: console
 
   $ python3 -m pip install mimerpy-<version>-py3-none-any.whl

@@ -361,8 +361,8 @@ Consider the following example::
   >>> cursor.execute("insert into intervaltable values (?)", ("2021", "2021-05"))
 
 
-BUILTIN.GIS_LOCATION, BUILTIN.GIS_LATITUDE, and BUILTIN.GIS_LONGITUDE 
-----------
+GIS_LOCATION, GIS_LATITUDE, and GIS_LONGITUDE 
+------------------------------------------------------------------------
 BUILTIN.GIS_LOCATION is used to store a geographic location as a pair of latitude and longitude coordinates.
 
 BUILTIN.GIS_LATITUDE is used to store the latitude coordinate and BUILTIN.GIS_LONGITUDE is used 
