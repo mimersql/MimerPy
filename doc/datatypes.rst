@@ -49,11 +49,11 @@ Overview of Mimer SQL to Python data types:
 +------------------------+--------------------+
 | NVARCHAR(n)            | Str                |
 +------------------------+--------------------+
-| DATE                   | Str                |
+| DATE                   | date               |
 +------------------------+--------------------+
-| TIME(s)                | Str                |
+| TIME(s)                | time               |
 +------------------------+--------------------+
-| TIMESTAMP(s)           | Str                |
+| TIMESTAMP(s)           | datetime           |
 +------------------------+--------------------+
 | BUILTIN.UUID           | uuid.UUID          |
 +------------------------+--------------------+
@@ -275,9 +275,12 @@ DATE
 ----------
 DATE describes a date using the fields YEAR, MONTH and DAY in the format YYYY-MM-DD. It represents an absolute position on the timeline.
 
+DATE values are mapped to Python date objects. When inserting a DATE value, MimerPy also accepts strings in the format 'YYYY-MM-DD'.
 Example usage of ``DATE``::
 
  >>> cursor.execute("create table datetable (c1 DATE)")
+ >>> d = date.fromisoformat("2025-01-01")
+ >>> cursor.execute("insert INTO datetable VALUES (?)", (d))
  >>> data = "2020-09-24"
  >>> cursor.execute("insert INTO datetable VALUES (?)", (data))
 
@@ -285,20 +288,28 @@ TIME(s)
 ---------------
 TIME(s) describes a time in an unspecified day, with seconds precision s, using the fields HOUR, MINUTE and SECOND in the format HH:MM:SS[.sF] where F is the fractional part of the SECOND value. It represents an absolute time of day.
 
+TIME(s) values are mapped to Python time objects. When inserting a TIME value, MimerPy also accepts strings in the format 'HH:MM:SS[.ffffff]'.
+
 Example usage of ``TIME``::
 
  >>> cursor.execute("create table timetable (c1 TIME(0))")
- >>> time = "16:04:55"
- >>> cursor.execute("insert INTO timetable VALUES (?)", (time))
+ >>> t = time.fromisoformat("12:30:20")
+ >>> cursor.execute("insert INTO timetable VALUES (?)", (t))
+ >>> timestr = "16:04:55"
+ >>> cursor.execute("insert INTO timetable VALUES (?)", (timestr))
 
 TIMESTAMP(s) 
 ---------------------
 TIMESTAMP(s) describes both a date and time, with seconds precision s, using the fields YEAR, MONTH, DAY, HOUR, MINUTE and SECOND in the format YYYY-MM-DD HH:MM:SS[.sF]. F is the fractional part of the SECOND value. It represents an absolute position on the timeline.
 
+TIMESTAMP(s) values are mapped to Python datetime objects. When inserting a TIMESTAMP value, MimerPy also accepts strings in the format 'YYYY-MM-DD HH:MM:SS[.ffffff]'
+
 Example usage of ``TIMESTAMP``::
 
  >>> cursor.execute("create table timestamp_table(c1 TIMESTAMP(2))")
- >>> cursor.execute("insert into timestamp_table values (:a)", ('2020-09-17 11:21:51.12'))
+ >>> dt = datetime.fromisoformat('2020-09-17 11:21:51.12')
+ >>> cursor.execute("insert into timestamp_table values (:a)", (dt,))
+ >>> cursor.execute("insert into timestamp_table values (:a)", ('2021-01-01 23:12:50.12',))
 
 Universally Unique Identifier (UUID)
 ------------------------------------------

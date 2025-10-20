@@ -44,10 +44,13 @@ Major changes:
 
 MimerPy Version 1.3.1
 ---------------------
-MimerPy version 1.3.1 adds support for UUID and GIS datatypes in Mimer SQL.
+MimerPy version 1.3.1 adds support for UUID and GIS datatypes in Mimer SQL and handles date, time, and timestamp correctly.
 
 Major changes:
+
 * Support for the UUID datatype BUILTIN.UUID added.
-* Support for GIS datatypes added. This include BUILTIN.GIS_LOCATION, BUILTIN.GIS_LATITUDE,
-  and BUILTIN.GIS_LONGITUDE. This requires Mimer SQL version 11.0.8E or later.
+* Support for GIS datatypes added. This include BUILTIN.GIS_LOCATION, BUILTIN.GIS_LATITUDE, and BUILTIN.GIS_LONGITUDE. This requires Mimer SQL version 11.0.8E or later.
+* Date are mapped to Python date objects. Strings in the format 'YYYY-MM-DD' are also accepted when inserting DATE values.
+* Time are mapped to Python time objects. Strings in the format 'HH:MM:SS[.ffffff]' are also accepted when inserting TIME values.
+* Timestamp are mapped to Python datetime objects. Strings in the format 'YYYY-MM-DD HH:MM:SS[.ffffff]' are also accepted when inserting TIMESTAMP values.
 

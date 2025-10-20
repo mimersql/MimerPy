@@ -26,6 +26,7 @@ import collections, decimal, uuid
 from types import GeneratorType
 import uuid
 import string
+from datetime import date, time, datetime
 
 
 def _pythonSetDecimal(statement, cur_column, parameter):
@@ -92,6 +93,86 @@ def _pythonSetUUID(statement, col, val):
 
     return mimerapi.mimerSetUUID(statement, col, v)
 
+def _pythonGetTimestamp(statement, col):
+    rc, val = mimerapi.mimerGetString8(statement, col)
+    if rc >= 0 and val is not None:
+        return (rc, datetime.fromisoformat(val))
+    return (rc, None)
+
+def _pythonSetTimestamp(statement, col, val):
+    if val is None:
+        return mimerapi.mimerSetNull(statement, col)
+    if isinstance(val, datetime):
+        v = val.isoformat(sep=' ', timespec='microseconds')
+    elif isinstance(val, str):
+        try:
+            #Parse to ensure valid format but use orginal for higher precision
+            val = val.strip()
+            datetime.fromisoformat(val)
+            v = val
+        except ValueError:
+            # invalid string representation
+            return mimerapi.MIMERPY_DATA_CONVERSION_ERROR
+    else:
+        # unsupported type
+        return mimerapi.MIMERPY_DATA_CONVERSION_ERROR
+
+    return mimerapi.mimerSetString8(statement, col, v)
+
+
+def _pythonGetTime(statement, col):
+    rc, val = mimerapi.mimerGetString8(statement, col)
+    if rc >= 0 and val is not None:
+        return (rc, time.fromisoformat(val))
+    return (rc, None)
+
+def _pythonSetTime(statement, col, val):
+    if val is None:
+        return mimerapi.mimerSetNull(statement, col)
+    if isinstance(val, time):
+        v = val.isoformat(timespec='microseconds')
+    elif isinstance(val, str):
+        try:
+            #Parse to ensure valid format but use orginal for higher precision
+            val = val.strip()
+            time.fromisoformat(val)
+            v = val
+        except ValueError:
+            # invalid string representation
+            return mimerapi.MIMERPY_DATA_CONVERSION_ERROR
+    else:
+        # unsupported type
+        return mimerapi.MIMERPY_DATA_CONVERSION_ERROR
+
+    return mimerapi.mimerSetString8(statement, col, v)
+
+def _pythonGetDate(statement, col):
+    rc, val = mimerapi.mimerGetString8(statement, col)
+    if rc >= 0 and val is not None:
+        return (rc, date.fromisoformat(val))
+    return (rc, None)
+
+def _pythonSetDate(statement, col, val):
+    if val is None:
+        return mimerapi.mimerSetNull(statement, col)
+    if isinstance(val, date):
+        v = val.isoformat()
+    elif isinstance(val, str):
+        try:
+            #Parse to ensure valid format
+            val = val.strip()
+            date.fromisoformat(val)
+            v = val
+        except ValueError:
+            # invalid string representation
+            return mimerapi.MIMERPY_DATA_CONVERSION_ERROR
+    else:
+        # unsupported type
+        return mimerapi.MIMERPY_DATA_CONVERSION_ERROR
+
+    return mimerapi.mimerSetString8(statement, col, v)
+
+
 def _define_funcs():
     global get_funcs
     global set_funcs
@@ -137,9 +218,12 @@ def _define_funcs():
                  58: mimerapi.mimerGetNclobData8,
                  59: mimerapi.mimerGetNclobData8,
                  8104: _pythonGetUUID,
-                 8036: mimerapi.mimerGetGisLocation,
-                 8020: mimerapi.mimerGetGisLatitude,
-                 8004: mimerapi.mimerGetGisLongitude,
+                 mimerapi.MIMER_TYPE_LOCATION: mimerapi.mimerGetGisLocation,
+                 mimerapi.MIMER_TYPE_LATITUDE: mimerapi.mimerGetGisLatitude,
+                 mimerapi.MIMER_TYPE_LONGITUDE: mimerapi.mimerGetGisLongitude,
+                 mimerapi.MIMER_TYPE_TIMESTAMP: _pythonGetTimestamp,
+                 mimerapi.MIMER_TYPE_TIME: _pythonGetTime,
+                 mimerapi.MIMER_TYPE_DATE: _pythonGetDate,
     }
 
     set_funcs = {1: mimerapi.mimerSetString8,
@@ -182,9 +266,12 @@ def _define_funcs():
                  59: mimerapi.mimerSetNclobData8,
                  501: mimerapi.mimerSetNull,
                  8104: _pythonSetUUID,
-                 8036: mimerapi.mimerSetGisLocation,
-                 8020: mimerapi.mimerSetGisLatitude,
-                 8004: mimerapi.mimerSetGisLongitude,
+                 mimerapi.MIMER_TYPE_LOCATION: mimerapi.mimerSetGisLocation,
+                 mimerapi.MIMER_TYPE_LATITUDE: mimerapi.mimerSetGisLatitude,
+                 mimerapi.MIMER_TYPE_LONGITUDE: mimerapi.mimerSetGisLongitude,
+                 mimerapi.MIMER_TYPE_TIMESTAMP: _pythonSetTimestamp,
+                 mimerapi.MIMER_TYPE_TIME: _pythonSetTime,
+                 mimerapi.MIMER_TYPE_DATE: _pythonSetDate,
     }
 
 _define_funcs()

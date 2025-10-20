@@ -25,6 +25,7 @@ import mimerpy
 from mimerpy import mimerapi
 from mimerpy.mimPyExceptions import *
 import db_config
+from datetime import date, time, datetime
 
 
 # noinspection SqlDialectInspection
@@ -48,25 +49,72 @@ class TestCursorMethods(unittest.TestCase):
     def test_fetchall_ts(self):
         with self.tstcon.cursor() as c:
             c.execute("select 'a', cast('2020-09-17 11:21:51' as timestamp(2)) from system.onerow")
-            self.assertEqual(c.fetchall(), [('a', '2020-09-17 11:21:51.00')])
+            self.assertEqual(c.fetchall(), [('a', datetime.fromisoformat('2020-09-17 11:21:51.00'))])
+            c.execute("select 'a', timestamp '2020-09-17 11:21:51' from system.onerow")
+            self.assertEqual(c.fetchall(), [('a', datetime.fromisoformat('2020-09-17 11:21:51.00'))])
+            c.execute("select 'a', cast(timestamp '2020-09-17 11:21:51' as timestamp(4)) from system.onerow")
+            self.assertEqual(c.fetchall(), [('a', datetime.fromisoformat('2020-09-17 11:21:51.00'))])
 
     def test_fetchall_timestamp_one(self):
         with self.tstcon.cursor() as c:
-            c.execute("create table bob_timestamp(c1 TIMESTAMP(2)) in pybank")
-            c.execute("insert into bob_timestamp values (:a)", ('2020-09-17 11:21:51'))
+            c.execute("create table timestamptab1(c1 TIMESTAMP(2)) in pybank")
+            c.execute("insert into timestamptab1 values (:a)", ('2020-09-17 11:21:51'))
             self.tstcon.commit()
-            c.execute("select * from bob_timestamp")
+            c.execute("select * from timestamptab1")
             r = c.fetchone()
-            self.assertEqual(r, ('2020-09-17 11:21:51.00',))
+            self.assertEqual(r, (datetime.fromisoformat('2020-09-17 11:21:51.00'),))
+            c.execute("delete from timestamptab1")
+            ts = datetime.fromisoformat('2020-09-17 11:21:51')
+            c.execute("insert into timestamptab1 values (:a)", ts)
+            self.tstcon.commit()
+            c.execute("select * from timestamptab1")
+            r = c.fetchone()
+            self.assertEqual(r, (ts,))
+    
 
     def test_fetchall_timestamp_two(self):
         with self.tstcon.cursor() as c:
-            c.execute("create table bob_timestamp2(c1 TIMESTAMP(9)) in pybank")
-            c.execute("insert into bob_timestamp2 values (:a)", ('2020-09-17 11:21:51.123456789'))
+            c.execute("create table timestamptab2(c1 TIMESTAMP(9)) in pybank")
+            c.execute("insert into timestamptab2 values (:a)", ('2020-09-17 11:21:51.123456789'))
             self.tstcon.commit()
-            c.execute("select * from bob_timestamp2")
+            c.execute("select * from timestamptab2")
             r = c.fetchone()
-            self.assertEqual(r, ('2020-09-17 11:21:51.123456789',))
+            self.assertEqual(r, (datetime.fromisoformat('2020-09-17 11:21:51.123456'),))
+            c.execute("delete from timestamptab2")
+            self.tstcon.commit()
+            ts = datetime.fromisoformat('2020-09-17 11:21:51.123456789')
+            c.execute("insert into timestamptab2 values (:a)", (ts))
+            self.tstcon.commit()
+            c.execute("select * from timestamptab2")
+            r = c.fetchone()
+            self.assertEqual(r, (ts,))
+
+    def test_fetchall_timestamp_three(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table timestamptab3(c1 TIMESTAMP(2)) in pybank")
+            dt = datetime(2020, 9, 17, 11, 21, 51)
+            c.execute("insert into timestamptab3 values (:a)", dt)
+            self.tstcon.commit()
+            c.execute("select * from timestamptab3")
+            r = c.fetchone()
+            self.assertEqual(r, (dt,))
+
+    def test_timestamp_err(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table timestamperrtab(c1 TIMESTAMP(2)) in pybank")
+            self.tstcon.commit()
+            with self.assertRaises(DataError):
+                c.execute("insert into timestamperrtab values (:a)", '2021-13-40 25:61:61')
+            with self.assertRaises(DataError):
+                c.execute("select cast(:a as timestamp(4)) from system.onerow", '2021-13-40 25:61:61')
+            with self.assertRaises(DataError):
+                c.execute("insert into timestamperrtab values (:a)", '2021-12-11 25:61:61')
+            with self.assertRaises(DataError):
+                c.execute("select cast(:a as timestamp(4)) from system.onerow", '2021-12-11 25:61:61')
+            with self.assertRaises(DataError):
+                c.execute("insert into timestamperrtab values (:a)", '20:21:21')
+            with self.assertRaises(DataError):
+                c.execute("select cast(:a as timestamp(4)) from system.onerow", '20:21:21')
 
     def test_privilege(self):
         with self.tstcon.cursor() as c:
@@ -1222,28 +1270,90 @@ class TestCursorMethods(unittest.TestCase):
             self.tstcon.commit()
             c.execute("select * from jondata")
             r = c.fetchall()[0]
-            self.assertEqual(r[0], data)
+            self.assertEqual(r[0], date.fromisoformat(data))
+            c.execute("delete from jondata")
+            self.tstcon.commit()
+            d = date.fromisoformat(data)
+            c.execute("insert INTO jondata VALUES (?)", (d))
+            self.tstcon.commit()
+            c.execute("select * from jondata")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], d)
+
+    def test_date_err(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table jondata2 (c1 DATE) in pybank")
+            self.tstcon.commit()
+            with self.assertRaises(DataError):
+                c.execute("insert into jondata2 values (:a)", '2021-13-40 25:61:61')
+            with self.assertRaises(DataError):
+                c.execute("select cast(:a as timestamp(4)) from system.onerow", '2021-13-40 25:61:61')
+            with self.assertRaises(DataError):
+                c.execute("insert into jondata2 values (:a)", '2021-13-40')
+            with self.assertRaises(DataError):
+                c.execute("select cast(:a as timestamp(4)) from system.onerow", '2021-13-40')
 
     def test_insert_time_one(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jontime (c1 TIME(0)) in pybank")
-            time = "16:04:55"
-            c.execute("insert INTO jontime VALUES (?)", (time))
+            timestr = "16:04:55"
+            c.execute("insert INTO jontime VALUES (?)", (timestr))
             self.tstcon.commit()
             c.execute("select * from jontime")
             r = c.fetchall()[0]
-            self.assertEqual(r[0], time)
+            self.assertEqual(r[0], time.fromisoformat(timestr))
+            c.execute("delete from jontime")
+            self.tstcon.commit()
+            t = time.fromisoformat(timestr)
+            c.execute("insert INTO jontime VALUES (?)", (t))
+            self.tstcon.commit()
+            c.execute("select * from jontime")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], t)
 
     def test_insert_time_two(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jontime2 (c1 TIME(4)) in pybank")
-            time = "16:04:55.1234"
-            c.execute("insert INTO jontime2 VALUES (?)", (time))
+            timestr = "16:04:55.1234"
+            c.execute("insert INTO jontime2 VALUES (?)", (timestr))
             self.tstcon.commit()
             c.execute("select * from jontime2")
             r = c.fetchall()[0]
-            self.assertEqual(r[0], time)
+            self.assertEqual(r[0], time.fromisoformat(timestr))
+            c.execute("delete from jontime2")
+            self.tstcon.commit()
+            t = time.fromisoformat(timestr)
+            c.execute("insert INTO jontime2 VALUES (?)", (t))
+            self.tstcon.commit()
+            c.execute("select * from jontime2")
+            r = c.fetchall()[0]
+            self.assertEqual(r[0], t)
     
+    def test_time_err(self):
+        with self.tstcon.cursor() as c:
+            c.execute("create table jontime3 (c1 TIME(4)) in pybank")
+            self.tstcon.commit()
+            with self.assertRaises(DataError):
+                c.execute("insert into jontime3 values (:a)", '2021-13-40 25:61:61')
+            with self.assertRaises(DataError):
+                c.execute("select cast(:a as timestamp(4)) from system.onerow", '2021-13-40 25:61:61')
+            with self.assertRaises(DataError):
+                c.execute("insert into jontime3 values (:a)", '25:61:61')
+            with self.assertRaises(DataError):
+                c.execute("select cast(:a as timestamp(4)) from system.onerow", '25:61:61')
+            with self.assertRaises(DataError):
+                c.execute("insert into jontime3 values (:a)", '20:50:61')
+            with self.assertRaises(DataError):
+                c.execute("select cast(:a as timestamp(4)) from system.onerow", '20:50:61')
+            with self.assertRaises(DataError):
+                c.execute("insert into jontime3 values (:a)", '20:50:61.abc')
+            with self.assertRaises(DataError):
+                c.execute("select cast(:a as timestamp(4)) from system.onerow", '20:50:61.abc')
+            with self.assertRaises(DataError):
+                c.execute("insert into jontime3 values (:a)", '20:50:61.1234567899875621')
+            with self.assertRaises(DataError):
+                c.execute("select cast(:a as timestamp(4)) from system.onerow", '20:50:61.1234567899875621')
+
     def test_insert_decimal_str(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jondecimal (c1 DECIMAL(7,2)) in pybank")
