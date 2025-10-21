@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=77", "setuptools-scm>=8", "wheel", "tomli; python_version<'3.11'"]
+requires = [ "setuptools>=68,<77", "setuptools-scm<8", "wheel"]
 build-backend = "setuptools.build_meta"
 
 
@@ -10,8 +10,7 @@ description = "Python database interface for Mimer SQL"
 readme = "README.rst"
 requires-python = ">=3.6"
 
-license = "MIT"
-license-files = ["LICENSE.txt"]
+license = { text = "MIT" }
 authors = [
   { name = "Erik Gunne", email = "mimerpy@mimer.com" },
   { name = "Magdalena Boström", email = "mimerpy@mimer.com" },
