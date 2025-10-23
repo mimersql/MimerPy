@@ -9,7 +9,9 @@ dynamic = ["version"]
 description = "Python database interface for Mimer SQL"
 readme = "README.rst"
 requires-python = ">=3.6"
-
+dependencies = [
+    "python-dateutil>=2.8.2; python_version<'3.7'",
+]
 license = { text = "MIT" }
 authors = [
   { name = "Erik Gunne", email = "mimerpy@mimer.com" },

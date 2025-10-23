@@ -54,3 +54,11 @@ Major changes:
 * Time are mapped to Python time objects. Strings in the format 'HH:MM:SS[.ffffff]' are also accepted when inserting TIME values.
 * Timestamp are mapped to Python datetime objects. Strings in the format 'YYYY-MM-DD HH:MM:SS[.ffffff]' are also accepted when inserting TIMESTAMP values.
 
+MimerPy Version 1.3.2
+---------------------
+MimerPy version 1.3.2 is a minor buggfix release that fix a problem with datetime in Python version 3.9 and older
+
+Major changes:
+
+* Use a safe datetime and time parser
+* On Python 3.6, use dateutil module to parse ISO 8601 date strings

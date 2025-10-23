@@ -26,7 +26,7 @@ from mimerpy import mimerapi
 from mimerpy.mimPyExceptions import *
 import db_config
 from datetime import date, time, datetime
-
+from testutils import tolerant_fromiso_datetime, tolerant_fromiso_time
 
 # noinspection SqlDialectInspection
 class TestCursorMethods(unittest.TestCase):
@@ -49,11 +49,11 @@ class TestCursorMethods(unittest.TestCase):
     def test_fetchall_ts(self):
         with self.tstcon.cursor() as c:
             c.execute("select 'a', cast('2020-09-17 11:21:51' as timestamp(2)) from system.onerow")
-            self.assertEqual(c.fetchall(), [('a', datetime.fromisoformat('2020-09-17 11:21:51.00'))])
+            self.assertEqual(c.fetchall(), [('a', tolerant_fromiso_datetime('2020-09-17 11:21:51.00'))])
             c.execute("select 'a', timestamp '2020-09-17 11:21:51' from system.onerow")
-            self.assertEqual(c.fetchall(), [('a', datetime.fromisoformat('2020-09-17 11:21:51.00'))])
+            self.assertEqual(c.fetchall(), [('a', tolerant_fromiso_datetime('2020-09-17 11:21:51.00'))])
             c.execute("select 'a', cast(timestamp '2020-09-17 11:21:51' as timestamp(4)) from system.onerow")
-            self.assertEqual(c.fetchall(), [('a', datetime.fromisoformat('2020-09-17 11:21:51.00'))])
+            self.assertEqual(c.fetchall(), [('a', tolerant_fromiso_datetime('2020-09-17 11:21:51.00'))])
 
     def test_fetchall_timestamp_one(self):
         with self.tstcon.cursor() as c:
@@ -62,9 +62,9 @@ class TestCursorMethods(unittest.TestCase):
             self.tstcon.commit()
             c.execute("select * from timestamptab1")
             r = c.fetchone()
-            self.assertEqual(r, (datetime.fromisoformat('2020-09-17 11:21:51.00'),))
+            self.assertEqual(r, (tolerant_fromiso_datetime('2020-09-17 11:21:51.00'),))
             c.execute("delete from timestamptab1")
-            ts = datetime.fromisoformat('2020-09-17 11:21:51')
+            ts = tolerant_fromiso_datetime('2020-09-17 11:21:51')
             c.execute("insert into timestamptab1 values (:a)", ts)
             self.tstcon.commit()
             c.execute("select * from timestamptab1")
@@ -79,10 +79,10 @@ class TestCursorMethods(unittest.TestCase):
             self.tstcon.commit()
             c.execute("select * from timestamptab2")
             r = c.fetchone()
-            self.assertEqual(r, (datetime.fromisoformat('2020-09-17 11:21:51.123456'),))
+            self.assertEqual(r, (tolerant_fromiso_datetime('2020-09-17 11:21:51.123456'),))
             c.execute("delete from timestamptab2")
             self.tstcon.commit()
-            ts = datetime.fromisoformat('2020-09-17 11:21:51.123456789')
+            ts = tolerant_fromiso_datetime('2020-09-17 11:21:51.123456789')
             c.execute("insert into timestamptab2 values (:a)", (ts))
             self.tstcon.commit()
             c.execute("select * from timestamptab2")
@@ -1301,10 +1301,10 @@ class TestCursorMethods(unittest.TestCase):
             self.tstcon.commit()
             c.execute("select * from jontime")
             r = c.fetchall()[0]
-            self.assertEqual(r[0], time.fromisoformat(timestr))
+            self.assertEqual(r[0], tolerant_fromiso_time(timestr))
             c.execute("delete from jontime")
             self.tstcon.commit()
-            t = time.fromisoformat(timestr)
+            t = tolerant_fromiso_time(timestr)
             c.execute("insert INTO jontime VALUES (?)", (t))
             self.tstcon.commit()
             c.execute("select * from jontime")
@@ -1319,10 +1319,10 @@ class TestCursorMethods(unittest.TestCase):
             self.tstcon.commit()
             c.execute("select * from jontime2")
             r = c.fetchall()[0]
-            self.assertEqual(r[0], time.fromisoformat(timestr))
+            self.assertEqual(r[0], tolerant_fromiso_time(timestr))
             c.execute("delete from jontime2")
             self.tstcon.commit()
-            t = time.fromisoformat(timestr)
+            t = tolerant_fromiso_time(timestr)
             c.execute("insert INTO jontime2 VALUES (?)", (t))
             self.tstcon.commit()
             c.execute("select * from jontime2")

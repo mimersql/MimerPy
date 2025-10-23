@@ -27,8 +27,8 @@ from types import GeneratorType
 import uuid
 import string
 from datetime import date, time, datetime
-
-
+from mimerpy.utils import tolerant_fromiso_datetime, tolerant_fromiso_time
+    
 def _pythonSetDecimal(statement, cur_column, parameter):
     if parameter is None:
         rc = mimerapi.mimerSetString8(statement, cur_column, parameter)
@@ -96,7 +96,7 @@ def _pythonSetUUID(statement, col, val):
 def _pythonGetTimestamp(statement, col):
     rc, val = mimerapi.mimerGetString8(statement, col)
     if rc >= 0 and val is not None:
-        return (rc, datetime.fromisoformat(val))
+        return (rc, tolerant_fromiso_datetime(val))
     return (rc, None)
 
 def _pythonSetTimestamp(statement, col, val):
@@ -108,7 +108,7 @@ def _pythonSetTimestamp(statement, col, val):
         try:
             #Parse to ensure valid format but use orginal for higher precision
             val = val.strip()
-            datetime.fromisoformat(val)
+            tolerant_fromiso_datetime(val)
             v = val
         except ValueError:
             # invalid string representation
@@ -123,7 +123,7 @@ def _pythonSetTimestamp(statement, col, val):
 def _pythonGetTime(statement, col):
     rc, val = mimerapi.mimerGetString8(statement, col)
     if rc >= 0 and val is not None:
-        return (rc, time.fromisoformat(val))
+        return (rc, tolerant_fromiso_time(val))
     return (rc, None)
 
 def _pythonSetTime(statement, col, val):
@@ -135,7 +135,7 @@ def _pythonSetTime(statement, col, val):
         try:
             #Parse to ensure valid format but use orginal for higher precision
             val = val.strip()
-            time.fromisoformat(val)
+            tolerant_fromiso_time(val)
             v = val
         except ValueError:
             # invalid string representation
