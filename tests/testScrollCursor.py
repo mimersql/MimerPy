@@ -670,7 +670,7 @@ class TestScrollCursorMethods(unittest.TestCase):
             c.execute("SELECT * from jonNone")
             for i in range(1,10):
                 c.fetchone()
-            self.assertEqual(c.fetchone(), [])
+            self.assertIsNone(c.fetchone())
 
     def test_empty_sequence_is_returned_many(self):
         with self.tstcon.cursor(scrollable = True) as c:
@@ -1033,7 +1033,7 @@ class TestScrollCursorMethods(unittest.TestCase):
             self.assertEqual(c.fetchone(), (9, 'bob9'))
             self.assertEqual(c.fetchone(), (10, 'bob10'))
             self.assertEqual(c.fetchone(), (11, 'bob11'))
-            self.assertEqual(c.fetchone(), [])
+            self.assertIsNone(c.fetchone())
 
     def test_fetchone_rownumber(self):
         with self.tstcon.cursor(scrollable = True) as c:
@@ -1049,7 +1049,7 @@ class TestScrollCursorMethods(unittest.TestCase):
             self.assertEqual(c.rownumber, 2)
             self.assertEqual(c.fetchone(), (11, 'bob11'))
             self.assertEqual(c.rownumber, 3)
-            self.assertEqual(c.fetchone(), [])
+            self.assertIsNone(c.fetchone())
             self.assertEqual(c.rownumber, 3)
 
     def test_fetchmany_rownumber(self):
@@ -1107,7 +1107,7 @@ class TestScrollCursorMethods(unittest.TestCase):
                              [(6, 'bob6'),(7, 'bob7'),(8, 'bob8'),
                               (9, 'bob9'),(10, 'bob10')])
             self.assertEqual(c.rownumber, 10)
-            self.assertEqual(c.fetchone(), [])
+            self.assertIsNone(c.fetchone())
             self.assertEqual(c.fetchmany(21), [])
             self.assertEqual(c.fetchall(), [])
 
@@ -1224,7 +1224,7 @@ class TestScrollCursorMethods(unittest.TestCase):
             self.tstcon.rollback()
             c.execute("select * from bobnoselect")
             r = c.fetchone()
-            self.assertEqual(len(r), 0)
+            self.assertIsNone(r)
 
     def test_no_select2(self):
         with self.tstcon.cursor(scrollable = True) as c:

@@ -670,7 +670,7 @@ class TestCursorMethods(unittest.TestCase):
             c.execute("insert into bob556 values (3)")
             self.tstcon.rollback()
             c.execute("select * from bob556")
-            self.assertEqual(c.fetchone(), [])
+            self.assertIsNone(c.fetchone())
 
     def test_invalid_sequence_insert(self):
         with self.tstcon.cursor() as c:
@@ -869,7 +869,7 @@ class TestCursorMethods(unittest.TestCase):
             c.execute("SELECT * from jonNone")
             for i in range(1, 10):
                 c.fetchone()
-            self.assertEqual(c.fetchone(), [])
+            self.assertIsNone(c.fetchone())
 
     def test_empty_sequence_is_returned_many(self):
         with self.tstcon.cursor() as c:
