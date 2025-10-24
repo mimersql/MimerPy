@@ -320,7 +320,7 @@ class TestConnectionMethods(unittest.TestCase):
         a.close()
 
         b = self.tstcon.execute("select * from bob6")
-        self.assertEqual(b.fetchone(), [])
+        self.assertIsNone(b.fetchone())
         b.close()
 
     def test_autocommit(self):
@@ -363,7 +363,7 @@ class TestConnectionMethods(unittest.TestCase):
         a.close()
 
         b = self.tstcon.execute("select * from bob63")
-        self.assertEqual(b.fetchone(), [])
+        self.assertIsNone(b.fetchone())
         b.close()
 
     def test_autocommit_4(self):
@@ -376,7 +376,7 @@ class TestConnectionMethods(unittest.TestCase):
         a.close()
 
         b = self.tstcon.execute("select * from bob64")
-        self.assertEqual(b.fetchone(), [])
+        self.assertIsNone(b.fetchone())
         b.close()
 
 

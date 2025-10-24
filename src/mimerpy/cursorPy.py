@@ -323,7 +323,7 @@ class Cursor:
     def __next__(self):
         self.__check_if_open()
         return_value = self.fetchone()
-        if return_value == []:
+        if return_value is None:
             raise StopIteration
         return return_value
 
@@ -609,7 +609,7 @@ class Cursor:
 
         # Return value of mimerFetch == 100 implies end of result set
         if (rc_value == 100):
-            return []
+            return None
 
         for cur_column in range(1, self._number_of_columns + 1):
             func_tuple = get_funcs[self._column_type[cur_column - 1]
@@ -835,7 +835,7 @@ class ScrollCursor(Cursor):
             values = values + self.__result_set[self.rownumber]
             self.rownumber = self.rownumber + 1
         except IndexError:
-            return []
+            return None
         return values
 
     def fetchmany(self, *arg):
