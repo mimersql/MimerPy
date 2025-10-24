@@ -62,3 +62,11 @@ Minor changes:
 
 * Use a safe datetime and time parser
 * On Python 3.6, use dateutil module to parse ISO 8601 date strings
+
+MimerPy Version 1.3.3
+---------------------
+MimerPy version 1.3.3 is a buggfix release that correct the behavior for fetchone()
+
+Major changes:
+
+* fetchone() now returns None when no more rows are available, in accordance with the DB-API 2.0 specification.
