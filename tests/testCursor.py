@@ -2060,7 +2060,7 @@ create table longboi (c1 char(10),
         a.close()
 
 
-    if (mimerapi._level == 2):
+    if (mimerapi._level >= 2):
         def test_datatype_float_p(self):
             with self.tstcon.cursor() as c:
                 c.execute("create table floatptable (c1 FLOAT(5)) in pybank")
