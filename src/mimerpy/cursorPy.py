@@ -308,6 +308,7 @@ class Cursor:
         self.__session = session
         self.__statement = None
         self.__mimcursor = False
+        self.lastrowid = None
 
     def __enter__(self):
         self.__check_if_open()
@@ -356,6 +357,7 @@ class Cursor:
         self.__check_if_open()
         self.__check_for_transaction()
         parameter_markers = ()
+        self.lastrowid = None
 
         # I would like to look over this at some point, the type control is not ideal - Erik 2018-10
         if (len(arg) > 1):
@@ -457,6 +459,9 @@ class Cursor:
                 rc_value = mimerapi.mimerExecute(self.__statement)
                 self.__check_mimerapi_error(rc_value, self.__statement)
                 self.rowcount = rc_value
+                rc, val = mimerapi.mimerGetSequenceInt64(self.__statement)
+                if rc == 0 and val != 0:
+                    self.lastrowid = val
             else:
                 # Return value of mimerColumnCount > 0 implies a query with a
                 # result set.
@@ -508,6 +513,7 @@ class Cursor:
         self.rowcount = 0
         rc_value = 0
         values = []
+        self.lastrowid = None
 
         if isinstance(params, GeneratorType):
             tmp_params = []
@@ -794,6 +800,7 @@ class ScrollCursor(Cursor):
         super(ScrollCursor, self).__init__(connection, session)
         self.__result_set = None
         self.rownumber = None
+        self.lastrowid = None
 
     def execute(self, *arg):
         """

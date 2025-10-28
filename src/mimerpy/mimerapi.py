@@ -256,6 +256,8 @@ _MimerSetBoolean            = _bind('MimerSetBoolean', c_int32, MimerStatement, 
 _MimerGetBoolean            = _bind('MimerGetBoolean', c_int32, MimerStatement, c_int16)
 _MimerGetUUID               = _bind('MimerGetUUID', c_int32, MimerStatement, c_int16, c_void_p)
 _MimerSetUUID               = _bind('MimerSetUUID', c_int32, MimerStatement, c_int16, c_void_p)
+_MimerGetSequenceInt64      = _bind('MimerGetSequenceInt64', c_int32, MimerStatement, POINTER(c_int64))
+
 # GIS bindings
 class MimerGisLocation(ctypes.Structure):
     _fields_ = [("latitude", c_double), ("longitude", c_double)]
@@ -481,6 +483,11 @@ def mimerGetFloat(statement_ptr: int, column_number: int):
     out = c_float()
     rc = _MimerGetFloat(MimerStatement(statement_ptr), _arg_i16(column_number), byref(out))
     return (int(rc), float(out.value))
+
+def mimerGetSequenceInt64(statement_ptr: int):
+    out = c_int64()
+    rc = _MimerGetSequenceInt64(MimerStatement(statement_ptr), byref(out))
+    return (int(rc), int(out.value))
 
 def mimerSetInt32(statement_ptr: int, parameter_number: int, value):
     sp = int(statement_ptr)
