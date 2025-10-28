@@ -2060,7 +2060,7 @@ create table longboi (c1 char(10),
         a.close()
 
 
-    if (mimerapi._level == 2):
+    if (mimerapi._level >= 2):
         def test_datatype_float_p(self):
             with self.tstcon.cursor() as c:
                 c.execute("create table floatptable (c1 FLOAT(5)) in pybank")
@@ -2088,6 +2088,25 @@ create table longboi (c1 char(10),
                 floatnum = '32423.23234'
                 #with self.assertRaises(ProgrammingError):
                 c.execute("insert INTO jondecimal4 VALUES (?)", (floatnum))
+
+    def test_lastrowid(self):
+        a = mimerpy.connect(**db_config.TSTUSR)
+        b = a.cursor()
+        self.assertIsNone(b.lastrowid)
+        b.execute("create unique sequence lastrowid_seq in pybank")
+        self.assertIsNone(b.lastrowid)
+        b.execute("create table lastrowidtable (id INTEGER DEFAULT NEXT VALUE FOR lastrowid_seq, name NVARCHAR(20)) in pybank")
+        self.assertIsNone(b.lastrowid)
+        b.execute("insert into lastrowidtable(name) values (:a)", ('bob'))
+        self.assertEqual(b.lastrowid, 1)
+        b.execute("insert into lastrowidtable(name) values (:a)", ('frank'))
+        self.assertEqual(b.lastrowid, 2)
+        b.executemany("insert into lastrowidtable(name) values (:a)", [('karl'), ('alice')])
+        self.assertIsNone(b.lastrowid)
+        b.execute("select * from lastrowidtable")
+        self.assertIsNone(b.lastrowid)
+        r = b.fetchall()
+        a.close()
 
 
 if __name__ == '__main__':

@@ -70,3 +70,15 @@ MimerPy version 1.3.3 is a buggfix release that correct the behavior for fetchon
 Major changes:
 
 * fetchone() now returns None when no more rows are available, in accordance with the DB-API 2.0 specification.
+
+MimerPy Version 1.3.4
+---------------------
+MimerPy version 1.3.4 is a minor feature release that addes the optional cursor.lastrowid
+
+Minoe changes:
+
+* cursor.lastrowid now return the auto generated primary key when doing and insert. The following conditions have to be met, otherwise `None` is returned:
+
+  * The primary key must have a default value with `NEXT VALUE FOR <sequence>`
+  * The primary key must be a single integer type column
+  * No value must be given for the primary key when inserting the row

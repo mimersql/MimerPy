@@ -1253,6 +1253,25 @@ class TestScrollCursorMethods(unittest.TestCase):
             with self.assertRaises(ProgrammingError):
                 c.next()
 
+    def test_lastrowid(self):
+        a = mimerpy.connect(**db_config.TSTUSR)
+        b = a.cursor()
+        self.assertIsNone(b.lastrowid)
+        b.execute("create unique sequence lastrowidscroll_seq in pybank")
+        self.assertIsNone(b.lastrowid)
+        b.execute("create table lastrowidscroll (id INTEGER DEFAULT NEXT VALUE FOR lastrowidscroll_seq, name NVARCHAR(20)) in pybank")
+        self.assertIsNone(b.lastrowid)
+        b.execute("insert into lastrowidscroll(name) values (:a)", ('bob'))
+        self.assertEqual(b.lastrowid, 1)
+        b.execute("insert into lastrowidscroll(name) values (:a)", ('frank'))
+        self.assertEqual(b.lastrowid, 2)
+        b.executemany("insert into lastrowidscroll(name) values (:a)", [('karl'), ('alice')])
+        self.assertIsNone(b.lastrowid)
+        b.execute("select * from lastrowidscroll")
+        self.assertIsNone(b.lastrowid)
+        r = b.fetchall()
+        a.close()
+
 if __name__ == '__main__':
     unittest.TestLoader.sortTestMethodsUsing = None
     unittest.main()
