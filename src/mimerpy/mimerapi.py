@@ -40,6 +40,7 @@ import platform
 import os
 import struct
 import ctypes
+import math
 from ctypes import (
     c_int16, c_int32, c_int64, c_size_t, c_char_p, c_void_p, c_double, c_float,
     POINTER, byref, create_string_buffer
@@ -532,9 +533,12 @@ def mimerSetString8(statement_ptr: int, parameter_number: int, val: str):
     if val is None:
         return int(_MimerSetNull(MimerStatement(sp), _arg_i16(parameter_number)))
     try:
-        if not isinstance(val, str):
-            val = str(val)
-        raw = val.encode('utf-8')
+        if isinstance(val, bytes):
+            raw = val
+        elif isinstance(val, str):
+            raw = val.encode("utf-8")
+        else:
+            raw = str(val).encode("utf-8")
     except Exception:
         _set_stmt_error(sp, MIMERPY_DATA_CONVERSION_ERROR)
         return int(MIMERPY_DATA_CONVERSION_ERROR)
@@ -553,6 +557,9 @@ def mimerSetDouble(statement_ptr: int, parameter_number: int, value):
         return int(MIMERPY_DATA_CONVERSION_ERROR)
     try:
         dv = float(value)
+        if not math.isfinite(dv):  # catches NaN, +Inf, -Inf
+            _set_stmt_error(sp, MIMERPY_DATA_CONVERSION_ERROR)
+            return int(MIMERPY_DATA_CONVERSION_ERROR)
     except Exception:
         _set_stmt_error(sp, MIMERPY_DATA_CONVERSION_ERROR)
         return int(MIMERPY_DATA_CONVERSION_ERROR)
@@ -567,6 +574,9 @@ def mimerSetFloat(statement_ptr: int, parameter_number: int, value):
         return int(MIMERPY_DATA_CONVERSION_ERROR)
     try:
         fv = float(value)
+        if not math.isfinite(fv):  # catches NaN, +Inf, -Inf
+            _set_stmt_error(sp, MIMERPY_DATA_CONVERSION_ERROR)
+            return int(MIMERPY_DATA_CONVERSION_ERROR)
     except Exception:
         _set_stmt_error(sp, MIMERPY_DATA_CONVERSION_ERROR)
         return int(MIMERPY_DATA_CONVERSION_ERROR)
