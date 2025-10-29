@@ -79,8 +79,11 @@ def setup():
     tstcon = mimerpy.connect(**TSTUSR)
     with tstcon.cursor() as c:
         c.execute("CREATE DATABANK PYBANK")
-        c.execute(F"CREATE IDENT \"{OSUSER}\" AS USER")
-        c.execute(F"ALTER IDENT \"{OSUSER}\" ADD OS_USER '{QUALIFIED_OSUSER}' ")
+        try:
+            c.execute(F"CREATE IDENT \"{OSUSER}\" AS USER")
+            c.execute(F"ALTER IDENT \"{OSUSER}\" ADD OS_USER '{QUALIFIED_OSUSER}' ")
+        except Exception:
+            pass
     tstcon.commit()
     return (syscon, tstcon)
 
