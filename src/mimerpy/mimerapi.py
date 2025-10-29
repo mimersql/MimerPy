@@ -495,6 +495,8 @@ def mimerSetInt32(statement_ptr: int, parameter_number: int, value):
         return int(_MimerSetNull(MimerStatement(sp), _arg_i16(parameter_number)))
     if isinstance(value, bool):
         iv = int(value)
+    elif isinstance(value, str):
+            iv = int(value)
     elif isinstance(value, int):
         iv = value
     else:
@@ -512,6 +514,8 @@ def mimerSetInt64(statement_ptr: int, parameter_number: int, value):
         return int(_MimerSetNull(MimerStatement(sp), _arg_i16(parameter_number)))
     if isinstance(value, bool):
         iv = int(value)
+    elif isinstance(value, str):
+            iv = int(value)
     elif isinstance(value, int):
         iv = value
     else:
@@ -528,6 +532,8 @@ def mimerSetString8(statement_ptr: int, parameter_number: int, val: str):
     if val is None:
         return int(_MimerSetNull(MimerStatement(sp), _arg_i16(parameter_number)))
     try:
+        if not isinstance(val, str):
+            val = str(val)
         raw = val.encode('utf-8')
     except Exception:
         _set_stmt_error(sp, MIMERPY_DATA_CONVERSION_ERROR)
