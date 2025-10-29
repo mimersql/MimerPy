@@ -82,3 +82,13 @@ Minoe changes:
   * The primary key must have a default value with `NEXT VALUE FOR <sequence>`
   * The primary key must be a single integer type column
   * No value must be given for the primary key when inserting the row
+
+MimerPy Version 1.3.5
+---------------------
+MimerPy version 1.3.5 is a buggfix release that correct some data conversion issues
+
+Major changes:
+
+* When setting parameters the following data conversion have been improved
+  * It is possible to set all types that can be converted to a string on a string parameters
+  * Integer, float, and double parameters now accepts string values representing a valid number. Integer also accept boolean
