@@ -1893,6 +1893,21 @@ create table longboi (c1 char(10),
             c.execute("SELECT * from longboi_smallint")
             self.assertEqual(c.fetchall(), [(32000,)])
 
+    def test_data_type_tinyint(self):
+        with self.tstcon.cursor() as c:
+            long = "create table longboi_tinyint (c1 TINYINT) in pybank"
+            try:
+                c.execute(long)
+                c.execute("insert into longboi_tinyint values (?)", (127))
+
+                c.execute("SELECT * from longboi_tinyint")
+                self.assertEqual(c.fetchall(), [(127,)])
+            except ProgrammingError as e:
+                if e.errno == -12561:
+                    pass
+                else:
+                    raise e
+
     def test_data_type_bigint(self):
         with self.tstcon.cursor() as c:
             long = "create table longboi_bigint(c1 BIGINT) in pybank"
