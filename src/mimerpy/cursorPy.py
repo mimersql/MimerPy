@@ -276,6 +276,46 @@ def _define_funcs():
 
 _define_funcs()
 
+def _type_codes_for(*funcs):
+    """Collect type codes that map to the provided getter functions."""
+    codes = []
+    func_set = set(funcs)
+    for code, func in get_funcs.items():
+        if func in func_set and code not in codes:
+            codes.append(code)
+    return tuple(codes)
+
+STRING_TYPE_CODES = _type_codes_for(
+    mimerapi.mimerGetString8,
+    mimerapi.mimerGetNclobData8,
+)
+
+BINARY_TYPE_CODES = _type_codes_for(
+    mimerapi.mimerGetBinary,
+    mimerapi.mimerGetBlobData,
+    _pythonGetUUID,
+    mimerapi.mimerGetGisLocation,
+)
+
+NUMBER_TYPE_CODES = _type_codes_for(
+    _pythonGetDecimal,
+    _pythonGetDecimalF,
+    _pythonGetInt,
+    mimerapi.mimerGetInt32,
+    mimerapi.mimerGetInt64,
+    mimerapi.mimerGetDouble,
+    mimerapi.mimerGetFloat,
+    mimerapi.mimerGetBoolean,
+    mimerapi.mimerGetGisLatitude,
+    mimerapi.mimerGetGisLongitude,
+)
+
+DATETIME_TYPE_CODES = _type_codes_for(
+    _pythonGetDate,
+    _pythonGetTime,
+    _pythonGetTimestamp,
+)
+
 class Cursor:
     """
         MimerSQL Cursor.

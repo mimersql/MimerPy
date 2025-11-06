@@ -29,6 +29,7 @@ except ImportError:
 #
 # Set globals in mimerpy module
 #
+import decimal
 import re
 
 apilevel = '2.0'
@@ -44,9 +45,12 @@ else:
     version_info = ()
 
 
+from datetime import date as _date, datetime as _datetime, time as _time
+import mimerpy.cursorPy as _cursor_module
 from mimerpy.mimPyExceptions import *
 from mimerpy.mimPyErrorCodes import mimerpy_error
 from mimerpy.connectionPy import Connection
+from mimerpy import mimerapi
 
 def connect(dsn='', user='', password='',
             autocommit=False, errorhandler=None):
@@ -77,6 +81,136 @@ def connect(dsn='', user='', password='',
                 Extension described in PEP-0249.
     """
     return Connection(dsn, user, password, autocommit, errorhandler)
+
+def Binary(value):
+    """DB-API helper for binary parameters."""
+    if value is None:
+        return None
+    if isinstance(value, (bytes, bytearray, memoryview)):
+        return bytes(value)
+    raise TypeError("Binary() expects a bytes-like object")
+
+def Date(year, month, day):
+    """DB-API helper returning a date object."""
+    return _date(year, month, day)
+
+def Time(hour, minute, second, microsecond=0):
+    """DB-API helper returning a time object."""
+    return _time(hour, minute, second, microsecond)
+
+def Timestamp(year, month, day, hour, minute, second, microsecond=0):
+    """DB-API helper returning a datetime object."""
+    return _datetime(year, month, day, hour, minute, second, microsecond)
+
+def DateFromTicks(ticks):
+    """DB-API helper creating a date from POSIX ticks."""
+    return _datetime.fromtimestamp(ticks).date()
+
+def TimeFromTicks(ticks):
+    """DB-API helper creating a time from POSIX ticks."""
+    return _datetime.fromtimestamp(ticks).time()
+
+def TimestampFromTicks(ticks):
+    """DB-API helper creating a datetime from POSIX ticks."""
+    return _datetime.fromtimestamp(ticks)
+
+class DBAPITypeObject:
+    __slots__ = ("_values",)
+
+    def __init__(self, *values):
+        normalized = []
+        seen = set()
+        for value in values:
+            if isinstance(value, str):
+                value = value.upper()
+            if value not in seen:
+                normalized.append(value)
+                seen.add(value)
+        self._values = tuple(normalized)
+
+    def _normalize(self, other):
+        if isinstance(other, str):
+            return other.upper()
+        return other
+
+    def __eq__(self, other):
+        if isinstance(other, DBAPITypeObject):
+            return self is other
+        if isinstance(other, (list, tuple, set, frozenset)):
+            for item in other:
+                if self == item:
+                    return True
+            return False
+        return self._normalize(other) in self._values
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return hash(self._values)
+
+    def __repr__(self):
+        contents = ", ".join(repr(v) for v in self._values)
+        return f"DBAPITypeObject({contents})"
+
+    def __contains__(self, other):
+        return self._normalize(other) in self._values
+
+_STRING_CODES = getattr(_cursor_module, "STRING_TYPE_CODES", ())
+_BINARY_CODES = getattr(_cursor_module, "BINARY_TYPE_CODES", ())
+_NUMBER_CODES = getattr(_cursor_module, "NUMBER_TYPE_CODES", ())
+_DATETIME_CODES = getattr(_cursor_module, "DATETIME_TYPE_CODES", ())
+
+STRING = DBAPITypeObject(
+    str,
+    *_STRING_CODES,
+    "CHAR",
+    "VARCHAR",
+    "NCHAR",
+    "NVARCHAR",
+    "CLOB",
+    "NCLOB",
+)
+
+BINARY = DBAPITypeObject(
+    bytes,
+    bytearray,
+    memoryview,
+    *_BINARY_CODES,
+    "BINARY",
+    "VARBINARY",
+    "BLOB",
+    "UUID",
+)
+
+NUMBER = DBAPITypeObject(
+    int,
+    float,
+    decimal.Decimal,
+    *_NUMBER_CODES,
+    "NUMBER",
+    "DECIMAL",
+    "NUMERIC",
+    "INTEGER",
+    "SMALLINT",
+    "BIGINT",
+    "FLOAT",
+    "DOUBLE",
+    "REAL",
+)
+
+DATETIME = DBAPITypeObject(
+    _date,
+    _time,
+    _datetime,
+    *_DATETIME_CODES,
+    "DATE",
+    "TIME",
+    "TIMESTAMP",
+    "DATETIME",
+)
+
+ROWID = DBAPITypeObject("ROWID")
 
 #
 #  Tracing and logging
