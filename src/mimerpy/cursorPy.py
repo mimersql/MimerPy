@@ -179,48 +179,49 @@ def _define_funcs():
 
     TYPEID_MASK = 0x40000000
 
-    get_funcs = {1: mimerapi.mimerGetString8,
-                 2: _pythonGetDecimal,
-                 31: _pythonGetDecimal,
-                 3: _pythonGetInt,
-                 4: _pythonGetDecimalF,
-                 6: mimerapi.mimerGetInt32,
-                 10: mimerapi.mimerGetDouble,
-                 11: mimerapi.mimerGetString8,
-                 12: mimerapi.mimerGetString8,
-                 13: mimerapi.mimerGetString8,
-                 14: mimerapi.mimerGetString8,
-                 15: mimerapi.mimerGetString8,
-                 16: mimerapi.mimerGetString8,
-                 17: mimerapi.mimerGetString8,
-                 18: mimerapi.mimerGetString8,
-                 19: mimerapi.mimerGetString8,
-                 20: mimerapi.mimerGetString8,
-                 21: mimerapi.mimerGetString8,
-                 22: mimerapi.mimerGetString8,
-                 23: mimerapi.mimerGetString8,
-                 24: mimerapi.mimerGetString8,
-                 25: mimerapi.mimerGetString8,
-                 26: mimerapi.mimerGetString8,
-                 27: mimerapi.mimerGetString8,
-                 34: mimerapi.mimerGetBinary,
-                 35: mimerapi.mimerGetBinary,
-                 39: mimerapi.mimerGetString8,
-                 40: mimerapi.mimerGetString8,
-                 42: mimerapi.mimerGetBoolean,
-                 48: mimerapi.mimerGetInt32,
-                 50: mimerapi.mimerGetInt32,
-                 52: mimerapi.mimerGetInt64,
-                 63: mimerapi.mimerGetString8,
-                 56: mimerapi.mimerGetDouble,
-                 54: mimerapi.mimerGetFloat,
-                 57: mimerapi.mimerGetBlobData,
-                 58: mimerapi.mimerGetNclobData8,
-                 59: mimerapi.mimerGetNclobData8,
-                 64: _pythonGetDecimal,
-                 65: mimerapi.mimerGetInt64,
-                 66: mimerapi.mimerGetInt32,
-                 8104: _pythonGetUUID,
+    get_funcs = {
+                 mimerapi.MIMER_TYPE_CHARACTER: mimerapi.mimerGetString8,
+                 mimerapi.MIMER_TYPE_DECIMAL: _pythonGetDecimal,
+                 mimerapi.MIMER_TYPE_NUMERIC: _pythonGetDecimal,
+                 mimerapi.MIMER_TYPE_INTEGER: _pythonGetInt,
+                 mimerapi.MIMER_TYPE_FLOAT: _pythonGetDecimalF,
+                 mimerapi.MIMER_TYPE_T_INTEGER: mimerapi.mimerGetInt32,
+                 mimerapi.MIMER_TYPE_T_DOUBLE: mimerapi.mimerGetDouble,
+                 mimerapi.MIMER_TYPE_CHARACTER_VARYING: mimerapi.mimerGetString8,
+                 mimerapi.MIMER_TYPE_DATE: mimerapi.mimerGetString8,
+                 mimerapi.MIMER_TYPE_TIME: mimerapi.mimerGetString8,
+                 mimerapi.MIMER_TYPE_TIMESTAMP: mimerapi.mimerGetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_YEAR: mimerapi.mimerGetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_MONTH: mimerapi.mimerGetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_DAY: mimerapi.mimerGetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_HOUR: mimerapi.mimerGetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_MINUTE: mimerapi.mimerGetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_SECOND: mimerapi.mimerGetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_YEAR_TO_MONTH: mimerapi.mimerGetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_DAY_TO_HOUR: mimerapi.mimerGetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_DAY_TO_MINUTE: mimerapi.mimerGetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_DAY_TO_SECOND: mimerapi.mimerGetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_HOUR_TO_MINUTE: mimerapi.mimerGetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_HOUR_TO_SECOND: mimerapi.mimerGetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_MINUTE_TO_SECOND: mimerapi.mimerGetString8,
+                 mimerapi.MIMER_TYPE_BINARY: mimerapi.mimerGetBinary,
+                 mimerapi.MIMER_TYPE_BINARY_VARYING: mimerapi.mimerGetBinary,
+                 mimerapi.MIMER_TYPE_NCHAR: mimerapi.mimerGetString8,
+                 mimerapi.MIMER_TYPE_NCHAR_VARYING: mimerapi.mimerGetString8,
+                 mimerapi.MIMER_TYPE_BOOLEAN: mimerapi.mimerGetBoolean,
+                 mimerapi.MIMER_TYPE_NATIVE_SMALLINT_NULLABLE: mimerapi.mimerGetInt32,
+                 mimerapi.MIMER_TYPE_NATIVE_INTEGER_NULLABLE: mimerapi.mimerGetInt32,
+                 mimerapi.MIMER_TYPE_NATIVE_BIGINT_NULLABLE: mimerapi.mimerGetInt64,
+                 mimerapi.MIMER_TYPE_UTF8: mimerapi.mimerGetString8,
+                 mimerapi.MIMER_TYPE_DOUBLE: mimerapi.mimerGetDouble,
+                 mimerapi.MIMER_NATIVE_REAL_NULLABLE: mimerapi.mimerGetFloat,
+                 mimerapi.MIMER_TYPE_BLOB: mimerapi.mimerGetBlobData,
+                 mimerapi.MIMER_TYPE_CLOB: mimerapi.mimerGetNclobData8,
+                 mimerapi.MIMER_TYPE_NCLOB: mimerapi.mimerGetNclobData8,
+                 mimerapi.MIMER_TYPE_GOLDEN_DECIMAL: _pythonGetDecimal,
+                 mimerapi.MIMER_TYPE_GOLDEN_INTEGER: mimerapi.mimerGetInt64,
+                 mimerapi.MIMER_TYPE_N_TINYINT_NULLABLE: mimerapi.mimerGetInt32,
+                 mimerapi.MIMER_TYPE_UUID: _pythonGetUUID,
                  mimerapi.MIMER_TYPE_LOCATION: mimerapi.mimerGetGisLocation,
                  mimerapi.MIMER_TYPE_LATITUDE: mimerapi.mimerGetGisLatitude,
                  mimerapi.MIMER_TYPE_LONGITUDE: mimerapi.mimerGetGisLongitude,
@@ -229,49 +230,50 @@ def _define_funcs():
                  mimerapi.MIMER_TYPE_DATE: _pythonGetDate,
     }
 
-    set_funcs = {1: mimerapi.mimerSetString8,
-                 2: _pythonSetDecimal,
-                 31: _pythonSetDecimal,
-                 3: _pythonSetInt,
-                 4: _pythonSetDecimalF,
-                 6: mimerapi.mimerSetInt32,
-                 10: mimerapi.mimerSetDouble,
-                 11: mimerapi.mimerSetString8,
-                 12: mimerapi.mimerSetString8,
-                 13: mimerapi.mimerSetString8,
-                 14: mimerapi.mimerSetString8,
-                 15: mimerapi.mimerSetString8,
-                 16: mimerapi.mimerSetString8,
-                 17: mimerapi.mimerSetString8,
-                 18: mimerapi.mimerSetString8,
-                 19: mimerapi.mimerSetString8,
-                 20: mimerapi.mimerSetString8,
-                 21: mimerapi.mimerSetString8,
-                 22: mimerapi.mimerSetString8,
-                 23: mimerapi.mimerSetString8,
-                 24: mimerapi.mimerSetString8,
-                 25: mimerapi.mimerSetString8,
-                 26: mimerapi.mimerSetString8,
-                 27: mimerapi.mimerSetString8,
-                 34: mimerapi.mimerSetBinary,
-                 35: mimerapi.mimerSetBinary,
-                 39: mimerapi.mimerSetString8,
-                 40: mimerapi.mimerSetString8,
-                 42: mimerapi.mimerSetBoolean,
-                 48: mimerapi.mimerSetInt32,
-                 50: mimerapi.mimerSetInt32,
-                 52: mimerapi.mimerSetInt64,
-                 63: mimerapi.mimerSetString8,
-                 56: mimerapi.mimerSetDouble,
-                 54: mimerapi.mimerSetFloat,
-                 57: mimerapi.mimerSetBlobData,
-                 58: mimerapi.mimerSetNclobData8,
-                 59: mimerapi.mimerSetNclobData8,
-                 64: _pythonSetDecimal,
-                 65: mimerapi.mimerSetInt64,
-                 66: mimerapi.mimerSetInt32,
-                 501: mimerapi.mimerSetNull,
-                 8104: _pythonSetUUID,
+    set_funcs = {
+                 mimerapi.MIMER_TYPE_CHARACTER: mimerapi.mimerSetString8,
+                 mimerapi.MIMER_TYPE_DECIMAL: _pythonSetDecimal,
+                 mimerapi.MIMER_TYPE_NUMERIC: _pythonSetDecimal,
+                 mimerapi.MIMER_TYPE_INTEGER: _pythonSetInt,
+                 mimerapi.MIMER_TYPE_FLOAT: _pythonSetDecimalF,
+                 mimerapi.MIMER_TYPE_T_INTEGER: mimerapi.mimerSetInt32,
+                 mimerapi.MIMER_TYPE_T_DOUBLE: mimerapi.mimerSetDouble,
+                 mimerapi.MIMER_TYPE_CHARACTER_VARYING: mimerapi.mimerSetString8,
+                 mimerapi.MIMER_TYPE_DATE: mimerapi.mimerSetString8,
+                 mimerapi.MIMER_TYPE_TIME: mimerapi.mimerSetString8,
+                 mimerapi.MIMER_TYPE_TIMESTAMP: mimerapi.mimerSetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_YEAR: mimerapi.mimerSetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_MONTH: mimerapi.mimerSetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_DAY: mimerapi.mimerSetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_HOUR: mimerapi.mimerSetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_MINUTE: mimerapi.mimerSetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_SECOND: mimerapi.mimerSetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_YEAR_TO_MONTH: mimerapi.mimerSetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_DAY_TO_HOUR: mimerapi.mimerSetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_DAY_TO_MINUTE: mimerapi.mimerSetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_DAY_TO_SECOND: mimerapi.mimerSetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_HOUR_TO_MINUTE: mimerapi.mimerSetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_HOUR_TO_SECOND: mimerapi.mimerSetString8,
+                 mimerapi.MIMER_TYPE_INTERVAL_MINUTE_TO_SECOND: mimerapi.mimerSetString8,
+                 mimerapi.MIMER_TYPE_BINARY: mimerapi.mimerSetBinary,
+                 mimerapi.MIMER_TYPE_BINARY_VARYING: mimerapi.mimerSetBinary,
+                 mimerapi.MIMER_TYPE_NCHAR: mimerapi.mimerSetString8,
+                 mimerapi.MIMER_TYPE_NCHAR_VARYING: mimerapi.mimerSetString8,
+                 mimerapi.MIMER_TYPE_BOOLEAN: mimerapi.mimerSetBoolean,
+                 mimerapi.MIMER_TYPE_NATIVE_SMALLINT_NULLABLE: mimerapi.mimerSetInt32,
+                 mimerapi.MIMER_TYPE_NATIVE_INTEGER_NULLABLE: mimerapi.mimerSetInt32,
+                 mimerapi.MIMER_TYPE_NATIVE_BIGINT_NULLABLE: mimerapi.mimerSetInt64,
+                 mimerapi.MIMER_TYPE_UTF8: mimerapi.mimerSetString8,
+                 mimerapi.MIMER_TYPE_DOUBLE: mimerapi.mimerSetDouble,
+                 mimerapi.MIMER_NATIVE_REAL_NULLABLE: mimerapi.mimerSetFloat,
+                 mimerapi.MIMER_TYPE_BLOB: mimerapi.mimerSetBlobData,
+                 mimerapi.MIMER_TYPE_CLOB: mimerapi.mimerSetNclobData8,
+                 mimerapi.MIMER_TYPE_NCLOB: mimerapi.mimerSetNclobData8,
+                 mimerapi.MIMER_TYPE_GOLDEN_DECIMAL: _pythonSetDecimal,
+                 mimerapi.MIMER_TYPE_GOLDEN_INTEGER: mimerapi.mimerSetInt64,
+                 mimerapi.MIMER_TYPE_N_TINYINT_NULLABLE: mimerapi.mimerSetInt32,
+                 mimerapi.MIMER_TYPE_NULL: mimerapi.mimerSetNull,
+                 mimerapi.MIMER_TYPE_UUID: _pythonSetUUID,
                  mimerapi.MIMER_TYPE_LOCATION: mimerapi.mimerSetGisLocation,
                  mimerapi.MIMER_TYPE_LATITUDE: mimerapi.mimerSetGisLatitude,
                  mimerapi.MIMER_TYPE_LONGITUDE: mimerapi.mimerSetGisLongitude,
@@ -465,7 +467,7 @@ class Cursor:
                                 parameter = parameter_markers.get(
                                     parameter_name)
                                 if (parameter == None):
-                                    parameter_type = 501
+                                    parameter_type = mimerapi.MIMER_TYPE_NULL
                                 rc_value = set_funcs[parameter_type](
                                     self.__statement, cur_column, parameter)
                             else:
@@ -475,7 +477,7 @@ class Cursor:
                             # If the parameter marker is None, we use mimerSetNull
                             try:
                                 if (parameter_markers[cur_column - 1] == None):
-                                    parameter_type = 501
+                                    parameter_type = mimerapi.MIMER_TYPE_NULL
                             except TypeError:
                                 # End up here when invalid parameters are used
                                 self.__raise_exception(-25013)
@@ -605,7 +607,7 @@ class Cursor:
                         if parameter_name in cur_param:
                             parameter = cur_param.get(parameter_name)
                             if (parameter == None):
-                                parameter_type = 501
+                                parameter_type = mimerapi.MIMER_TYPE_NULL
                             rc_value = set_funcs[parameter_type](
                                 self.__statement, cur_column, parameter)
                         else:
@@ -615,7 +617,7 @@ class Cursor:
                         # If the parameter marker is None, we use mimerSetNull
                         try:
                             if (cur_param[cur_column - 1] == None):
-                                parameter_type = 501
+                                parameter_type = mimerapi.MIMER_TYPE_NULL
                         except TypeError as e:
                             # End up here when invalid parameters are used
                             self.__raise_exception(-25013)
