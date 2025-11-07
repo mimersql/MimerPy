@@ -92,3 +92,12 @@ Major changes:
 * When setting parameters the following data conversion have been improved
   * It is possible to set all types that can be converted to a string on a string parameters
   * Integer, float, and double parameters now accepts string values representing a valid number. Integer also accept boolean
+
+MimerPy Version 1.3.6
+---------------------
+MimerPy version 1.3.6 is a feature release that add support for new datatypes and type helpers
+
+Major changes:
+
+* Add support new datatypes introduced in Mimer SQL 11.1
+* Add Type Objects and Constructors as specifed in PEP 249
