@@ -218,12 +218,6 @@ class MimerPool:
         finally:
             self.__pool_lock.release()
 
-    def __del__(self):
-        """Delete the pool."""
-        try:
-            self.close()
-        except Exception:
-            pass
 
     def __enter__(self):
         """Support for the with statement
@@ -290,11 +284,13 @@ class PooledConnection(Connection):
                 return True
 
     def __del__(self):
-        """Delete the pooled connection."""
+        """Ensure leaked connections do not break pool state."""
         try:
-            self.close()
+            # Do NOT return to pool here — pool may be partially torn down.
+            self._close()
         except Exception:
             pass
+
     
     def __enter__(self):
         """Support for the with statement
