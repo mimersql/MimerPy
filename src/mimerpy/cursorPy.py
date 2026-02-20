@@ -776,10 +776,10 @@ class Cursor:
             fetch_value = mimerapi.mimerFetch(self.__statement)
         return values
 
-    def setinputsizes(self):
+    def setinputsizes(self, sizes):
         """Does nothing but required by the DB API."""
 
-    def setoutputsizes(self):
+    def setoutputsize(self, size, column=None):
         """Does nothing but required by the DB API."""
 
     def next(self):

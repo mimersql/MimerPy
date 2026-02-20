@@ -135,34 +135,44 @@ Connection Methods
   :class:`~Cursor` object and executes the query against all the
   parameter sequences.
 
-Connection Attributes 
+Connection Attributes
 ----------------------------------------
-.. attribute:: Connection.autocommitmode 
 
-  Attribute determines if the connection will auto-commmit any changes
-  or if :meth:`~commit` has to be performed explicitly.  This is set
-  to ``False`` by default unless otherwise stated when opening the
-  connection or by using the :meth:`~autocommit` method to change this
-  attribute.
+.. attribute:: Connection.autocommit
 
-Connection Extensions 
+  Read/write attribute that determines if the connection will auto-commit
+  any changes or if :meth:`~commit` has to be performed explicitly. This
+  is set to ``False`` by default unless otherwise stated when opening the
+  connection.
+
+  This attribute conforms to `PEP 249`_ and can be used as follows::
+
+      conn.autocommit = True   # enable auto-commit
+      conn.autocommit = False  # disable auto-commit
+      if conn.autocommit:      # check current state
+          print("Auto-commit is enabled")
+
+  .. Warning:: If ``autocommit`` is set to ``True``, all changes that have
+               not yet been committed during the current transaction are
+               rolled back before the auto-commit feature is turned on.
+               To prevent this, either set '*autocommit*' = ``True``
+               when opening a connection or use method :meth:`~commit`
+               before enabling autocommit.
+
+Connection Extensions
 ------------------------------------------
 
-.. method:: Connection.autocommit(bool) 
+.. method:: Connection.autocommit(bool)
+
+  .. deprecated:: 1.3.8
+     Use the :attr:`~Connection.autocommit` property instead:
+     ``conn.autocommit = True`` or ``conn.autocommit = False``.
 
   This method is used to turn on or off the auto-commit feature on the
-  connection. When `autocommit(True)` is called, all statements from this point onward
-  are automatically committed.
+  connection. It is kept for backward compatibility.
 
   Turns on auto-commit feature if boolean value ``True`` and turns it
   off if ``False``.
-
-.. Warning:: If `autocommit(True)` is called, all changes that have
-            not yet been committed during the current transaction are
-            rolled back and the auto-commit feature is later turned
-            on. To prevent this, either set '*autocommit*' = ``True``
-            when opening a connection or use method :meth:`~commit`
-            before setting autocommit to True.
 
 .. attribute:: Connection.messages 
 

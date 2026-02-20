@@ -26,6 +26,44 @@ from .cursorPy import *
 from .mimPyExceptionHandler import *
 import sys
 
+
+class _AutocommitHelper:
+    """
+    Helper class that allows autocommit to work both as a callable (backward
+    compatible) and as a boolean value (PEP-249 compliant).
+    """
+    def __init__(self, connection):
+        self._connection = connection
+
+    def __bool__(self):
+        return self._connection.autocommitmode
+
+    def __call__(self, mode):
+        """Backward compatible method-style: conn.autocommit(True)"""
+        self._connection._set_autocommit(mode)
+
+    def __eq__(self, other):
+        return self._connection.autocommitmode == other
+
+    def __repr__(self):
+        return repr(self._connection.autocommitmode)
+
+
+class _AutocommitDescriptor:
+    """
+    Descriptor that allows autocommit to be used both as a property
+    (PEP-249: conn.autocommit = True) and as a method (backward compatible:
+    conn.autocommit(True)).
+    """
+    def __get__(self, obj, objtype=None):
+        if obj is None:
+            return self
+        return _AutocommitHelper(obj)
+
+    def __set__(self, obj, value):
+        obj._set_autocommit(value)
+
+
 def defaulterrorhandler(connection, cursor, errorclass, errorvalue):
     """
     If cursor is not None, (errorclass, errorvalue) is appended to
@@ -55,6 +93,8 @@ class Connection:
         a connection with a Mimer database.
 
     """
+
+    autocommit = _AutocommitDescriptor()
 
     def __init__(self, dsn='', user='', password='',
                  autocommit=False, errorhandler=None):
@@ -210,19 +250,15 @@ class Connection:
         curs.executemany(*arg)
         return curs
 
-    def autocommit(self, mode):
+    def _set_autocommit(self, mode):
         """
-
-        Turns autocommit mode on or off. Defualt is false.
-        By using this method, from this point onward changes are autocommitted.
-
-        arg
-            Boolean
-
+        Internal method to set autocommit mode.
+        Use the autocommit property instead: conn.autocommit = True/False
+        For backward compatibility, conn.autocommit(True/False) also works.
         """
-        if (mode):
+        if mode:
             self.autocommitmode = True
-            if (self._transaction):
+            if self._transaction:
                 self.rollback()
         else:
             self.autocommitmode = False

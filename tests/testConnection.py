@@ -379,6 +379,103 @@ class TestConnectionMethods(unittest.TestCase):
         self.assertIsNone(b.fetchone())
         b.close()
 
+    # PEP-249 property-style autocommit tests
+
+    def test_autocommit_property_set_true(self):
+        """Test PEP-249 style: conn.autocommit = True"""
+        b = self.tstcon.execute("create table bob_prop1(c1 INTEGER) in pybank")
+        self.tstcon.commit()
+
+        a = mimerpy.connect(**db_config.TSTUSR)
+        a.autocommit = True
+        b = a.execute("insert into bob_prop1 values (:a)", (1133))
+        a.close()
+
+        b = self.tstcon.execute("select * from bob_prop1")
+        self.assertEqual(b.fetchone(), (1133,))
+        b.close()
+
+    def test_autocommit_property_set_false(self):
+        """Test PEP-249 style: conn.autocommit = False"""
+        b = self.tstcon.execute("create table bob_prop2(c1 INTEGER) in pybank")
+        self.tstcon.commit()
+
+        a = mimerpy.connect(**db_config.TSTUSR)
+        a.autocommit = False
+        b = a.execute("insert into bob_prop2 values (:a)", (1133))
+        a.close()
+
+        b = self.tstcon.execute("select * from bob_prop2")
+        self.assertIsNone(b.fetchone())
+        b.close()
+
+    def test_autocommit_property_read(self):
+        """Test reading autocommit value: if conn.autocommit"""
+        a = mimerpy.connect(**db_config.TSTUSR)
+
+        # Default should be False
+        self.assertFalse(a.autocommit)
+
+        # Set to True using property
+        a.autocommit = True
+        self.assertTrue(a.autocommit)
+
+        # Set to False using property
+        a.autocommit = False
+        self.assertFalse(a.autocommit)
+
+        # Set to True using method (backward compatible)
+        a.autocommit(True)
+        self.assertTrue(a.autocommit)
+
+        # Set to False using method (backward compatible)
+        a.autocommit(False)
+        self.assertFalse(a.autocommit)
+
+        a.close()
+
+    def test_autocommit_property_equality(self):
+        """Test autocommit equality comparison"""
+        a = mimerpy.connect(**db_config.TSTUSR)
+
+        a.autocommit = False
+        self.assertEqual(a.autocommit, False)
+        self.assertNotEqual(a.autocommit, True)
+
+        a.autocommit = True
+        self.assertEqual(a.autocommit, True)
+        self.assertNotEqual(a.autocommit, False)
+
+        a.close()
+
+    def test_autocommit_property_rollback_on_enable(self):
+        """Test that enabling autocommit rolls back pending transaction"""
+        b = self.tstcon.execute("create table bob_prop3(c1 INTEGER) in pybank")
+        self.tstcon.commit()
+
+        a = mimerpy.connect(**db_config.TSTUSR)
+        b = a.execute("insert into bob_prop3 values (:a)", (1133))
+        # Enabling autocommit should rollback the pending insert
+        a.autocommit = True
+        a.close()
+
+        b = self.tstcon.execute("select * from bob_prop3")
+        self.assertIsNone(b.fetchone())
+        b.close()
+
+    def test_autocommit_init_parameter(self):
+        """Test autocommit parameter in connect()"""
+        b = self.tstcon.execute("create table bob_init(c1 INTEGER) in pybank")
+        self.tstcon.commit()
+
+        a = mimerpy.connect(**db_config.TSTUSR, autocommit=True)
+        self.assertTrue(a.autocommit)
+        b = a.execute("insert into bob_init values (:a)", (1133))
+        a.close()
+
+        b = self.tstcon.execute("select * from bob_init")
+        self.assertEqual(b.fetchone(), (1133,))
+        b.close()
 
     def test_threads(self):
 

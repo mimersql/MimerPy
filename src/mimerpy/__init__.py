@@ -33,7 +33,7 @@ import decimal
 import re
 
 apilevel = '2.0'
-threadsafety = '1'
+threadsafety = 1
 paramstyle = 'qmark'
 # Accept both release and dev versions, e.g. 1.3.1.dev1+geb9c067d3.d20251016
 m = re.match(r'^(\d+\.\d+\.\d+)', __version__)
