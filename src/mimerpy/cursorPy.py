@@ -434,7 +434,6 @@ class Cursor:
         # Return value -24005 is given when a DDL query query is passed through
         # mimerBeginStatementC.
         if (self._DDL_rc_value == -24005):
-            self.connection.transaction = False
             self.messages = []
             rc_value = mimerapi.mimerExecuteStatement8(self.__session, query)
             self.__check_mimerapi_error(rc_value, self.__session)
