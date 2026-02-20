@@ -24,73 +24,58 @@
 Test utilities for MimerPy.
 """
 
-import sys
+from datetime import datetime, time
 
-# On Python < 3.7, fromisoformat() doesn't exist.
-# Use dateutil.parser.isoparse instead (installed automatically via pyproject.toml).
-if sys.version_info < (3, 7):
-    from dateutil.parser import isoparse
+def tolerant_fromiso_datetime(val: str) -> datetime:
+    """Parse ISO datetime tolerant across Python 3.7 - 3.13."""
+    s = val.strip()
 
-    def tolerant_fromiso_datetime(val: str) -> datetime:
-        """Parse ISO datetime on Python <3.7 using dateutil."""
-        return isoparse(val)
-
-    def tolerant_fromiso_time(val: str) -> time:
-        """Parse ISO time on Python <3.7 using dateutil, extract timetz()."""
-        return isoparse(val).timetz()
-
-else:
-    from datetime import datetime, time
-    def tolerant_fromiso_datetime(val: str) -> datetime:
-        """Parse ISO datetime tolerant across Python 3.7 - 3.13."""
-        s = val.strip()
-
-        # Fast path — succeeds on modern Python for most strings
-        try:
-            return datetime.fromisoformat(s)
-        except ValueError:
-            pass
-
-        # Normalize only when needed
-        if ' ' in s and 'T' not in s:
-            s = s.replace(' ', 'T', 1)
-
-        dot = s.find('.')
-        if dot != -1:
-            end = dot + 1
-            while end < len(s) and s[end].isdigit():
-                end += 1
-            frac = s[dot + 1:end]
-            if len(frac) > 6:
-                frac = frac[:6]
-            elif 0 < len(frac) < 6:
-                frac = frac.ljust(6, '0')
-            s = s[:dot + 1] + frac + s[end:]
-
+    # Fast path — succeeds on modern Python for most strings
+    try:
         return datetime.fromisoformat(s)
+    except ValueError:
+        pass
+
+    # Normalize only when needed
+    if ' ' in s and 'T' not in s:
+        s = s.replace(' ', 'T', 1)
+
+    dot = s.find('.')
+    if dot != -1:
+        end = dot + 1
+        while end < len(s) and s[end].isdigit():
+            end += 1
+        frac = s[dot + 1:end]
+        if len(frac) > 6:
+            frac = frac[:6]
+        elif 0 < len(frac) < 6:
+            frac = frac.ljust(6, '0')
+        s = s[:dot + 1] + frac + s[end:]
+
+    return datetime.fromisoformat(s)
 
 
-    def tolerant_fromiso_time(val: str) -> time:
-        """Parse ISO time tolerant across Python 3.7 - 3.13."""
-        s = val.strip()
+def tolerant_fromiso_time(val: str) -> time:
+    """Parse ISO time tolerant across Python 3.7 - 3.13."""
+    s = val.strip()
 
-        # Fast path first
-        try:
-            return time.fromisoformat(s)
-        except ValueError:
-            pass
-
-        # Normalize fractional part when needed
-        dot = s.find('.')
-        if dot != -1:
-            end = dot + 1
-            while end < len(s) and s[end].isdigit():
-                end += 1
-            frac = s[dot + 1:end]
-            if len(frac) > 6:
-                frac = frac[:6]
-            elif 0 < len(frac) < 6:
-                frac = frac.ljust(6, '0')
-            s = s[:dot + 1] + frac + s[end:]
-
+    # Fast path first
+    try:
         return time.fromisoformat(s)
+    except ValueError:
+        pass
+
+    # Normalize fractional part when needed
+    dot = s.find('.')
+    if dot != -1:
+        end = dot + 1
+        while end < len(s) and s[end].isdigit():
+            end += 1
+        frac = s[dot + 1:end]
+        if len(frac) > 6:
+            frac = frac[:6]
+        elif 0 < len(frac) < 6:
+            frac = frac.ljust(6, '0')
+        s = s[:dot + 1] + frac + s[end:]
+
+    return time.fromisoformat(s)
