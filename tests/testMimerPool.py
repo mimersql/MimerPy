@@ -261,5 +261,63 @@ class TestMimerPool(unittest.TestCase):
             self.assertEqual(pool.cached_connections, 0)
             self.assertEqual(pool.used_connections, 0)
 
+    def test_pool_readonly_select(self):
+        """A read-only pool connection can execute SELECT."""
+        self.tstcon.execute("create table pool_ro1(c1 INTEGER) in pybank")
+        self.tstcon.execute("insert into pool_ro1 values (:a)", (42,))
+        self.tstcon.commit()
+
+        with MimerPool(initialconnections=1, maxunused=2, maxconnections=3,
+                       dsn=self.DSN, user=self.USER, password=self.PASSWORD,
+                       readonly=True) as pool:
+            con = pool.get_connection()
+            self.assertTrue(con.readonly)
+            cur = con.execute("select * from pool_ro1")
+            self.assertEqual(cur.fetchone(), (42,))
+            cur.close()
+            con.close()
+
+    def test_pool_readonly_insert_fails(self):
+        """INSERT on a read-only pool connection raises an error."""
+        self.tstcon.execute("create table pool_ro2(c1 INTEGER) in pybank")
+        self.tstcon.commit()
+
+        with MimerPool(initialconnections=1, maxunused=2, maxconnections=3,
+                       dsn=self.DSN, user=self.USER, password=self.PASSWORD,
+                       readonly=True) as pool:
+            con = pool.get_connection()
+            with self.assertRaises(mimerpy.DatabaseError):
+                con.execute("insert into pool_ro2 values (:a)", (1,))
+            con.close()
+
+    def test_pool_readonly_ddl_fails(self):
+        """DDL on a read-only pool connection raises an error."""
+        with MimerPool(initialconnections=1, maxunused=2, maxconnections=3,
+                       dsn=self.DSN, user=self.USER, password=self.PASSWORD,
+                       readonly=True) as pool:
+            con = pool.get_connection()
+            with self.assertRaises(mimerpy.DatabaseError):
+                con.execute("create table pool_ro_ddl(c1 INTEGER) in pybank")
+            con.close()
+
+    def test_pool_readonly_autocommit_raises(self):
+        """Combining readonly=True and autocommit=True raises ProgrammingError."""
+        with self.assertRaises(mimerpy.ProgrammingError):
+            MimerPool(initialconnections=1, maxunused=2, maxconnections=3,
+                      dsn=self.DSN, user=self.USER, password=self.PASSWORD,
+                      readonly=True, autocommit=True)
+
+    def test_pool_readonly_attribute_propagated(self):
+        """readonly attribute is correctly propagated to all pool connections."""
+        with MimerPool(initialconnections=2, maxunused=2, maxconnections=3,
+                       dsn=self.DSN, user=self.USER, password=self.PASSWORD,
+                       readonly=True) as pool:
+            con1 = pool.get_connection()
+            con2 = pool.get_connection()
+            self.assertTrue(con1.readonly)
+            self.assertTrue(con2.readonly)
+            con1.close()
+            con2.close()
+
 if __name__ == '__main__':
     unittest.main()

@@ -97,7 +97,7 @@ class Connection:
     autocommit = _AutocommitDescriptor()
 
     def __init__(self, dsn='', user='', password='',
-                 autocommit=False, errorhandler=None):
+                 autocommit=False, errorhandler=None, readonly=False):
         """
         Creates a database connection.
 
@@ -105,12 +105,17 @@ class Connection:
         calling this function.
         """
         self.autocommitmode = autocommit
+        self.readonly = readonly
         self.errorhandler = (errorhandler if errorhandler
                              else defaulterrorhandler)
         self.messages = []
         self._session = None
         self.__cursors = weakref.WeakSet()
         self._transaction = False
+
+        if readonly and autocommit:
+            self.errorhandler(self, None, ProgrammingError,
+                              (-25032, mimerpy_error[-25032]))
 
         dsn = dsn if dsn else ""
         user = user if user else ""
@@ -257,6 +262,9 @@ class Connection:
         For backward compatibility, conn.autocommit(True/False) also works.
         """
         if mode:
+            if self.readonly:
+                self.errorhandler(self, None, ProgrammingError,
+                                  (-25032, mimerpy_error[-25032]))
             self.autocommitmode = True
             if self._transaction:
                 self.rollback()

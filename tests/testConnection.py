@@ -477,6 +477,101 @@ class TestConnectionMethods(unittest.TestCase):
         self.assertEqual(b.fetchone(), (1133,))
         b.close()
 
+    # Read-only connection tests
+
+    def test_readonly_select(self):
+        """A read-only connection can execute SELECT."""
+        b = self.tstcon.execute("create table bob_ro1(c1 INTEGER) in pybank")
+        self.tstcon.execute("insert into bob_ro1 values (:a)", (42,))
+        self.tstcon.commit()
+
+        a = mimerpy.connect(**db_config.TSTUSR, readonly=True)
+        b = a.execute("select * from bob_ro1")
+        self.assertEqual(b.fetchone(), (42,))
+        a.close()
+
+    def test_readonly_insert_fails(self):
+        """INSERT on a read-only connection raises an error."""
+        b = self.tstcon.execute("create table bob_ro2(c1 INTEGER) in pybank")
+        self.tstcon.commit()
+
+        a = mimerpy.connect(**db_config.TSTUSR, readonly=True)
+        with self.assertRaises(DatabaseError):
+            a.execute("insert into bob_ro2 values (:a)", (1,))
+        a.close()
+
+    def test_readonly_update_fails(self):
+        """UPDATE on a read-only connection raises an error."""
+        b = self.tstcon.execute("create table bob_ro3(c1 INTEGER) in pybank")
+        self.tstcon.execute("insert into bob_ro3 values (:a)", (1,))
+        self.tstcon.commit()
+
+        a = mimerpy.connect(**db_config.TSTUSR, readonly=True)
+        with self.assertRaises(DatabaseError):
+            a.execute("update bob_ro3 set c1 = 2")
+        a.close()
+
+    def test_readonly_delete_fails(self):
+        """DELETE on a read-only connection raises an error."""
+        b = self.tstcon.execute("create table bob_ro4(c1 INTEGER) in pybank")
+        self.tstcon.execute("insert into bob_ro4 values (:a)", (1,))
+        self.tstcon.commit()
+
+        a = mimerpy.connect(**db_config.TSTUSR, readonly=True)
+        with self.assertRaises(DatabaseError):
+            a.execute("delete from bob_ro4")
+        a.close()
+
+    def test_readonly_ddl_create_fails(self):
+        """CREATE TABLE on a read-only connection raises an error."""
+        a = mimerpy.connect(**db_config.TSTUSR, readonly=True)
+        with self.assertRaises(DatabaseError):
+            a.execute("create table bob_ro_ddl(c1 INTEGER) in pybank")
+        a.close()
+
+    def test_readonly_ddl_drop_fails(self):
+        """DROP TABLE on a read-only connection raises an error."""
+        self.tstcon.execute("create table bob_ro5(c1 INTEGER) in pybank")
+        self.tstcon.commit()
+
+        a = mimerpy.connect(**db_config.TSTUSR, readonly=True)
+        with self.assertRaises(DatabaseError):
+            a.execute("drop table bob_ro5")
+        a.close()
+
+    def test_readonly_attribute(self):
+        """conn.readonly reflects the value set at connect time."""
+        a = mimerpy.connect(**db_config.TSTUSR, readonly=True)
+        self.assertTrue(a.readonly)
+        a.close()
+
+        b = mimerpy.connect(**db_config.TSTUSR, readonly=False)
+        self.assertFalse(b.readonly)
+        b.close()
+
+        c = mimerpy.connect(**db_config.TSTUSR)
+        self.assertFalse(c.readonly)
+        c.close()
+
+    def test_readonly_autocommit_at_connect_raises(self):
+        """Combining readonly=True and autocommit=True at connect raises ProgrammingError."""
+        with self.assertRaises(ProgrammingError):
+            mimerpy.connect(**db_config.TSTUSR, readonly=True, autocommit=True)
+
+    def test_readonly_set_autocommit_property_raises(self):
+        """Setting conn.autocommit = True on a read-only connection raises ProgrammingError."""
+        a = mimerpy.connect(**db_config.TSTUSR, readonly=True)
+        with self.assertRaises(ProgrammingError):
+            a.autocommit = True
+        a.close()
+
+    def test_readonly_set_autocommit_method_raises(self):
+        """Calling conn.autocommit(True) on a read-only connection raises ProgrammingError."""
+        a = mimerpy.connect(**db_config.TSTUSR, readonly=True)
+        with self.assertRaises(ProgrammingError):
+            a.autocommit(True)
+        a.close()
+
     def test_threads(self):
 
         def thread_test(self):

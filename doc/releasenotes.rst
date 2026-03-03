@@ -101,3 +101,49 @@ Major changes:
 
 * Add support new datatypes introduced in Mimer SQL 11.1
 * Add Type Objects and Constructors as specifed in PEP 249
+
+MimerPy Version 1.3.7
+---------------------
+MimerPy version 1.3.7 is a bugfix release that fixes a connection leak in the connection pool.
+
+Bug fixes:
+
+* Fixed a leak where :class:`PooledConnection` objects were not properly closed
+  when the pool was discarding surplus connections. The ``__del__`` method in
+  :class:`MimerPool` has been removed to avoid race conditions and to make
+  connection lifecycle handling deterministic.
+
+MimerPy Version 1.3.8
+---------------------
+MimerPy version 1.3.8 drops support for Python 3.6 and fixes PEP 249 compatibility issues.
+
+Major changes:
+
+* Minimum required Python version is now 3.7. Python 3.6 reached end-of-life
+  in December 2021. Users still on Python 3.6 should pin ``mimerpy<1.3``.
+* The ``python-dateutil`` dependency has been removed as it was only needed
+  for Python 3.6 compatibility.
+
+Bug fixes:
+
+* :attr:`Connection.autocommit` is now a read/write property as required by
+  PEP 249. The old method-style ``conn.autocommit(True)`` is still supported
+  for backward compatibility but is deprecated.
+* :data:`threadsafety` is now an integer (``1``) as required by PEP 249,
+  not a string.
+* :meth:`Cursor.setinputsizes` now correctly accepts a ``sizes`` argument.
+* :meth:`Cursor.setoutputsize` was incorrectly named ``setoutputsizes`` and
+  did not accept the required ``size`` and optional ``column`` arguments.
+  Both issues are now fixed.
+
+MimerPy Version 1.3.9
+---------------------
+MimerPy version 1.3.9 adds support for read-only connections
+
+Major changes:
+
+* Read-only connections are now supported via the ``readonly`` parameter to
+  :func:`connect`. When ``readonly=True``, all transactions are started with
+  ``MIMER_TRANS_READONLY``, which prevents any DDL or write DML operations
+  on that connection. Combining ``readonly=True`` with ``autocommit=True``
+  raises a :exc:`~ProgrammingError`.

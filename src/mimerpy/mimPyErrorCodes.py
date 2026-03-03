@@ -53,6 +53,7 @@ mimerpy_error = {
     -25020:"Data conversion error",
     -25030:"Out of memory",
     -25031:"Login failure",
+    -25032:"autocommit cannot be enabled on a read-only connection",
     -25101:("The operation requires Mimer API version 11.0.5A or newer. You have %s." % _api_version_string()),
     -25102:("The operation requires Mimer API version 11.0.5B or newer. You have %s." % _api_version_string()),
 }

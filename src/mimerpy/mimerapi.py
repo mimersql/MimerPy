@@ -101,6 +101,9 @@ MIMER_TYPE_LOCATION = 8036
 MIMER_TYPE_LATITUDE = 8020
 MIMER_TYPE_LONGITUDE = 8004
 
+MIMER_TRANS_READWRITE = 0x0
+MIMER_TRANS_READONLY  = 0x4
+
 BUFLEN = 1024
 CHUNK_SIZE = 100000
 
@@ -382,8 +385,8 @@ def mimerEndSession(session_ptr: int):
     sess = MimerSession(session_ptr)
     return int(_MimerEndSession(byref(sess)))
 
-def mimerBeginTransaction(session_ptr: int):
-    return int(_MimerBeginTransaction(MimerSession(session_ptr), 0))
+def mimerBeginTransaction(session_ptr: int, mode: int = MIMER_TRANS_READWRITE):
+    return int(_MimerBeginTransaction(MimerSession(session_ptr), mode))
 
 def mimerEndTransaction(session_ptr: int, commit_rollback: int):
     return int(_MimerEndTransaction(MimerSession(session_ptr), int(commit_rollback)))

@@ -13,7 +13,7 @@ databases and the opening of cursors to execute Mimer SQL statements.
 Constructor
 ------------
 
-.. method:: connect(dsn = None, user = None, password = None, 'autocommit' = False, 'errorhandler' = None) 
+.. method:: connect(dsn = None, user = None, password = None, autocommit = False, errorhandler = None, readonly = False)
 
   Constructor for creating a connection to the specified database
   using the :class:`Connection` class. Returns a :class:`Connection`
@@ -38,6 +38,11 @@ Constructor
   * *errorhandler* -- If '*errorhandler*' = ``None`` or unspecified,
     the default errorhandler is used. The user can choose to use their
     own errorhandler of choice by setting this parameter.
+
+  * *readonly* -- If '*readonly*' = ``True``, all transactions are started
+    as read-only. Any attempt to execute DDL or write DML statements will
+    raise a :exc:`~DatabaseError`. Cannot be combined with
+    '*autocommit*' = ``True``. Default is ``False``.
 
 .. seealso:: Information on :ref:`Connection parameters`.
 
@@ -159,6 +164,22 @@ Connection Attributes
                when opening a connection or use method :meth:`~commit`
                before enabling autocommit.
 
+.. attribute:: Connection.readonly
+
+  Read-only attribute that indicates whether the connection was opened in
+  read-only mode. When ``True``, all transactions are started as read-only
+  and any DDL or write DML statement will raise a :exc:`~DatabaseError`.
+
+  This attribute is set at connection time via the *readonly* parameter of
+  :func:`connect` and cannot be changed afterwards::
+
+      con = mimerpy.connect(dsn, user, password, readonly=True)
+      if con.readonly:
+          print("This connection is read-only")
+
+  .. Note:: ``readonly=True`` and ``autocommit=True`` cannot be combined.
+            Attempting to do so raises a :exc:`~ProgrammingError`.
+
 Connection Extensions
 ------------------------------------------
 
@@ -222,7 +243,7 @@ Besides improved performance, connection pooling also makes it possible to handl
 MimerPool Constructor
 ------------------------
 
-.. method:: MimerPool(dsn = None, user = None, password = None, initialconnections = 0, maxunused = 0, maxconnections = 0, block = False, deep_health_check = False, autocommit = False, errorhandler=None) 
+.. method:: MimerPool(dsn = None, user = None, password = None, initialconnections = 0, maxunused = 0, maxconnections = 0, block = False, deep_health_check = False, autocommit = False, errorhandler = None, readonly = False)
   :noindex:
   
   Constructor for creating and initializing a connection pool for the specified database. Returns a :class:`MimerPool`
@@ -239,10 +260,14 @@ MimerPool Constructor
     * *autocommit* -- If '*autocommit*' = ``False`` or unspecified,
       auto-commit mode is turned off (as by default). If '*autocommit*'
       = ``True`` queries will be automatically committed.
-  
+
     * *errorhandler* -- If '*errorhandler*' = ``None`` or unspecified,
       the default errorhandler is used. The user can choose to use their
       own errorhandler of choice by setting this parameter.
+
+    * *readonly* -- If '*readonly*' = ``True``, all connections in the
+      pool are opened in read-only mode. Cannot be combined with
+      '*autocommit*' = ``True``. Default is ``False``.
 
     The following parameters can be set to configure how the pool behaves:
 

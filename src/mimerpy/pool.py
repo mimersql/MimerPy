@@ -80,14 +80,14 @@ class MimerPool:
 
     def __init__(
             self, dsn:str = '', user:str = '', password:str ='', initialconnections:int = 0, maxunused:int = 0, maxconnections:int = 0, block:bool = False,
-            deep_health_check:bool = False, autocommit:bool = False, errorhandler=None):
+            deep_health_check:bool = False, autocommit:bool = False, errorhandler=None, readonly:bool = False):
         """Set up the MimerPy connection pool.
 
         Args:
             initialconnections(str): initial number of idle connections in the pool (Default: 0)
             maxunused(int): maximum number of unused connections in the pool (Default: 0, unlimited pool size)
             maxconnections(int): maximum number of connections allowed (Default: 0, unlimited number of connections)
-            block(bool): determines behavior when exceeding the maximum number of connections. 
+            block(bool): determines behavior when exceeding the maximum number of connections.
                 If True, block and wait for a connection to become available
                 (Default: False, will give error when maxconnections is exceeded)
             deep_health_check(bool): Don't only check that the connection seems to be ok, try it before getting it from the pool.
@@ -97,6 +97,7 @@ class MimerPool:
             password(str): The database password
             autocommit(bool): Autocommit mode
             errorhandler: Custom errorhandler
+            readonly(bool): If True, all connections in the pool are opened in read-only mode. Default False
 
         Returns:
             An initialized MimerPool
@@ -107,6 +108,7 @@ class MimerPool:
         self._password = password
         self._autocommit = autocommit
         self._errorhandler = errorhandler
+        self._readonly = readonly
         self._block = block
         self._initialconnections = initialconnections
         self._deep_health_check = deep_health_check
@@ -245,7 +247,7 @@ class PooledConnection(Connection):
         Args:
             pool(MimerPool): The connection pool that manages the connection
         """
-        super().__init__(dsn = pool._dsn, user = pool._user, password = pool._password, autocommit = pool._autocommit, errorhandler = pool._errorhandler)
+        super().__init__(dsn = pool._dsn, user = pool._user, password = pool._password, autocommit = pool._autocommit, errorhandler = pool._errorhandler, readonly = pool._readonly)
         #Create a MimerPy connection
 
         #Keep track of the pool so we can put the connection back

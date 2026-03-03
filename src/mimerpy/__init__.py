@@ -53,7 +53,7 @@ from mimerpy.connectionPy import Connection
 from mimerpy import mimerapi
 
 def connect(dsn='', user='', password='',
-            autocommit=False, errorhandler=None):
+            autocommit=False, errorhandler=None, readonly=False):
     """
     Create a database connection.
 
@@ -79,8 +79,13 @@ def connect(dsn='', user='', password='',
 
     errorhandler A handler for errors according to the Optional Error Handling
                 Extension described in PEP-0249.
+
+    readonly    Read-only mode. If True, all transactions are started as
+                read-only (MIMER_TRANS_READONLY), which can improve
+                performance and concurrency for connections that only read data.
+                Default is False.
     """
-    return Connection(dsn, user, password, autocommit, errorhandler)
+    return Connection(dsn, user, password, autocommit, errorhandler, readonly)
 
 def Binary(value):
     """DB-API helper for binary parameters."""

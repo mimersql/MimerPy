@@ -809,7 +809,9 @@ class Cursor:
 
     def __check_for_transaction(self):
         if (not self.connection._transaction and not self.connection.autocommitmode):
-            rc_value = mimerapi.mimerBeginTransaction(self.__session)
+            mode = (mimerapi.MIMER_TRANS_READONLY if self.connection.readonly
+                    else mimerapi.MIMER_TRANS_READWRITE)
+            rc_value = mimerapi.mimerBeginTransaction(self.__session, mode)
             self.__check_mimerapi_error(rc_value, self.__session)
             self.connection._transaction = True
 
