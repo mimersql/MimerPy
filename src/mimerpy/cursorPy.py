@@ -833,8 +833,106 @@ class Cursor:
     def nextset(self):
         self.__raise_exception(-25000)
 
-    def callproc(self):
-        self.__raise_exception(-25000)
+    def callproc(self, procname, parameters=()):
+        """Call a stored procedure.
+
+        procname
+            The name of the stored procedure to call.
+        parameters
+            A sequence of parameters, one for each argument the procedure expects.
+
+        Returns a modified copy of the input sequence with output and
+        input/output parameters replaced with the values returned by the procedure.
+
+        If the procedure produces a result set, it is made available through
+        the standard fetch methods (fetchone, fetchmany, fetchall).
+        """
+        self.__check_if_open()
+        self.__check_for_transaction()
+
+        # Build CALL statement with one positional marker per parameter
+        placeholders = ', '.join(['?' for _ in parameters])
+        query = 'CALL {}({})'.format(procname, placeholders)
+
+        self.__close_statement()
+        values = mimerapi.mimerBeginStatement8(self.__session, query, 0)
+        rc_value = values[0]
+        self.__check_mimerapi_error(rc_value, self.__session)
+        self.__statement = values[1]
+        self._last_query = None  # Prevent accidental statement reuse
+
+        # Determine mode and type for each parameter, then set IN/INOUT values
+        param_count = mimerapi.mimerParameterCount(self.__statement)
+        self.__check_mimerapi_error(param_count, self.__statement)
+
+        param_modes = []
+        param_types = []
+        for cur_column in range(1, param_count + 1):
+            mode = mimerapi.mimerParameterMode(self.__statement, cur_column)
+            self.__check_mimerapi_error(mode, self.__statement)
+            param_modes.append(mode)
+
+            ptype = mimerapi.mimerParameterType(self.__statement, cur_column)
+            self.__check_mimerapi_error(ptype, self.__statement)
+            param_types.append(ptype)
+
+            # Only bind values for IN and INOUT parameters
+            if mode in (mimerapi.MIMER_PARAMETER_MODE_IN, mimerapi.MIMER_PARAMETER_MODE_INOUT):
+                param_value = parameters[cur_column - 1] if cur_column - 1 < len(parameters) else None
+                ptype_to_use = mimerapi.MIMER_TYPE_NULL if param_value is None else ptype
+                rc_value = set_funcs[ptype_to_use](self.__statement, cur_column, param_value)
+                self.__check_mimerapi_error(rc_value, self.__statement)
+
+        # Check whether the procedure returns a result set
+        col_count = mimerapi.mimerColumnCount(self.__statement)
+        self.__check_mimerapi_error(col_count, self.__statement)
+
+        result_params = list(parameters)
+
+        if col_count <= 0:
+            # No result set: execute and then read OUT/INOUT values
+            self.messages = []
+            rc_value = mimerapi.mimerExecute(self.__statement)
+            self.__check_mimerapi_error(rc_value, self.__statement)
+            self.rowcount = rc_value
+
+            for i, (mode, ptype) in enumerate(zip(param_modes, param_types)):
+                if mode in (mimerapi.MIMER_PARAMETER_MODE_OUT, mimerapi.MIMER_PARAMETER_MODE_INOUT):
+                    func_tuple = get_funcs[ptype](self.__statement, i + 1)
+                    self.__check_mimerapi_error(func_tuple[0], self.__statement)
+                    if i < len(result_params):
+                        result_params[i] = func_tuple[1]
+                    else:
+                        result_params.append(func_tuple[1])
+        else:
+            # Result set: open cursor and set up for fetch methods
+            self.rowcount = col_count
+            self._number_of_columns = col_count
+            rc_value = mimerapi.mimerOpenCursor(self.__statement)
+            self.__check_mimerapi_error(rc_value, self.__statement)
+            self.__mimcursor = True
+            description = collections.namedtuple('Column_description',
+                                                 'name type_code display_size internal_size precision scale null_ok')
+            self.description = ()
+            self._column_type = []
+            for cur_column in range(1, self._number_of_columns + 1):
+                func_tuple = mimerapi.mimerColumnName8(self.__statement, cur_column)
+                rc_value = func_tuple[0]
+                self.__check_mimerapi_error(rc_value, self.__statement)
+                name = func_tuple[1]
+                rc_value = mimerapi.mimerColumnType(self.__statement, cur_column)
+                self.__check_mimerapi_error(rc_value, self.__statement)
+                self._column_type.append(rc_value)
+                type_code = rc_value
+                self.description = self.description + (description(name=name,
+                                                                   type_code=type_code,
+                                                                   display_size=None,
+                                                                   internal_size=None,
+                                                                   precision=None,
+                                                                   scale=None,
+                                                                   null_ok=None),)
+
+        return result_params
 
 
 

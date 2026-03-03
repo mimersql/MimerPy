@@ -104,6 +104,10 @@ MIMER_TYPE_LONGITUDE = 8004
 MIMER_TRANS_READWRITE = 0x0
 MIMER_TRANS_READONLY  = 0x4
 
+MIMER_PARAMETER_MODE_IN = 1
+MIMER_PARAMETER_MODE_OUT = 2
+MIMER_PARAMETER_MODE_INOUT = 3
+
 BUFLEN = 1024
 CHUNK_SIZE = 100000
 
@@ -259,6 +263,7 @@ _MimerExecute               = _bind('MimerExecute', c_int32, MimerStatement)
 _MimerParameterCount        = _bind('MimerParameterCount', c_int32, MimerStatement)
 _MimerParameterName8        = _bind('MimerParameterName8', c_int32, MimerStatement, c_int16, c_char_p, c_size_t)
 _MimerParameterType         = _bind('MimerParameterType', c_int32, MimerStatement, c_int16)
+_MimerParameterMode         = _bind('MimerParameterMode', c_int32, MimerStatement, c_int16)
 _MimerColumnCount           = _bind('MimerColumnCount', c_int32, MimerStatement)
 _MimerColumnType            = _bind('MimerColumnType', c_int32, MimerStatement, c_int16)
 _MimerColumnName8           = _bind('MimerColumnName8', c_int32, MimerStatement, c_int16, c_char_p, c_size_t)
@@ -473,6 +478,10 @@ def mimerParameterName8(statement_ptr: int, parameter_number: int):
 
 def mimerParameterType(statement_ptr: int, parameter_number: int):
     return int(_MimerParameterType(MimerStatement(statement_ptr), _arg_i16(parameter_number)))
+
+def mimerParameterMode(statement_ptr: int, parameter_number: int):
+    """Return the mode of a procedure parameter: 1=IN, 2=OUT, 3=INOUT."""
+    return int(_MimerParameterMode(MimerStatement(statement_ptr), _arg_i16(parameter_number)))
 
 def mimerColumnCount(statement_ptr: int):
     return int(_MimerColumnCount(MimerStatement(statement_ptr)))

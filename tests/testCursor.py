@@ -34,6 +34,50 @@ class TestCursorMethods(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         (self.syscon, self.tstcon) = db_config.setup()
+        # Create table and procedures for callproc tests
+        self.tstcon.execute("CREATE TABLE cp_data (c1 INTEGER) in pybank")
+        self.tstcon.execute("INSERT INTO cp_data VALUES (1)")
+        self.tstcon.execute("INSERT INTO cp_data VALUES (2)")
+        self.tstcon.execute("INSERT INTO cp_data VALUES (3)")
+        self.tstcon.commit()
+        self.tstcon.execute(
+            "CREATE PROCEDURE cp_double (IN p1 INTEGER, OUT p2 INTEGER) "
+            "BEGIN SET p2 = p1 * 2; END")
+        self.tstcon.execute(
+            "CREATE PROCEDURE cp_increment (INOUT p1 INTEGER) "
+            "BEGIN SET p1 = p1 + 1; END")
+        self.tstcon.execute(
+            "CREATE PROCEDURE cp_select (IN p1 INTEGER) "
+            "VALUES (INTEGER) AS (c1) "
+            "READS SQL DATA "
+            "BEGIN "
+            "FOR SELECT c1 FROM cp_data WHERE c1 >= p1 "
+            "DO RETURN c1; "
+            "END FOR; "
+            "END")
+        self.tstcon.execute(
+            "CREATE PROCEDURE cp_upper (IN p1 VARCHAR(30), OUT p2 VARCHAR(30)) "
+            "BEGIN SET p2 = UPPER(p1); END")
+        self.tstcon.execute(
+            "CREATE PROCEDURE cp_add "
+            "(IN p1 DOUBLE PRECISION, IN p2 DOUBLE PRECISION, OUT p3 DOUBLE PRECISION) "
+            "BEGIN SET p3 = p1 + p2; END")
+        self.tstcon.execute(
+            "CREATE PROCEDURE cp_toggle (INOUT p1 BOOLEAN) "
+            "BEGIN SET p1 = NOT p1; END")
+        self.tstcon.execute("CREATE TABLE cp_names (id INTEGER, name VARCHAR(20)) IN PYBANK")
+        self.tstcon.execute("INSERT INTO cp_names VALUES (1, 'Alice')")
+        self.tstcon.execute("INSERT INTO cp_names VALUES (2, 'Bob')")
+        self.tstcon.execute("INSERT INTO cp_names VALUES (3, 'Carol')")
+        self.tstcon.commit()
+        self.tstcon.execute(
+            "CREATE PROCEDURE cp_name_select (IN min_id INTEGER) "
+            "VALUES (INTEGER, VARCHAR(20)) AS (id, name) "
+            "READS SQL DATA "
+            "BEGIN "
+            "FOR SELECT id, name FROM cp_names WHERE id >= min_id "
+            "DO RETURN (id, name); "
+            "END FOR; END")
 
     @classmethod
     def tearDownClass(self):
@@ -1698,8 +1742,6 @@ class TestCursorMethods(unittest.TestCase):
         with self.tstcon.cursor() as c:
             with self.assertRaises(NotSupportedError):
                 c.nextset()
-            with self.assertRaises(NotSupportedError):
-                c.callproc()
 
     def test_insert_blob_2(self):
         with self.tstcon.cursor() as c:
@@ -2123,6 +2165,123 @@ create table longboi (c1 char(10),
         r = b.fetchall()
         a.close()
 
+    def test_callproc_in_out(self):
+        """callproc returns output parameter values in result sequence."""
+        con = mimerpy.connect(**db_config.TSTUSR)
+        cur = con.cursor()
+        result = cur.callproc('cp_double', (21, None))
+        self.assertEqual(result[1], 42)
+        cur.close()
+        con.close()
+
+    def test_callproc_in_not_modified(self):
+        """callproc leaves IN parameters unchanged in the result sequence."""
+        con = mimerpy.connect(**db_config.TSTUSR)
+        cur = con.cursor()
+        result = cur.callproc('cp_double', (21, None))
+        self.assertEqual(result[0], 21)
+        cur.close()
+        con.close()
+
+    def test_callproc_inout(self):
+        """callproc returns updated value of INOUT parameter."""
+        con = mimerpy.connect(**db_config.TSTUSR)
+        cur = con.cursor()
+        result = cur.callproc('cp_increment', (5,))
+        self.assertEqual(result[0], 6)
+        cur.close()
+        con.close()
+
+    def test_callproc_resultset(self):
+        """callproc with result-set procedure makes rows available via fetch."""
+        con = mimerpy.connect(**db_config.TSTUSR)
+        con.autocommit = True
+        cur = con.cursor()
+        cur.callproc('cp_select', (2,))
+        rows = cur.fetchall()
+        self.assertEqual(len(rows), 2)
+        self.assertIn((2,), rows)
+        self.assertIn((3,), rows)
+        cur.close()
+        con.close()
+
+    def test_callproc_resultset_description(self):
+        """callproc sets cursor.description for result-set procedures."""
+        con = mimerpy.connect(**db_config.TSTUSR)
+        con.autocommit = True
+        cur = con.cursor()
+        cur.callproc('cp_select', (1,))
+        self.assertIsNotNone(cur.description)
+        self.assertEqual(len(cur.description), 1)
+        self.assertEqual(cur.description[0].name, 'c1')
+        cur.fetchall()
+        cur.close()
+        con.close()
+
+    def test_callproc_varchar_in_out(self):
+        """callproc works with VARCHAR IN/OUT parameters."""
+        con = mimerpy.connect(**db_config.TSTUSR)
+        cur = con.cursor()
+        result = cur.callproc('cp_upper', ('hello', None))
+        self.assertEqual(result[1], 'HELLO')
+        cur.close()
+        con.close()
+
+    def test_callproc_double_in_out(self):
+        """callproc works with DOUBLE PRECISION IN/OUT parameters."""
+        con = mimerpy.connect(**db_config.TSTUSR)
+        cur = con.cursor()
+        result = cur.callproc('cp_add', (1.5, 2.5, None))
+        self.assertAlmostEqual(result[2], 4.0)
+        cur.close()
+        con.close()
+
+    def test_callproc_boolean_inout(self):
+        """callproc works with BOOLEAN INOUT parameter."""
+        con = mimerpy.connect(**db_config.TSTUSR)
+        cur = con.cursor()
+        result = cur.callproc('cp_toggle', (True,))
+        self.assertEqual(result[0], False)
+        result = cur.callproc('cp_toggle', (False,))
+        self.assertEqual(result[0], True)
+        cur.close()
+        con.close()
+
+    def test_callproc_null_parameter(self):
+        """callproc passes NULL IN and returns NULL OUT correctly."""
+        con = mimerpy.connect(**db_config.TSTUSR)
+        cur = con.cursor()
+        result = cur.callproc('cp_double', (None, None))
+        self.assertIsNone(result[1])
+        cur.close()
+        con.close()
+
+    def test_callproc_resultset_multicolumn(self):
+        """callproc result set with multiple columns of different types."""
+        con = mimerpy.connect(**db_config.TSTUSR)
+        con.autocommit = True
+        cur = con.cursor()
+        cur.callproc('cp_name_select', (2,))
+        rows = cur.fetchall()
+        self.assertEqual(len(rows), 2)
+        self.assertIn((2, 'Bob'), rows)
+        self.assertIn((3, 'Carol'), rows)
+        cur.close()
+        con.close()
+
+    def test_callproc_resultset_multicolumn_description(self):
+        """callproc result set description reflects column names and types for multi-column result."""
+        con = mimerpy.connect(**db_config.TSTUSR)
+        con.autocommit = True
+        cur = con.cursor()
+        cur.callproc('cp_name_select', (1,))
+        self.assertIsNotNone(cur.description)
+        self.assertEqual(len(cur.description), 2)
+        self.assertEqual(cur.description[0].name, 'id')
+        self.assertEqual(cur.description[1].name, 'name')
+        cur.fetchall()
+        cur.close()
+        con.close()
 
 if __name__ == '__main__':
     unittest.TestLoader.sortTestMethodsUsing = None

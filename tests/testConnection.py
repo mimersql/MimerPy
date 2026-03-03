@@ -664,5 +664,6 @@ class TestConnectionMethods(unittest.TestCase):
         b = a.execute("select * from bob6")
         a.close()
 
+
 if __name__ == '__main__':
     unittest.main()

@@ -373,5 +373,57 @@ The following example illustrates how to use the MimerPy connection pool::
         print("Done")
         pool.close()
 
+.. _callproc-example:
+
+Calling a stored procedure
+---------------------------
+
+The following example calls a stored procedure with IN and OUT parameters.
+:meth:`~Cursor.callproc` returns a modified copy of the parameter sequence
+where OUT and INOUT values have been filled in by the procedure::
+
+    import mimerpy
+
+    conn = mimerpy.connect(dsn="dbname", user="username", password="password")
+    cur = conn.cursor()
+
+    # Assuming the following procedure exists:
+    #   CREATE PROCEDURE get_discount (IN price DECIMAL(10,2),
+    #                                  IN pct   INTEGER,
+    #                                  OUT disc DECIMAL(10,2))
+    #   BEGIN SET disc = price * pct / 100; END
+    result = cur.callproc('get_discount', (200.00, 15, None))
+    print(result[2])   # 30.0  (the computed discount)
+
+    cur.close()
+    conn.close()
+
+For a procedure that returns a result set, the rows are fetched using the
+normal fetch methods after calling :meth:`~Cursor.callproc`::
+
+    import mimerpy
+
+    conn = mimerpy.connect(dsn="dbname", user="username", password="password")
+    conn.autocommit = True
+    cur = conn.cursor()
+
+    # Assuming the following procedure exists:
+    #   CREATE PROCEDURE get_products (IN min_price DECIMAL(10,2))
+    #   VALUES (VARCHAR(48), DECIMAL(10,2)) AS (product, price)
+    #   READS SQL DATA
+    #   BEGIN
+    #     FOR SELECT product, price FROM products WHERE price >= min_price
+    #     DO RETURN (product, price);
+    #     END FOR;
+    #   END
+    cur.callproc('get_products', (50.00,))
+    for row in cur.fetchall():
+        print(row)   # e.g. ('Widget', Decimal('99.99'))
+
+    cur.close()
+    conn.close()
+
+.. seealso:: :ref:`cursorclass` documentation.
+
 .. Messages
 .. --------------

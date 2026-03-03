@@ -360,14 +360,32 @@ Cursor Methods
   contain data or parameter markers can be used, see :ref:`User guide`
   for more information.
 
-.. method:: Cursor.executemany(query, seq_of_parameters) 
+.. method:: Cursor.executemany(query, seq_of_parameters)
 
   Prepares and executes a SQL statement against all parameters in
   *seq_of_parameters*.
 
 .. seealso:: :ref:`User guide`, for the correct syntax of these methods.
 
-.. method:: Cursor.fetchone() 
+.. method:: Cursor.callproc(procname [, parameters])
+
+  Calls a stored procedure with the given name. The optional
+  *parameters* sequence must contain one entry for each parameter that the
+  procedure expects. The call returns a modified copy of *parameters*: IN
+  parameter values are left unchanged, while OUT and INOUT parameter values
+  are replaced with the values returned by the procedure.
+
+  For procedures that return a result set, the rows can be retrieved using
+  the standard :meth:`~fetchone`, :meth:`~fetchmany`, and :meth:`~fetchall`
+  methods, and :attr:`~description` is populated as usual.
+
+  .. note::
+     Calling a stored procedure requires that the database user has been
+     granted the ``ROUTINE`` privilege.
+
+.. seealso:: :ref:`Calling a stored procedure <callproc-example>`, for a usage example.
+
+.. method:: Cursor.fetchone()
 
   Fetches the next row of a result set. The row is returned as a tuple. If
   no more data is available, ``None`` is returned.
