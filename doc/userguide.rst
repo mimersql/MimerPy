@@ -136,6 +136,96 @@ see :ref:`Executemany`.
 .. _PEP 249: https://peps.python.org/pep-0249/
 .. _Mimer SQL documentation: https://developer.mimer.com/products/documentation/
 
+.. _sec-sql-trace:
+
+SQL trace logging
+-----------------
+
+MimerPy can log every SQL operation executed on a connection. This is
+useful for debugging and auditing.
+
+Enabling tracing
+^^^^^^^^^^^^^^^^
+
+Pass ``trace=True`` to log to *stderr*, or ``trace='<filename>'`` to
+append to a file::
+
+    >>> con = mimerpy.connect(dsn="mydb", user="usr", password="pw",
+    ...                       trace=True)
+    >>> con = mimerpy.connect(dsn="mydb", user="usr", password="pw",
+    ...                       trace="/var/log/mimerpy.log")
+
+Tracing can also be enabled without code changes using environment
+variables:
+
+.. code-block:: console
+
+    $ export MIMERPY_TRACE=1              # log to stderr
+    $ export MIMERPY_TRACE=/tmp/sql.log   # log to file
+
+Each log entry is timestamped and records the operation and the SQL
+text::
+
+    2025-04-17 12:00:01 execute: SELECT * FROM orders WHERE status = '#####' AND amount > #
+    2025-04-17 12:00:01 executemany: INSERT INTO orders VALUES (?, ?, ?) -- 50 rows
+    2025-04-17 12:00:01 commit
+
+Note that string literals are replaced by a sequence of ``#``
+characters matching the length of the original string, and numeric
+literals are replaced by ``#``. Bound parameters (``?`` markers) are
+not logged. This protects sensitive data from appearing in log files.
+
+Unsafe (full) logging
+^^^^^^^^^^^^^^^^^^^^^
+
+To log the complete SQL text including literals and bound parameters,
+set ``trace_unsafe=True``::
+
+    >>> con = mimerpy.connect(dsn="mydb", user="usr", password="pw",
+    ...                       trace=True, trace_unsafe=True)
+
+Or via an environment variable:
+
+.. code-block:: console
+
+    $ export MIMERPY_TRACE_UNSAFE=1
+
+.. warning::
+
+   Unsafe logging may expose passwords, personal data, or other
+   sensitive information in the log. Only enable it in controlled
+   environments.
+
+Multiple connections sharing the same log file will each append to it
+safely. Log files are never truncated; remove or rotate the file
+externally if needed.
+
+Disabling tracing for security
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+An application that handles sensitive data can explicitly opt out of
+tracing by passing ``trace=False`` to :func:`connect`. This prevents
+the ``MIMERPY_TRACE`` environment variable from enabling logging,
+regardless of how the environment is configured::
+
+    >>> con = mimerpy.connect(dsn="mydb", user="usr", password="pw",
+    ...                       trace=False)
+
+Similarly, ``trace_unsafe=False`` prevents ``MIMERPY_TRACE_UNSAFE``
+from enabling full logging of literals and parameters::
+
+    >>> con = mimerpy.connect(dsn="mydb", user="usr", password="pw",
+    ...                       trace=True, trace_unsafe=False)
+
+This is useful in production environments where an operator may set
+``MIMERPY_TRACE`` for general debugging, but certain connections deal
+with credentials or personal data that must never appear in a log file.
+
+.. note::
+
+   Omitting ``trace`` (the default) means the environment variable is
+   respected. Only an explicit ``trace=False`` suppresses it.
+
 
 Transaction control
 ------------------------

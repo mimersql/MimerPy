@@ -22,7 +22,7 @@
 
 from .mimPyExceptionHandler import *
 from . import mimerapi
-import collections, decimal, uuid
+import collections, decimal, uuid, re
 from types import GeneratorType
 import uuid
 import string
@@ -172,6 +172,44 @@ def _pythonSetDate(statement, col, val):
 
     return mimerapi.mimerSetString8(statement, col, v)
 
+
+_LOG_MAX_VALUE_LEN = 200
+
+_SQL_STRING_LITERAL_RE = re.compile(r"'(?:''|[^'])*'")
+_SQL_NUMBER_LITERAL_RE = re.compile(r'\b\d+(?:\.\d+)?(?:[eE][+-]?\d+)?\b')
+
+def _strip_sql_literals(sql):
+    """Replace string and numeric literals in SQL with # placeholders."""
+    def _mask_string(m):
+        inner = m.group(0)[1:-1].replace("''", "'")
+        return "'" + '#' * len(inner) + "'"
+    sql = _SQL_STRING_LITERAL_RE.sub(_mask_string, sql)
+    sql = _SQL_NUMBER_LITERAL_RE.sub('#', sql)
+    return sql
+
+def _log_repr(value):
+    """Return a log-safe repr of a single parameter value.
+    Large strings and bytes objects are truncated to avoid flooding the log."""
+    if isinstance(value, (bytes, bytearray, memoryview)):
+        v = bytes(value) if isinstance(value, memoryview) else value
+        if len(v) > _LOG_MAX_VALUE_LEN:
+            return f'<{type(value).__name__} {len(v)} bytes>'
+        return repr(value)
+    if isinstance(value, str):
+        if len(value) > _LOG_MAX_VALUE_LEN:
+            return repr(value[:_LOG_MAX_VALUE_LEN]) + f'...({len(value)} chars)'
+        return repr(value)
+    return repr(value)
+
+def _log_params(params):
+    """Return a log-safe repr of execute/callproc parameters."""
+    if isinstance(params, dict):
+        parts = ', '.join(f'{k!r}: {_log_repr(v)}' for k, v in params.items())
+        return '{' + parts + '}'
+    if isinstance(params, (list, tuple)):
+        parts = ', '.join(_log_repr(v) for v in params)
+        return f'({parts})'
+    return repr(params)
 
 def _define_funcs():
     global get_funcs
@@ -417,6 +455,14 @@ class Cursor:
                 parameter_markers = arg[1]
         query = arg[0]
 
+        if self.connection._logger:
+            logged_query = query if self.connection._log_unsafe else _strip_sql_literals(query)
+            if parameter_markers and self.connection._log_unsafe:
+                self.connection._logger.info(
+                    "execute: %s -- %s", logged_query, _log_params(parameter_markers))
+            else:
+                self.connection._logger.info("execute: %s", logged_query)
+
         # If same query is used twice there is not need for a new statement
         if (query != self._last_query or self.__mimcursor):
             self.__close_statement()
@@ -561,6 +607,14 @@ class Cursor:
         rc_value = 0
         values = []
         self.lastrowid = None
+
+        if self.connection._logger:
+            if isinstance(params, GeneratorType):
+                params = list(params)
+            logged_query = query if self.connection._log_unsafe else _strip_sql_literals(query)
+            row_count = len(params) if hasattr(params, '__len__') else '?'
+            self.connection._logger.info(
+                "executemany: %s -- %s rows", logged_query, row_count)
 
         if isinstance(params, GeneratorType):
             tmp_params = []
@@ -849,6 +903,13 @@ class Cursor:
         """
         self.__check_if_open()
         self.__check_for_transaction()
+
+        if self.connection._logger:
+            if self.connection._log_unsafe:
+                self.connection._logger.info(
+                    "callproc: %s -- %s", procname, _log_params(parameters))
+            else:
+                self.connection._logger.info("callproc: %s", procname)
 
         # Build CALL statement with one positional marker per parameter
         placeholders = ', '.join(['?' for _ in parameters])

@@ -136,6 +136,26 @@ Bug fixes:
   did not accept the required ``size`` and optional ``column`` arguments.
   Both issues are now fixed.
 
+MimerPy Version 1.3.10
+----------------------
+MimerPy version 1.3.10 adds SQL trace logging.
+
+Major changes:
+
+* SQL trace logging is now available via the ``trace`` parameter to
+  :func:`connect`, or the ``MIMERPY_TRACE`` environment variable.
+  Setting ``trace=True`` logs all SQL operations to *stderr*; setting
+  ``trace='<filename>'`` appends to the given file.  Each log entry is
+  timestamped and records the operation (``execute``, ``executemany``,
+  ``callproc``, ``commit``, ``rollback``) together with the SQL text.
+
+* By default, SQL string and numeric literals are replaced with ``#``
+  placeholders in the log (the number of ``#`` characters reflects the
+  length of the original string), and bound parameters are omitted.
+  This prevents sensitive data from appearing in log files.  Set
+  ``trace_unsafe=True`` in :func:`connect`, or set the environment
+  variable ``MIMERPY_TRACE_UNSAFE=1``, to log full SQL and parameters.
+
 MimerPy Version 1.3.9
 ---------------------
 MimerPy version 1.3.9 adds support for read-only connections and stored procedure calls.

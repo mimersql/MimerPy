@@ -13,7 +13,7 @@ databases and the opening of cursors to execute Mimer SQL statements.
 Constructor
 ------------
 
-.. method:: connect(dsn = None, user = None, password = None, autocommit = False, errorhandler = None, readonly = False)
+.. method:: connect(dsn = None, user = None, password = None, autocommit = False, errorhandler = None, readonly = False, trace = False, trace_unsafe = False)
 
   Constructor for creating a connection to the specified database
   using the :class:`Connection` class. Returns a :class:`Connection`
@@ -43,6 +43,24 @@ Constructor
     as read-only. Any attempt to execute DDL or write DML statements will
     raise a :exc:`~DatabaseError`. Cannot be combined with
     '*autocommit*' = ``True``. Default is ``False``.
+
+  * *trace* -- Enables SQL trace logging for this connection.
+    If unset (default), the environment variable ``MIMERPY_TRACE``
+    is consulted (set to ``1``, ``true``, or ``yes`` for *stderr*,
+    or a file path to log to a file).
+    ``True`` logs to *stderr*; a string value is treated as a file path
+    (appended if it already exists).
+    ``False`` disables logging unconditionally — the environment variable
+    is ignored. Use this to protect connections that handle sensitive data.
+    See :ref:`sec-sql-trace`.
+
+  * *trace_unsafe* -- If ``True``, logs the full SQL text including
+    string and numeric literals, and also logs bound parameters.
+    If unset (default), the environment variable ``MIMERPY_TRACE_UNSAFE``
+    is consulted (set to ``1``, ``true``, or ``yes``).
+    ``False`` disables unsafe logging unconditionally — the environment
+    variable is ignored. The default safe mode replaces literals with
+    ``#`` placeholders and omits parameters.
 
 .. seealso:: Information on :ref:`Connection parameters`.
 

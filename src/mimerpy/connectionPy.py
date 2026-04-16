@@ -25,6 +25,53 @@ import weakref
 from .cursorPy import *
 from .mimPyExceptionHandler import *
 import sys
+import logging
+import os
+
+# One shared logger per trace destination (file path or stderr).
+# The FileHandler is never explicitly closed by our code — Python's logging
+# module registers logging.shutdown() via atexit, which flushes and closes
+# all handlers when the process exits.  This avoids any locking interaction
+# between connection.close(), the GC, and the logging machinery.
+#
+# No custom lock is used here.  dict.setdefault() is atomic under CPython's
+# GIL, so concurrent calls are safe.  If two threads race to create a logger
+# for the same key, the loser closes its handler and discards it cleanly.
+_trace_loggers = {}
+
+
+def _setup_trace_logger(trace):
+    """Return a shared SQL trace logger for *trace*.
+
+    trace=True   → log to stderr
+    trace=<str>  → log to file (appended if it already exists)
+    trace=False  → returns None (no logging)
+    """
+    if not trace:
+        return None
+    key = os.path.abspath(trace) if isinstance(trace, str) else None
+
+    existing = _trace_loggers.get(key)
+    if existing is not None:
+        return existing
+
+    logger = logging.Logger(f'mimerpy.sql.{key}')
+    logger.setLevel(logging.DEBUG)
+    logger.propagate = False
+    if isinstance(trace, str):
+        handler = logging.FileHandler(trace, mode='a', encoding='utf-8')
+    else:
+        handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter(
+        '%(asctime)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S'))
+    logger.addHandler(handler)
+
+    winner = _trace_loggers.setdefault(key, logger)
+    if winner is not logger:
+        # Lost a creation race; discard our handler to avoid a leaked fd
+        handler.close()
+        logger.removeHandler(handler)
+    return winner
 
 
 class _AutocommitHelper:
@@ -97,7 +144,8 @@ class Connection:
     autocommit = _AutocommitDescriptor()
 
     def __init__(self, dsn='', user='', password='',
-                 autocommit=False, errorhandler=None, readonly=False):
+                 autocommit=False, errorhandler=None, readonly=False,
+                 trace=None, trace_unsafe=None):
         """
         Creates a database connection.
 
@@ -112,6 +160,19 @@ class Connection:
         self._session = None
         self.__cursors = weakref.WeakSet()
         self._transaction = False
+        if trace is None:
+            env = os.environ.get('MIMERPY_TRACE', '')
+            if env.lower() in ('1', 'true', 'yes'):
+                trace = True
+            elif env:
+                trace = env
+            else:
+                trace = False
+        self._logger = _setup_trace_logger(trace)
+        if trace_unsafe is None:
+            unsafe_env = os.environ.get('MIMERPY_TRACE_UNSAFE', '')
+            trace_unsafe = unsafe_env.lower() in ('1', 'true', 'yes')
+        self._log_unsafe = trace_unsafe
 
         if readonly and autocommit:
             self.errorhandler(self, None, ProgrammingError,
@@ -139,7 +200,7 @@ class Connection:
         self.close()
 
     def __del__(self):
-        if (not self._session == None):
+        if self._session is not None:
             self.close()
 
     def close(self):
@@ -177,6 +238,9 @@ class Connection:
             self.__check_mimerapi_error(rc_value, self._session)
             self._session = None
 
+        if getattr(self, '_logger', None):
+            self._logger = None
+
     def rollback(self):
         """
 
@@ -187,6 +251,8 @@ class Connection:
 
         """
         self.__check_if_open()
+        if self._logger:
+            self._logger.info("rollback")
         if (self._transaction):
             rc_value = mimerapi.mimerEndTransaction(self._session, 1)
             self.__check_mimerapi_error(rc_value, self._session)
@@ -195,6 +261,8 @@ class Connection:
     def commit(self):
         """Commits any pending transaction."""
         self.__check_if_open()
+        if self._logger:
+            self._logger.info("commit")
         if (self._transaction):
             rc_value = mimerapi.mimerEndTransaction(self._session, 0)
             self.__check_mimerapi_error(rc_value, self._session)

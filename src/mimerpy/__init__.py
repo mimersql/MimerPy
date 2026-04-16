@@ -53,7 +53,8 @@ from mimerpy.connectionPy import Connection
 from mimerpy import mimerapi
 
 def connect(dsn='', user='', password='',
-            autocommit=False, errorhandler=None, readonly=False):
+            autocommit=False, errorhandler=None, readonly=False,
+            trace=None, trace_unsafe=None):
     """
     Create a database connection.
 
@@ -84,8 +85,26 @@ def connect(dsn='', user='', password='',
                 read-only (MIMER_TRANS_READONLY), which can improve
                 performance and concurrency for connections that only read data.
                 Default is False.
+
+    trace       SQL trace mode.
+                False (default) — no tracing.
+                True            — log all SQL statements to stderr.
+                '<filename>'    — log all SQL statements to the given file
+                                  (appended if the file already exists).
+                Each logged line is timestamped and shows the operation
+                (execute / executemany / callproc / commit / rollback) and
+                the SQL text. By default, string and numeric literals in SQL
+                are replaced with ? and bound parameters are omitted to avoid
+                leaking sensitive data. Set the environment variable
+                MIMERPY_TRACE_UNSAFE=1 to log the full SQL and all parameters.
+                Can also be set per connection with trace_unsafe=True.
+                Can also be controlled without code changes via the
+                environment variable MIMERPY_TRACE (set to 1/true/yes for
+                stderr, or a file path for file logging). An explicit trace
+                argument always takes precedence over the environment variable.
     """
-    return Connection(dsn, user, password, autocommit, errorhandler, readonly)
+    return Connection(dsn, user, password, autocommit, errorhandler, readonly,
+                      trace, trace_unsafe)
 
 def Binary(value):
     """DB-API helper for binary parameters."""
@@ -264,12 +283,14 @@ def _altermeths(d, prefix, logger):
                 pass
 
 def _pytrace(prefix=''):
+    import sys
+    m = sys.modules[__name__]
     logger = logging.getLogger("MimerPy")
     logger.setLevel(logging.INFO)
-    _alterfuncs(mimerpy, prefix, logger)
-    _altermeths(mimerpy.connectionPy.Connection, prefix, logger)
-    _altermeths(mimerpy.cursorPy.Cursor, prefix, logger)
-    _altermeths(mimerpy.cursorPy.ScrollCursor, prefix, logger)
+    _alterfuncs(m, prefix, logger)
+    _altermeths(Connection, prefix, logger)
+    _altermeths(_cursor_module.Cursor, prefix, logger)
+    _altermeths(_cursor_module.ScrollCursor, prefix, logger)
 
 def _trace(things=255, prefix='', setLogLevel=True):
     if setLogLevel:
