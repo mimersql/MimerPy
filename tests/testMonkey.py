@@ -21,8 +21,6 @@
 # See license for more details.
 
 import unittest
-import time
-import math
 import mimerpy
 import random
 import uuid
@@ -201,11 +199,13 @@ create table monkeyTable (c1 INTEGER,
                 if (ab[1]):
                     ab[0].close()
 
+        threads = []
         for i in range(9):
             t = threading.Thread(target = condis, args = (self,))
             t.start()
-        while (threading.active_count() > 1):
-            time.sleep(1)
+            threads.append(t)
+        for t in threads:
+            t.join()
 
 
 ########################################################################
