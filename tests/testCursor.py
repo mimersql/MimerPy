@@ -20,7 +20,7 @@
 #
 # See license for more details.
 
-import unittest, time, math, random, uuid, decimal
+import unittest, time, math, random, uuid, decimal, os
 import mimerpy
 from mimerpy import mimerapi
 from mimerpy.mimPyExceptions import *
@@ -1162,7 +1162,7 @@ class TestCursorMethods(unittest.TestCase):
     def test_insert_blob_21(self):
         with self.tstcon.cursor() as c:
             c.execute("create table jonblob2 (c1 BLOB(64111)) in pybank")
-            with open("testCursor.py", 'rb') as input_file:
+            with open(os.path.join(os.path.dirname(__file__), "testCursor.py"), 'rb') as input_file:
                 ablob = input_file.read(200)
                 c.execute("insert INTO jonblob2 VALUES (?)", (ablob))
                 self.tstcon.commit()
