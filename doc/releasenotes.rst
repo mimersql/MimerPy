@@ -136,6 +136,24 @@ Bug fixes:
   did not accept the required ``size`` and optional ``column`` arguments.
   Both issues are now fixed.
 
+MimerPy Version 1.3.9
+---------------------
+MimerPy version 1.3.9 adds support for read-only connections and stored procedure calls.
+
+Major changes:
+
+* Read-only connections are now supported via the ``readonly`` parameter to
+  :func:`connect`. When ``readonly=True``, all transactions are started with
+  ``MIMER_TRANS_READONLY``, which prevents any DDL or write DML operations
+  on that connection. Combining ``readonly=True`` with ``autocommit=True``
+  raises a :exc:`~ProgrammingError`.
+
+* :meth:`Cursor.callproc` is now fully implemented. It supports stored
+  procedures with IN, OUT, and INOUT parameters of any supported SQL type,
+  as well as result-set procedures. OUT and INOUT parameter values are
+  returned as a modified copy of the input sequence, as required by
+  PEP 249.
+  
 MimerPy Version 1.3.10
 ----------------------
 MimerPy version 1.3.10 adds SQL trace logging.
@@ -155,21 +173,3 @@ Major changes:
   This prevents sensitive data from appearing in log files.  Set
   ``trace_unsafe=True`` in :func:`connect`, or set the environment
   variable ``MIMERPY_TRACE_UNSAFE=1``, to log full SQL and parameters.
-
-MimerPy Version 1.3.9
----------------------
-MimerPy version 1.3.9 adds support for read-only connections and stored procedure calls.
-
-Major changes:
-
-* Read-only connections are now supported via the ``readonly`` parameter to
-  :func:`connect`. When ``readonly=True``, all transactions are started with
-  ``MIMER_TRANS_READONLY``, which prevents any DDL or write DML operations
-  on that connection. Combining ``readonly=True`` with ``autocommit=True``
-  raises a :exc:`~ProgrammingError`.
-
-* :meth:`Cursor.callproc` is now fully implemented. It supports stored
-  procedures with IN, OUT, and INOUT parameters of any supported SQL type,
-  as well as result-set procedures. OUT and INOUT parameter values are
-  returned as a modified copy of the input sequence, as required by
-  PEP 249.
