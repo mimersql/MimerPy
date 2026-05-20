@@ -642,7 +642,7 @@ class Cursor:
         rc_value = mimerapi.mimerColumnCount(self.__statement)
         if rc_value > 0:
             self.__close_statement()
-            raise ProgrammingError
+            self.__raise_exception(-25017)
         
         rc_value = mimerapi.mimerParameterCount(self.__statement)
         self._number_of_parameters = rc_value
