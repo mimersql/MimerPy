@@ -20,7 +20,7 @@
 #
 # See license for more details.
 
-import unittest, time, math, random, uuid, decimal, os
+import unittest, unittest.mock, time, math, random, uuid, decimal, os
 import mimerpy
 from mimerpy import mimerapi
 from mimerpy.mimPyExceptions import *
@@ -486,6 +486,30 @@ class TestCursorMethods(unittest.TestCase):
             c.executemany("insert into bobe6 values (:a, :b)",
                           [(1, 'bob1'), (2, 'bob2'),
                            (3, 'bob3')])
+
+    def test_executemany_caches_parameter_type(self):
+        # mimerParameterType() only needs to be queried once per column,
+        # not once per (row, column) pair -- the type is fixed for the
+        # lifetime of the prepared statement.
+        with self.tstcon.cursor() as c:
+            c.execute("create table bobe6b (c1 INTEGER, c2 NVARCHAR(10))"
+                      " in pybank")
+            rows = [(1, 'bob1'), (2, 'bob2'), (3, 'bob3'), (4, 'bob4')]
+            num_columns = 2
+
+            real_parameter_type = mimerapi.mimerParameterType
+            calls = []
+
+            def counting_parameter_type(statement, column):
+                calls.append(column)
+                return real_parameter_type(statement, column)
+
+            with unittest.mock.patch.object(
+                    mimerapi, 'mimerParameterType',
+                    side_effect=counting_parameter_type):
+                c.executemany("insert into bobe6b values (:a, :b)", rows)
+
+            self.assertEqual(len(calls), num_columns)
 
     def test_commit(self):
         with self.tstcon.cursor() as c:

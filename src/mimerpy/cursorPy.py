@@ -642,16 +642,21 @@ class Cursor:
         self._number_of_parameters = rc_value
         self.__check_mimerapi_error(rc_value, self.__statement)
 
+        # Parameter types are fixed for this prepared statement's lifetime --
+        # fetch once instead of re-querying mimerParameterType on every row.
+        parameter_types = []
+        for cur_column in range(1, self._number_of_parameters + 1):
+            ptype = mimerapi.mimerParameterType(self.__statement, cur_column)
+            self.__check_mimerapi_error(ptype, self.__statement)
+            parameter_types.append(ptype)
+
         try:
             for laps in range(0, len(params)):
                 cur_param = params[laps]
 
                 # Column number starts a 1
                 for cur_column in range(1, self._number_of_parameters + 1):
-                    parameter_type = mimerapi.mimerParameterType(
-                        self.__statement, cur_column)
-                    self.__check_mimerapi_error(
-                        parameter_type, self.__statement)
+                    parameter_type = parameter_types[cur_column - 1]
 
                     if (isinstance(cur_param, dict)):
                         rc_value, parameter_name = mimerapi.mimerParameterName8(
