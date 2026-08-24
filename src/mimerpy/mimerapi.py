@@ -41,6 +41,7 @@ import os
 import struct
 import ctypes
 import math
+from functools import lru_cache
 from ctypes import (
     c_int16, c_int32, c_int64, c_size_t, c_char_p, c_void_p, c_double, c_float,
     POINTER, byref, create_string_buffer
@@ -352,8 +353,24 @@ def _set_stmt_error(statement_ptr: int, err: int) -> None:
     if sp and err and err < 0 and sp not in _stmt_bind_error:
         _stmt_bind_error[sp] = int(err)
 
+@lru_cache(maxsize=4096)
 def _arg_i16(v: int) -> c_int16:
     return c_int16(int(v))
+
+@lru_cache(maxsize=64)
+def _cached_stmt_handle(sp: int) -> MimerStatement:
+    # MimerStatement (== c_void_p) is a stateless wrapper around a raw
+    # pointer value, so memoizing it by that value is always safe -- even
+    # when the C library reuses a freed statement's address for a new
+    # statement, the wrapper still just holds the same address int.
+    # This is used by the mimerSetXxx parameter setters, which are called
+    # once per (row, column) in Cursor.executemany() with the *same*
+    # statement pointer across the whole batch -- caching it avoids
+    # rebuilding an identical ctypes object on every cell. maxsize=64 gives
+    # headroom for several statements to stay warm concurrently (e.g. a
+    # connection pool interleaving executemany() calls on different
+    # cursors) without unbounded growth over a long-running process.
+    return MimerStatement(sp)
 
 def _int64_overflow(x: int) -> bool:
     return x < -(1 << 63) or x > (1 << 63) - 1
@@ -535,7 +552,7 @@ def mimerGetSequenceInt64(statement_ptr: int):
 def mimerSetInt32(statement_ptr: int, parameter_number: int, value):
     sp = int(statement_ptr)
     if value is None:
-        return int(_MimerSetNull(MimerStatement(sp), _arg_i16(parameter_number)))
+        return int(_MimerSetNull(_cached_stmt_handle(sp), _arg_i16(parameter_number)))
     if isinstance(value, bool):
         iv = int(value)
     elif isinstance(value, str):
@@ -548,13 +565,13 @@ def mimerSetInt32(statement_ptr: int, parameter_number: int, value):
     if _int32_overflow(iv):
         _set_stmt_error(sp, MIMERPY_DATA_CONVERSION_ERROR)
         return int(MIMERPY_DATA_CONVERSION_ERROR)
-    rc = _MimerSetInt32(MimerStatement(sp), _arg_i16(parameter_number), c_int32(iv))
+    rc = _MimerSetInt32(_cached_stmt_handle(sp), _arg_i16(parameter_number), c_int32(iv))
     return int(rc)
 
 def mimerSetInt64(statement_ptr: int, parameter_number: int, value):
     sp = int(statement_ptr)
     if value is None:
-        return int(_MimerSetNull(MimerStatement(sp), _arg_i16(parameter_number)))
+        return int(_MimerSetNull(_cached_stmt_handle(sp), _arg_i16(parameter_number)))
     if isinstance(value, bool):
         iv = int(value)
     elif isinstance(value, str):
@@ -567,13 +584,13 @@ def mimerSetInt64(statement_ptr: int, parameter_number: int, value):
     if _int64_overflow(iv):
         _set_stmt_error(sp, MIMERPY_DATA_CONVERSION_ERROR)
         return int(MIMERPY_DATA_CONVERSION_ERROR)
-    rc = _MimerSetInt64(MimerStatement(sp), _arg_i16(parameter_number), c_int64(iv))
+    rc = _MimerSetInt64(_cached_stmt_handle(sp), _arg_i16(parameter_number), c_int64(iv))
     return int(rc)
 
 def mimerSetString8(statement_ptr: int, parameter_number: int, val: str):
     sp = int(statement_ptr)
     if val is None:
-        return int(_MimerSetNull(MimerStatement(sp), _arg_i16(parameter_number)))
+        return int(_MimerSetNull(_cached_stmt_handle(sp), _arg_i16(parameter_number)))
     try:
         if isinstance(val, bytes):
             raw = val
@@ -586,14 +603,14 @@ def mimerSetString8(statement_ptr: int, parameter_number: int, val: str):
         return int(MIMERPY_DATA_CONVERSION_ERROR)
     buf = create_string_buffer(raw + b'\x00')
     _keep_buffer(sp, buf)
-    return int(_MimerSetString8(MimerStatement(sp), _arg_i16(parameter_number),
+    return int(_MimerSetString8(_cached_stmt_handle(sp), _arg_i16(parameter_number),
                                 ctypes.cast(buf, c_char_p)))
 
 
 def mimerSetDouble(statement_ptr: int, parameter_number: int, value):
     sp = int(statement_ptr)
     if value is None:
-        return int(_MimerSetNull(MimerStatement(sp), _arg_i16(parameter_number)))
+        return int(_MimerSetNull(_cached_stmt_handle(sp), _arg_i16(parameter_number)))
     if isinstance(value, int) and _int64_overflow(value):
         _set_stmt_error(sp, MIMERPY_DATA_CONVERSION_ERROR)
         return int(MIMERPY_DATA_CONVERSION_ERROR)
@@ -605,12 +622,12 @@ def mimerSetDouble(statement_ptr: int, parameter_number: int, value):
     except Exception:
         _set_stmt_error(sp, MIMERPY_DATA_CONVERSION_ERROR)
         return int(MIMERPY_DATA_CONVERSION_ERROR)
-    return int(_MimerSetDouble(MimerStatement(sp), _arg_i16(parameter_number), c_double(dv)))
+    return int(_MimerSetDouble(_cached_stmt_handle(sp), _arg_i16(parameter_number), c_double(dv)))
 
 def mimerSetFloat(statement_ptr: int, parameter_number: int, value):
     sp = int(statement_ptr)
     if value is None:
-        return int(_MimerSetNull(MimerStatement(sp), _arg_i16(parameter_number)))
+        return int(_MimerSetNull(_cached_stmt_handle(sp), _arg_i16(parameter_number)))
     if isinstance(value, int) and _int64_overflow(value):
         _set_stmt_error(sp, MIMERPY_DATA_CONVERSION_ERROR)
         return int(MIMERPY_DATA_CONVERSION_ERROR)
@@ -622,7 +639,7 @@ def mimerSetFloat(statement_ptr: int, parameter_number: int, value):
     except Exception:
         _set_stmt_error(sp, MIMERPY_DATA_CONVERSION_ERROR)
         return int(MIMERPY_DATA_CONVERSION_ERROR)
-    return int(_MimerSetFloat(MimerStatement(sp), _arg_i16(parameter_number), c_float(fv)))
+    return int(_MimerSetFloat(_cached_stmt_handle(sp), _arg_i16(parameter_number), c_float(fv)))
 
 def mimerGetError8(handle_ptr: int):
     """Simple safe wrapper for MimerGetError8 — avoids segfault on null/invalid handle."""
@@ -648,14 +665,14 @@ def mimerGetError8(handle_ptr: int):
 def mimerSetBlobData(statement_ptr: int, parameter_number: int, data):
     sp = int(statement_ptr)
     if data is None:
-        return int(_MimerSetNull(MimerStatement(sp), _arg_i16(parameter_number)))
+        return int(_MimerSetNull(_cached_stmt_handle(sp), _arg_i16(parameter_number)))
     if not isinstance(data, (bytes, bytearray, memoryview)):
         _set_stmt_error(sp, MIMERPY_DATA_CONVERSION_ERROR)
         return int(MIMERPY_DATA_CONVERSION_ERROR)
     mv_all = memoryview(data)
     length = len(mv_all)
     lob = MimerLob()
-    rc = _MimerSetLob(MimerStatement(sp), _arg_i16(parameter_number), c_size_t(length), byref(lob))
+    rc = _MimerSetLob(_cached_stmt_handle(sp), _arg_i16(parameter_number), c_size_t(length), byref(lob))
     if rc < 0:
         return int(rc)
     offset = 0
@@ -672,10 +689,10 @@ def mimerSetBlobData(statement_ptr: int, parameter_number: int, data):
 def mimerSetNclobData8(statement_ptr: int, parameter_number: int, text: str | None):
     sp = int(statement_ptr)
     if text is None:
-        return int(_MimerSetNull(MimerStatement(sp), _arg_i16(parameter_number)))
+        return int(_MimerSetNull(_cached_stmt_handle(sp), _arg_i16(parameter_number)))
     raw = text.encode('utf-8')
     lob = MimerLob()
-    rc = _MimerSetLob(MimerStatement(sp), _arg_i16(parameter_number), c_size_t(len(raw)), byref(lob))
+    rc = _MimerSetLob(_cached_stmt_handle(sp), _arg_i16(parameter_number), c_size_t(len(raw)), byref(lob))
     if rc < 0:
         return int(rc)
     cptr = _set_utf8_cstring_keep(sp, raw)
@@ -728,14 +745,14 @@ def mimerGetNclobData8(statement_ptr: int, parameter_number: int):
 def mimerSetBinary(statement_ptr: int, parameter_number: int, value):
     sp = int(statement_ptr)
     if value is None:
-        return int(_MimerSetNull(MimerStatement(sp), _arg_i16(parameter_number)))
+        return int(_MimerSetNull(_cached_stmt_handle(sp), _arg_i16(parameter_number)))
     if not isinstance(value, (bytes, bytearray, memoryview)):
         _set_stmt_error(sp, MIMERPY_DATA_CONVERSION_ERROR)
         return int(MIMERPY_DATA_CONVERSION_ERROR)
     mv = memoryview(value)
     buf = (ctypes.c_ubyte * len(mv)).from_buffer_copy(mv)
     _keep_buffer(sp, buf)
-    return int(_MimerSetBinary(MimerStatement(sp), _arg_i16(parameter_number),
+    return int(_MimerSetBinary(_cached_stmt_handle(sp), _arg_i16(parameter_number),
                                ctypes.cast(buf, c_void_p), c_size_t(len(mv))))
 
 def mimerGetBinary(statement_ptr: int, parameter_number: int):
@@ -764,9 +781,9 @@ def mimerGetBinary(statement_ptr: int, parameter_number: int):
 def mimerSetBoolean(statement_ptr: int, parameter_number: int, value):
     sp = int(statement_ptr)
     if value is None:
-        return int(_MimerSetNull(MimerStatement(sp), _arg_i16(parameter_number)))
+        return int(_MimerSetNull(_cached_stmt_handle(sp), _arg_i16(parameter_number)))
     v = 1 if bool(value) else 0
-    return int(_MimerSetBoolean(MimerStatement(sp), _arg_i16(parameter_number), c_int32(v)))
+    return int(_MimerSetBoolean(_cached_stmt_handle(sp), _arg_i16(parameter_number), c_int32(v)))
 
 def mimerGetBoolean(statement_ptr: int, parameter_number: int):
     sp = int(statement_ptr)
@@ -788,14 +805,14 @@ def mimerGetUUID(statement_ptr: int, parameter_number: int):
 def mimerSetUUID(statement_ptr: int, parameter_number: int, uuid_bytes: bytes):
     sp = int(statement_ptr)
     if uuid_bytes is None:
-        return int(_MimerSetNull(MimerStatement(sp), _arg_i16(parameter_number)))
+        return int(_MimerSetNull(_cached_stmt_handle(sp), _arg_i16(parameter_number)))
     if not isinstance(uuid_bytes, (bytes, bytearray, memoryview)) or len(uuid_bytes) != 16:
         _set_stmt_error(sp, MIMERPY_DATA_CONVERSION_ERROR)
         return int(MIMERPY_DATA_CONVERSION_ERROR)
     mv = memoryview(uuid_bytes)
     buf = (ctypes.c_ubyte * 16).from_buffer_copy(mv[:16])
     _keep_buffer(sp, buf)
-    return int(_MimerSetUUID(MimerStatement(sp), _arg_i16(parameter_number), ctypes.cast(buf, c_void_p)))
+    return int(_MimerSetUUID(_cached_stmt_handle(sp), _arg_i16(parameter_number), ctypes.cast(buf, c_void_p)))
 
 def mimerGetGisLocation(statement_ptr: int, parameter_number: int):
     if _level < 3:
@@ -814,14 +831,14 @@ def mimerSetGisLocation(statement_ptr: int, parameter_number: int, value):
         raise NotImplementedError("GIS datatypes are not supported by this Mimer API level")
     sp = int(statement_ptr)
     if value is None:
-        return int(_MimerSetNull(MimerStatement(sp), _arg_i16(parameter_number)))
+        return int(_MimerSetNull(_cached_stmt_handle(sp), _arg_i16(parameter_number)))
     try:
         lat, lon = map(float, value)
     except Exception:
         _set_stmt_error(sp, MIMERPY_DATA_CONVERSION_ERROR)
         return int(MIMERPY_DATA_CONVERSION_ERROR)
     loc = MimerGisLocation(lat, lon)
-    return int(_MimerSetGisLocation(MimerStatement(sp), _arg_i16(parameter_number), loc))
+    return int(_MimerSetGisLocation(_cached_stmt_handle(sp), _arg_i16(parameter_number), loc))
 
 def mimerGetGisLatitude(statement_ptr: int, parameter_number: int):
     if _level < 3:
@@ -836,8 +853,8 @@ def mimerSetGisLatitude(statement_ptr: int, parameter_number: int, value):
         raise NotImplementedError("GIS datatypes are not supported by this Mimer API level")
     sp = int(statement_ptr)
     if value is None:
-        return int(_MimerSetNull(MimerStatement(sp), _arg_i16(parameter_number)))
-    return int(_MimerSetGisLatitude(MimerStatement(sp), _arg_i16(parameter_number), c_double(float(value))))
+        return int(_MimerSetNull(_cached_stmt_handle(sp), _arg_i16(parameter_number)))
+    return int(_MimerSetGisLatitude(_cached_stmt_handle(sp), _arg_i16(parameter_number), c_double(float(value))))
 
 def mimerGetGisLongitude(statement_ptr: int, parameter_number: int):
     if _level < 3:
@@ -852,13 +869,13 @@ def mimerSetGisLongitude(statement_ptr: int, parameter_number: int, value):
         raise NotImplementedError("GIS datatypes are not supported by this Mimer API level")
     sp = int(statement_ptr)
     if value is None:
-        return int(_MimerSetNull(MimerStatement(sp), _arg_i16(parameter_number)))
-    return int(_MimerSetGisLongitude(MimerStatement(sp), _arg_i16(parameter_number), c_double(float(value))))
+        return int(_MimerSetNull(_cached_stmt_handle(sp), _arg_i16(parameter_number)))
+    return int(_MimerSetGisLongitude(_cached_stmt_handle(sp), _arg_i16(parameter_number), c_double(float(value))))
 
 
 def mimerSetNull(statement_ptr: int, parameter_number: int, _ignored=None):
     sp = int(statement_ptr)
-    return int(_MimerSetNull(MimerStatement(sp), _arg_i16(parameter_number)))
+    return int(_MimerSetNull(_cached_stmt_handle(sp), _arg_i16(parameter_number)))
 
 def mimerTestMalloc(v: int):
     # No-op in ctypes version; kept for API parity.

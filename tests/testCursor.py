@@ -511,6 +511,41 @@ class TestCursorMethods(unittest.TestCase):
 
             self.assertEqual(len(calls), num_columns)
 
+    def test_executemany_caches_native_call_handles(self):
+        # The mimerSetXxx parameter setters (mimerapi.py) each build a
+        # MimerStatement(sp) wrapper and a per-column _arg_i16(col) wrapper
+        # before making the native ctypes call. Both are memoized via
+        # lru_cache (mimerapi._cached_stmt_handle / mimerapi._arg_i16)
+        # since the statement pointer is constant for an entire
+        # executemany() batch and column numbers repeat every row -- so
+        # object construction should scale with distinct (statement,
+        # column) pairs, not with row count.
+        with self.tstcon.cursor() as c:
+            c.execute("create table bobcache1 (c1 INTEGER, c2 NVARCHAR(10))"
+                      " in pybank")
+            rows = [(i, f'v{i}') for i in range(50)]
+
+            mimerapi._cached_stmt_handle.cache_clear()
+            mimerapi._arg_i16.cache_clear()
+
+            c.executemany("insert into bobcache1 values (:a, :b)", rows)
+
+            stmt_info = mimerapi._cached_stmt_handle.cache_info()
+            col_info = mimerapi._arg_i16.cache_info()
+
+        # Only one statement pointer is used for the whole batch -- so
+        # only a small, row-count-independent number of distinct
+        # MimerStatement wrappers should ever be built, and the vast
+        # majority of the ~50 rows * 2 columns worth of lookups should be
+        # cache hits reusing that same wrapper.
+        self.assertLessEqual(stmt_info.misses, 3)
+        self.assertGreater(stmt_info.hits, len(rows))
+
+        # Only two distinct columns are used -- same reasoning applies to
+        # the per-column _arg_i16 wrappers.
+        self.assertLessEqual(col_info.misses, 5)
+        self.assertGreater(col_info.hits, len(rows))
+
     def test_commit(self):
         with self.tstcon.cursor() as c:
             c.execute("create table bob7d (c1 INTEGER, c2 NVARCHAR(10))"
