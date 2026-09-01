@@ -546,6 +546,43 @@ class TestCursorMethods(unittest.TestCase):
         self.assertLessEqual(col_info.misses, 5)
         self.assertGreater(col_info.hits, len(rows))
 
+    def test_fetchall_caches_native_call_handles(self):
+        # mimerFetch() and the mimerGetXxx column getters (mimerapi.py)
+        # each build a MimerStatement(sp) wrapper and a per-column
+        # _arg_i16(col) wrapper before making the native ctypes call --
+        # and the null-check getters (mimerGetInt32/Int64/Double/Float/
+        # String8/...) build them *twice* per cell (once for the
+        # MimerIsNull probe, once for the actual get). Both wrappers are
+        # memoized the same way as on the executemany() set side (see
+        # test_executemany_caches_native_call_handles) since the
+        # statement pointer is constant for the whole result set and
+        # column numbers repeat every row.
+        with self.tstcon.cursor() as c:
+            c.execute("create table bobcache2 (c1 INTEGER, c2 NVARCHAR(10))"
+                      " in pybank")
+            rows = [(i, f'v{i}') for i in range(50)]
+            c.executemany("insert into bobcache2 values (:a, :b)", rows)
+            self.tstcon.commit()
+
+            mimerapi._cached_stmt_handle.cache_clear()
+            mimerapi._arg_i16.cache_clear()
+
+            c.execute("select * from bobcache2")
+            fetched = c.fetchall()
+
+            stmt_info = mimerapi._cached_stmt_handle.cache_info()
+            col_info = mimerapi._arg_i16.cache_info()
+
+        self.assertEqual(len(fetched), len(rows))
+
+        # One statement pointer is reused for the whole result set.
+        self.assertLessEqual(stmt_info.misses, 3)
+        self.assertGreater(stmt_info.hits, len(rows))
+
+        # Only two distinct columns are fetched.
+        self.assertLessEqual(col_info.misses, 5)
+        self.assertGreater(col_info.hits, len(rows))
+
     def test_commit(self):
         with self.tstcon.cursor() as c:
             c.execute("create table bob7d (c1 INTEGER, c2 NVARCHAR(10))"

@@ -472,17 +472,19 @@ def mimerParameterCount(statement_ptr: int):
     return int(_MimerParameterCount(MimerStatement(statement_ptr)))
 
 def _get_text_varying(getter, handle_ptr: int, ordinal: int):
-    if _MimerIsNull(MimerStatement(handle_ptr), _arg_i16(ordinal)) == 1:
+    stmt = _cached_stmt_handle(int(handle_ptr))
+    col = _arg_i16(ordinal)
+    if _MimerIsNull(stmt, col) == 1:
         return (0, None)
     buf = create_string_buffer(BUFLEN)
-    rc = getter(MimerStatement(handle_ptr), _arg_i16(ordinal), buf, c_size_t(BUFLEN))
+    rc = getter(stmt, col, buf, c_size_t(BUFLEN))
     if rc >= BUFLEN:
         needed = int(rc) + 1
         try:
             big = create_string_buffer(needed)
         except Exception:
             return (MIMERPY_NOMEM, '')
-        rc = getter(MimerStatement(handle_ptr), _arg_i16(ordinal), big, c_size_t(needed))
+        rc = getter(stmt, col, big, c_size_t(needed))
         s = (big.raw[:max(0, int(rc))]).decode('utf-8', 'strict') if rc > 0 else ''
         return (int(rc), s)
     else:
@@ -511,42 +513,50 @@ def mimerColumnName8(statement_ptr: int, column_number: int):
     return (rc, s)
 
 def mimerFetch(statement_ptr: int):
-    return int(_MimerFetch(MimerStatement(statement_ptr)))
+    return int(_MimerFetch(_cached_stmt_handle(int(statement_ptr))))
 
 def mimerGetInt32(statement_ptr: int, column_number: int):
-    if _MimerIsNull(MimerStatement(statement_ptr), _arg_i16(column_number)) == 1:
+    stmt = _cached_stmt_handle(int(statement_ptr))
+    col = _arg_i16(column_number)
+    if _MimerIsNull(stmt, col) == 1:
         return (0, None)
     out = c_int32()
-    rc = _MimerGetInt32(MimerStatement(statement_ptr), _arg_i16(column_number), byref(out))
+    rc = _MimerGetInt32(stmt, col, byref(out))
     return (int(rc), int(out.value))
 
 def mimerGetInt64(statement_ptr: int, column_number: int):
-    if _MimerIsNull(MimerStatement(statement_ptr), _arg_i16(column_number)) == 1:
+    stmt = _cached_stmt_handle(int(statement_ptr))
+    col = _arg_i16(column_number)
+    if _MimerIsNull(stmt, col) == 1:
         return (0, None)
     out = c_int64()
-    rc = _MimerGetInt64(MimerStatement(statement_ptr), _arg_i16(column_number), byref(out))
+    rc = _MimerGetInt64(stmt, col, byref(out))
     return (int(rc), int(out.value))
 
 def mimerGetString8(statement_ptr: int, column_number: int):
     return _get_text_varying(_MimerGetString8, statement_ptr, column_number)
 
 def mimerGetDouble(statement_ptr: int, column_number: int):
-    if _MimerIsNull(MimerStatement(statement_ptr), _arg_i16(column_number)) == 1:
+    stmt = _cached_stmt_handle(int(statement_ptr))
+    col = _arg_i16(column_number)
+    if _MimerIsNull(stmt, col) == 1:
         return (0, None)
     out = c_double()
-    rc = _MimerGetDouble(MimerStatement(statement_ptr), _arg_i16(column_number), byref(out))
+    rc = _MimerGetDouble(stmt, col, byref(out))
     return (int(rc), float(out.value))
 
 def mimerGetFloat(statement_ptr: int, column_number: int):
-    if _MimerIsNull(MimerStatement(statement_ptr), _arg_i16(column_number)) == 1:
+    stmt = _cached_stmt_handle(int(statement_ptr))
+    col = _arg_i16(column_number)
+    if _MimerIsNull(stmt, col) == 1:
         return (0, None)
     out = c_float()
-    rc = _MimerGetFloat(MimerStatement(statement_ptr), _arg_i16(column_number), byref(out))
+    rc = _MimerGetFloat(stmt, col, byref(out))
     return (int(rc), float(out.value))
 
 def mimerGetSequenceInt64(statement_ptr: int):
     out = c_int64()
-    rc = _MimerGetSequenceInt64(MimerStatement(statement_ptr), byref(out))
+    rc = _MimerGetSequenceInt64(_cached_stmt_handle(int(statement_ptr)), byref(out))
     return (int(rc), int(out.value))
 
 def mimerSetInt32(statement_ptr: int, parameter_number: int, value):
@@ -700,11 +710,13 @@ def mimerSetNclobData8(statement_ptr: int, parameter_number: int, text: str | No
 
 def mimerGetBlobData(statement_ptr: int, parameter_number: int):
     sp = int(statement_ptr)
-    if _MimerIsNull(MimerStatement(sp), _arg_i16(parameter_number)) == 1:
+    stmt = _cached_stmt_handle(sp)
+    col = _arg_i16(parameter_number)
+    if _MimerIsNull(stmt, col) == 1:
         return (0, None)
     lob = MimerLob()
     length = c_size_t(0)
-    rc = _MimerGetLob(MimerStatement(sp), _arg_i16(parameter_number), byref(length), byref(lob))
+    rc = _MimerGetLob(stmt, col, byref(length), byref(lob))
     if rc < 0:
         return (int(rc), None)
     total = int(length.value)
@@ -726,11 +738,13 @@ def mimerGetBlobData(statement_ptr: int, parameter_number: int):
 
 def mimerGetNclobData8(statement_ptr: int, parameter_number: int):
     sp = int(statement_ptr)
-    if _MimerIsNull(MimerStatement(sp), _arg_i16(parameter_number)) == 1:
+    stmt = _cached_stmt_handle(sp)
+    col = _arg_i16(parameter_number)
+    if _MimerIsNull(stmt, col) == 1:
         return (0, None)
     lob = MimerLob()
     length = c_size_t(0)
-    rc = _MimerGetLob(MimerStatement(sp), _arg_i16(parameter_number), byref(length), byref(lob))
+    rc = _MimerGetLob(stmt, col, byref(length), byref(lob))
     if rc < 0:
         return (int(rc), None)
     need = 4 * int(length.value) + 1
@@ -757,11 +771,13 @@ def mimerSetBinary(statement_ptr: int, parameter_number: int, value):
 
 def mimerGetBinary(statement_ptr: int, parameter_number: int):
     sp = int(statement_ptr)
-    if _MimerIsNull(MimerStatement(sp), _arg_i16(parameter_number)) == 1:
+    stmt = _cached_stmt_handle(sp)
+    col = _arg_i16(parameter_number)
+    if _MimerIsNull(stmt, col) == 1:
         return (0, None)
     SmallArr = ctypes.c_ubyte * BUFLEN
     small = SmallArr()
-    rc = _MimerGetBinary(MimerStatement(sp), _arg_i16(parameter_number), small, c_size_t(BUFLEN))
+    rc = _MimerGetBinary(stmt, col, small, c_size_t(BUFLEN))
     if rc > BUFLEN:
         need = int(rc)
         try:
@@ -769,7 +785,7 @@ def mimerGetBinary(statement_ptr: int, parameter_number: int):
             big = BigArr()
         except Exception:
             return (MIMERPY_NOMEM, None)
-        rc = _MimerGetBinary(MimerStatement(sp), _arg_i16(parameter_number), big, c_size_t(need))
+        rc = _MimerGetBinary(stmt, col, big, c_size_t(need))
         if rc <= 0:
             return (int(rc), None)
         return (int(rc), bytes(bytearray(big))[:int(rc)])
@@ -787,17 +803,21 @@ def mimerSetBoolean(statement_ptr: int, parameter_number: int, value):
 
 def mimerGetBoolean(statement_ptr: int, parameter_number: int):
     sp = int(statement_ptr)
-    if _MimerIsNull(MimerStatement(sp), _arg_i16(parameter_number)) == 1:
+    stmt = _cached_stmt_handle(sp)
+    col = _arg_i16(parameter_number)
+    if _MimerIsNull(stmt, col) == 1:
         return (0, None)
-    rc = _MimerGetBoolean(MimerStatement(sp), _arg_i16(parameter_number))
+    rc = _MimerGetBoolean(stmt, col)
     return (int(rc), int(rc))
 
 def mimerGetUUID(statement_ptr: int, parameter_number: int):
     sp = int(statement_ptr)
-    if _MimerIsNull(MimerStatement(sp), _arg_i16(parameter_number)) == 1:
+    stmt = _cached_stmt_handle(sp)
+    col = _arg_i16(parameter_number)
+    if _MimerIsNull(stmt, col) == 1:
         return (0, None)
     buf = (ctypes.c_ubyte * 16)()
-    rc = _MimerGetUUID(MimerStatement(sp), _arg_i16(parameter_number), ctypes.cast(buf, c_void_p))
+    rc = _MimerGetUUID(stmt, col, ctypes.cast(buf, c_void_p))
     if rc < 0:
         return (int(rc), None)
     return (int(rc), bytes(bytearray(buf)))
@@ -818,10 +838,12 @@ def mimerGetGisLocation(statement_ptr: int, parameter_number: int):
     if _level < 3:
         raise NotImplementedError("GIS datatypes are not supported by this Mimer API level")
     sp = int(statement_ptr)
-    if _MimerIsNull(MimerStatement(sp), _arg_i16(parameter_number)) == 1:
+    stmt = _cached_stmt_handle(sp)
+    col = _arg_i16(parameter_number)
+    if _MimerIsNull(stmt, col) == 1:
         return (0, None)
     loc = MimerGisLocation()
-    rc = _MimerGetGisLocation(MimerStatement(sp), _arg_i16(parameter_number), byref(loc))
+    rc = _MimerGetGisLocation(stmt, col, byref(loc))
     if rc < 0:
         return (int(rc), None)
     return (int(rc), (float(loc.latitude), float(loc.longitude)))
@@ -845,7 +867,7 @@ def mimerGetGisLatitude(statement_ptr: int, parameter_number: int):
         raise NotImplementedError("GIS datatypes are not supported by this Mimer API level")
     sp = int(statement_ptr)
     out = c_double()
-    rc = _MimerGetGisLatitude(MimerStatement(sp), _arg_i16(parameter_number), byref(out))
+    rc = _MimerGetGisLatitude(_cached_stmt_handle(sp), _arg_i16(parameter_number), byref(out))
     return (int(rc), float(out.value))
 
 def mimerSetGisLatitude(statement_ptr: int, parameter_number: int, value):
@@ -861,7 +883,7 @@ def mimerGetGisLongitude(statement_ptr: int, parameter_number: int):
         raise NotImplementedError("GIS datatypes are not supported by this Mimer API level")
     sp = int(statement_ptr)
     out = c_double()
-    rc = _MimerGetGisLongitude(MimerStatement(sp), _arg_i16(parameter_number), byref(out))
+    rc = _MimerGetGisLongitude(_cached_stmt_handle(sp), _arg_i16(parameter_number), byref(out))
     return (int(rc), float(out.value))
 
 def mimerSetGisLongitude(statement_ptr: int, parameter_number: int, value):
