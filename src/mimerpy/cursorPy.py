@@ -390,6 +390,7 @@ class Cursor:
         self._last_query = None
         self._DDL_rc_value = None
         self._column_type = []
+        self._column_getters = []
 
         self.__session = session
         self.__statement = None
@@ -567,6 +568,13 @@ class Cursor:
                                                      'name type_code display_size internal_size precision scale null_ok')
                 self.description = ()
                 self._column_type = []
+                # Getter dispatch is resolved once per column here instead
+                # of on every (row, column) inside fetchone/fetchmany/
+                # fetchall -- the column types are fixed for the lifetime
+                # of this statement, so re-doing the get_funcs[...] dict
+                # lookup on every cell was redundant (same pattern as the
+                # parameter_type caching in executemany()).
+                self._column_getters = []
                 for cur_column in range(1, self._number_of_columns + 1):
                     func_tuple = mimerapi.mimerColumnName8(
                         self.__statement, cur_column)
@@ -577,6 +585,7 @@ class Cursor:
                         self.__statement, cur_column)
                     self.__check_mimerapi_error(rc_value, self.__statement)
                     self._column_type.append(rc_value)
+                    self._column_getters.append(get_funcs[rc_value])
                     type_code = rc_value
                     self.description = self.description + (description(name=name,
                                                                        type_code=type_code,
@@ -728,8 +737,8 @@ class Cursor:
         # a wide row instead of O(columns).
         row = []
         for cur_column in range(1, self._number_of_columns + 1):
-            func_tuple = get_funcs[self._column_type[cur_column - 1]
-                                   ](self.__statement, cur_column)
+            func_tuple = self._column_getters[cur_column - 1](
+                self.__statement, cur_column)
             self.__check_mimerapi_error(func_tuple[0], self.__statement)
 
             # Conversion from C int to Python boolean
@@ -780,8 +789,8 @@ class Cursor:
 
             # Column number starts a 1
             for cur_column in range(1, self._number_of_columns + 1):
-                func_tuple = get_funcs[self._column_type[cur_column - 1]
-                                       ](self.__statement, cur_column)
+                func_tuple = self._column_getters[cur_column - 1](
+                    self.__statement, cur_column)
                 self.__check_mimerapi_error(func_tuple[0], self.__statement)
 
                 # Conversion from C int to Python boolean
@@ -825,8 +834,8 @@ class Cursor:
 
             # Column number starts a 1
             for cur_column in range(1, self._number_of_columns + 1):
-                func_tuple = get_funcs[self._column_type[cur_column - 1]
-                                       ](self.__statement, cur_column)
+                func_tuple = self._column_getters[cur_column - 1](
+                    self.__statement, cur_column)
                 self.__check_mimerapi_error(func_tuple[0], self.__statement)
 
                 # Conversion from C int to Python boolean
@@ -988,6 +997,7 @@ class Cursor:
                                                  'name type_code display_size internal_size precision scale null_ok')
             self.description = ()
             self._column_type = []
+            self._column_getters = []
             for cur_column in range(1, self._number_of_columns + 1):
                 func_tuple = mimerapi.mimerColumnName8(self.__statement, cur_column)
                 rc_value = func_tuple[0]
@@ -996,6 +1006,7 @@ class Cursor:
                 rc_value = mimerapi.mimerColumnType(self.__statement, cur_column)
                 self.__check_mimerapi_error(rc_value, self.__statement)
                 self._column_type.append(rc_value)
+                self._column_getters.append(get_funcs[rc_value])
                 type_code = rc_value
                 self.description = self.description + (description(name=name,
                                                                    type_code=type_code,
