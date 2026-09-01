@@ -717,12 +717,16 @@ class Cursor:
 
         rc_value = mimerapi.mimerFetch(self.__statement)
         self.__check_mimerapi_error(rc_value, self.__statement)
-        return_tuple = ()
 
         # Return value of mimerFetch == 100 implies end of result set
         if (rc_value == 100):
             return None
 
+        # Build the row in a list and convert to a tuple once at the end --
+        # repeated tuple concatenation (return_tuple + (x,)) reallocates and
+        # copies the whole tuple on every column, which is O(columns^2) for
+        # a wide row instead of O(columns).
+        row = []
         for cur_column in range(1, self._number_of_columns + 1):
             func_tuple = get_funcs[self._column_type[cur_column - 1]
                                    ](self.__statement, cur_column)
@@ -731,12 +735,12 @@ class Cursor:
             # Conversion from C int to Python boolean
             if (rc_value == 42 and not func_tuple[1] == None):
                 if (func_tuple[1] == 0):
-                    return_tuple = return_tuple + (False,)
+                    row.append(False)
                 else:
-                    return_tuple = return_tuple + (True,)
+                    row.append(True)
             else:
-                return_tuple = return_tuple + (func_tuple[1],)
-        return return_tuple
+                row.append(func_tuple[1])
+        return tuple(row)
 
     def fetchmany(self, *arg):
         """Fetch next row of a query result set.
@@ -753,7 +757,6 @@ class Cursor:
 
         """
         values = []
-        return_tuple = ()
 
         self.__check_if_open()
         self.__check_for_transaction()
@@ -771,7 +774,9 @@ class Cursor:
 
         while (fetch_value != 100 and fetch_length > 0):
             self.__check_mimerapi_error(fetch_value, self.__statement)
-            return_tuple = ()
+            # Build the row in a list and convert to a tuple once -- see
+            # fetchone() for why (avoids O(columns^2) tuple concatenation).
+            row = []
 
             # Column number starts a 1
             for cur_column in range(1, self._number_of_columns + 1):
@@ -782,13 +787,13 @@ class Cursor:
                 # Conversion from C int to Python boolean
                 if (rc_value == 42 and not func_tuple[1] == None):
                     if (func_tuple[1] == 0):
-                        return_tuple = return_tuple + (False,)
+                        row.append(False)
                     else:
-                        return_tuple = return_tuple + (True,)
+                        row.append(True)
                 else:
-                    return_tuple = return_tuple + (func_tuple[1],)
+                    row.append(func_tuple[1])
 
-            values.append(return_tuple)
+            values.append(tuple(row))
             fetch_length = fetch_length - 1
             if(fetch_length > 0):
                 fetch_value = mimerapi.mimerFetch(self.__statement)
@@ -814,7 +819,9 @@ class Cursor:
 
         while (fetch_value != 100):
             self.__check_mimerapi_error(fetch_value, self.__statement)
-            return_tuple = ()
+            # Build the row in a list and convert to a tuple once -- see
+            # fetchone() for why (avoids O(columns^2) tuple concatenation).
+            row = []
 
             # Column number starts a 1
             for cur_column in range(1, self._number_of_columns + 1):
@@ -825,12 +832,12 @@ class Cursor:
                 # Conversion from C int to Python boolean
                 if (rc_value == 42 and not func_tuple[1] == None):
                     if (func_tuple[1] == 0):
-                        return_tuple = return_tuple + (False,)
+                        row.append(False)
                     else:
-                        return_tuple = return_tuple + (True,)
+                        row.append(True)
                 else:
-                    return_tuple = return_tuple + (func_tuple[1],)
-            values.append(return_tuple)
+                    row.append(func_tuple[1])
+            values.append(tuple(row))
             fetch_value = mimerapi.mimerFetch(self.__statement)
         return values
 
