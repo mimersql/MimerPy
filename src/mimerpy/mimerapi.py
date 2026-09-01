@@ -54,6 +54,11 @@ from ctypes.util import find_library
 
 MIMERPY_DATA_CONVERSION_ERROR = -25020
 MIMERPY_NOMEM = -25030
+# Native Mimer C API return code meaning "the column or output parameter
+# contained the SQL null value" (mimerrors.h). Every MimerGetXxx routine's
+# own documented return values include this code, so it can be checked
+# directly instead of a separate MimerIsNull() probe call beforehand.
+MIMER_SQL_NULL_VALUE = -24002
 # Mimer SQL datatype codes
 MIMER_TYPE_CHARACTER = 1
 MIMER_TYPE_DECIMAL = 2
@@ -472,12 +477,15 @@ def mimerParameterCount(statement_ptr: int):
     return int(_MimerParameterCount(MimerStatement(statement_ptr)))
 
 def _get_text_varying(getter, handle_ptr: int, ordinal: int):
+    # NULL is detected from the getter's own return code (MIMER_SQL_NULL_VALUE)
+    # instead of a separate MimerIsNull() probe call -- every MimerGetXxx
+    # routine documents this return value as an alternative to MimerIsNull.
     stmt = _cached_stmt_handle(int(handle_ptr))
     col = _arg_i16(ordinal)
-    if _MimerIsNull(stmt, col) == 1:
-        return (0, None)
     buf = create_string_buffer(BUFLEN)
     rc = getter(stmt, col, buf, c_size_t(BUFLEN))
+    if rc == MIMER_SQL_NULL_VALUE:
+        return (0, None)
     if rc >= BUFLEN:
         needed = int(rc) + 1
         try:
@@ -516,21 +524,23 @@ def mimerFetch(statement_ptr: int):
     return int(_MimerFetch(_cached_stmt_handle(int(statement_ptr))))
 
 def mimerGetInt32(statement_ptr: int, column_number: int):
+    # NULL is detected from the return code (MIMER_SQL_NULL_VALUE) instead
+    # of a separate MimerIsNull() probe call -- see _get_text_varying.
     stmt = _cached_stmt_handle(int(statement_ptr))
     col = _arg_i16(column_number)
-    if _MimerIsNull(stmt, col) == 1:
-        return (0, None)
     out = c_int32()
     rc = _MimerGetInt32(stmt, col, byref(out))
+    if rc == MIMER_SQL_NULL_VALUE:
+        return (0, None)
     return (int(rc), int(out.value))
 
 def mimerGetInt64(statement_ptr: int, column_number: int):
     stmt = _cached_stmt_handle(int(statement_ptr))
     col = _arg_i16(column_number)
-    if _MimerIsNull(stmt, col) == 1:
-        return (0, None)
     out = c_int64()
     rc = _MimerGetInt64(stmt, col, byref(out))
+    if rc == MIMER_SQL_NULL_VALUE:
+        return (0, None)
     return (int(rc), int(out.value))
 
 def mimerGetString8(statement_ptr: int, column_number: int):
@@ -539,19 +549,19 @@ def mimerGetString8(statement_ptr: int, column_number: int):
 def mimerGetDouble(statement_ptr: int, column_number: int):
     stmt = _cached_stmt_handle(int(statement_ptr))
     col = _arg_i16(column_number)
-    if _MimerIsNull(stmt, col) == 1:
-        return (0, None)
     out = c_double()
     rc = _MimerGetDouble(stmt, col, byref(out))
+    if rc == MIMER_SQL_NULL_VALUE:
+        return (0, None)
     return (int(rc), float(out.value))
 
 def mimerGetFloat(statement_ptr: int, column_number: int):
     stmt = _cached_stmt_handle(int(statement_ptr))
     col = _arg_i16(column_number)
-    if _MimerIsNull(stmt, col) == 1:
-        return (0, None)
     out = c_float()
     rc = _MimerGetFloat(stmt, col, byref(out))
+    if rc == MIMER_SQL_NULL_VALUE:
+        return (0, None)
     return (int(rc), float(out.value))
 
 def mimerGetSequenceInt64(statement_ptr: int):
@@ -712,11 +722,11 @@ def mimerGetBlobData(statement_ptr: int, parameter_number: int):
     sp = int(statement_ptr)
     stmt = _cached_stmt_handle(sp)
     col = _arg_i16(parameter_number)
-    if _MimerIsNull(stmt, col) == 1:
-        return (0, None)
     lob = MimerLob()
     length = c_size_t(0)
     rc = _MimerGetLob(stmt, col, byref(length), byref(lob))
+    if rc == MIMER_SQL_NULL_VALUE:
+        return (0, None)
     if rc < 0:
         return (int(rc), None)
     total = int(length.value)
@@ -740,11 +750,11 @@ def mimerGetNclobData8(statement_ptr: int, parameter_number: int):
     sp = int(statement_ptr)
     stmt = _cached_stmt_handle(sp)
     col = _arg_i16(parameter_number)
-    if _MimerIsNull(stmt, col) == 1:
-        return (0, None)
     lob = MimerLob()
     length = c_size_t(0)
     rc = _MimerGetLob(stmt, col, byref(length), byref(lob))
+    if rc == MIMER_SQL_NULL_VALUE:
+        return (0, None)
     if rc < 0:
         return (int(rc), None)
     need = 4 * int(length.value) + 1
@@ -773,11 +783,11 @@ def mimerGetBinary(statement_ptr: int, parameter_number: int):
     sp = int(statement_ptr)
     stmt = _cached_stmt_handle(sp)
     col = _arg_i16(parameter_number)
-    if _MimerIsNull(stmt, col) == 1:
-        return (0, None)
     SmallArr = ctypes.c_ubyte * BUFLEN
     small = SmallArr()
     rc = _MimerGetBinary(stmt, col, small, c_size_t(BUFLEN))
+    if rc == MIMER_SQL_NULL_VALUE:
+        return (0, None)
     if rc > BUFLEN:
         need = int(rc)
         try:
@@ -805,19 +815,19 @@ def mimerGetBoolean(statement_ptr: int, parameter_number: int):
     sp = int(statement_ptr)
     stmt = _cached_stmt_handle(sp)
     col = _arg_i16(parameter_number)
-    if _MimerIsNull(stmt, col) == 1:
-        return (0, None)
     rc = _MimerGetBoolean(stmt, col)
+    if rc == MIMER_SQL_NULL_VALUE:
+        return (0, None)
     return (int(rc), int(rc))
 
 def mimerGetUUID(statement_ptr: int, parameter_number: int):
     sp = int(statement_ptr)
     stmt = _cached_stmt_handle(sp)
     col = _arg_i16(parameter_number)
-    if _MimerIsNull(stmt, col) == 1:
-        return (0, None)
     buf = (ctypes.c_ubyte * 16)()
     rc = _MimerGetUUID(stmt, col, ctypes.cast(buf, c_void_p))
+    if rc == MIMER_SQL_NULL_VALUE:
+        return (0, None)
     if rc < 0:
         return (int(rc), None)
     return (int(rc), bytes(bytearray(buf)))
@@ -840,10 +850,10 @@ def mimerGetGisLocation(statement_ptr: int, parameter_number: int):
     sp = int(statement_ptr)
     stmt = _cached_stmt_handle(sp)
     col = _arg_i16(parameter_number)
-    if _MimerIsNull(stmt, col) == 1:
-        return (0, None)
     loc = MimerGisLocation()
     rc = _MimerGetGisLocation(stmt, col, byref(loc))
+    if rc == MIMER_SQL_NULL_VALUE:
+        return (0, None)
     if rc < 0:
         return (int(rc), None)
     return (int(rc), (float(loc.latitude), float(loc.longitude)))
@@ -868,6 +878,8 @@ def mimerGetGisLatitude(statement_ptr: int, parameter_number: int):
     sp = int(statement_ptr)
     out = c_double()
     rc = _MimerGetGisLatitude(_cached_stmt_handle(sp), _arg_i16(parameter_number), byref(out))
+    if rc == MIMER_SQL_NULL_VALUE:
+        return (0, None)
     return (int(rc), float(out.value))
 
 def mimerSetGisLatitude(statement_ptr: int, parameter_number: int, value):
@@ -884,6 +896,8 @@ def mimerGetGisLongitude(statement_ptr: int, parameter_number: int):
     sp = int(statement_ptr)
     out = c_double()
     rc = _MimerGetGisLongitude(_cached_stmt_handle(sp), _arg_i16(parameter_number), byref(out))
+    if rc == MIMER_SQL_NULL_VALUE:
+        return (0, None)
     return (int(rc), float(out.value))
 
 def mimerSetGisLongitude(statement_ptr: int, parameter_number: int, value):
