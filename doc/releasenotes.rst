@@ -173,3 +173,37 @@ Major changes:
   This prevents sensitive data from appearing in log files.  Set
   ``trace_unsafe=True`` in :func:`connect`, or set the environment
   variable ``MIMERPY_TRACE_UNSAFE=1``, to log full SQL and parameters.
+
+MimerPy Version 1.3.11
+----------------------
+MimerPy version 1.3.11 significantly improves the performance of bulk
+operations, in particular :meth:`Cursor.executemany` and
+:meth:`Cursor.fetchall`/:meth:`Cursor.fetchmany` on wide result sets.
+
+Major changes:
+
+* :meth:`Cursor.executemany` no longer looks up each column's parameter
+  type once per row; it is now resolved once per column and reused for
+  the rest of the batch.
+* Parameter binding and result fetching both reuse cached native handles
+  instead of rebuilding them for every value, and fetching a value no
+  longer makes a separate native call just to check for SQL NULL before
+  fetching it.
+* Rows returned by :meth:`Cursor.fetchone`, :meth:`Cursor.fetchmany`, and
+  :meth:`Cursor.fetchall` are now assembled more efficiently, which
+  matters most for tables with many columns.
+* :meth:`Cursor.fetchall`/:meth:`Cursor.fetchmany` no longer re-resolve
+  the getter function for a column's type on every row; it is now
+  resolved once per column, the same way as the ``executemany()``
+  parameter-type change above.
+
+Bug fixes:
+
+* Fetching a SQL NULL value from a ``BUILTIN.GIS_LATITUDE`` or
+  ``BUILTIN.GIS_LONGITUDE`` column previously raised an error instead of
+  returning ``None``.
+
+* :meth:`Cursor.executemany` now raises a :exc:`ProgrammingError` with a
+  clear message ("ExecuteMany cannot be used with a resultset") when
+  called with a SQL statement that returns a result set, such as a
+  ``SELECT``, instead of the incorrect behavior this previously caused.
