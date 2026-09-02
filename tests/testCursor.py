@@ -1738,9 +1738,10 @@ class TestCursorMethods(unittest.TestCase):
             c.execute("create table bobyselect (c1 INTEGER) in pybank")
             self.tstcon.commit()
             c.execute("insert INTO bobyselect VALUES (?)", (1))
-            with self.assertRaises(ProgrammingError):
+            with self.assertRaises(ProgrammingError) as e:
                 c.executemany("select * from bobyselect where c1 = (?)",
                               ((5,), (10,)))
+            self.assertEqual("ExecuteMany cannot be used with a resultset", e.exception.message)
 
     def test_select_twice(self):
         with self.tstcon.cursor() as c:

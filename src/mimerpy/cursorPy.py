@@ -647,6 +647,12 @@ class Cursor:
         self.__statement = values[1]
         self.__check_mimerapi_error(rc_value, self.__statement)
 
+        # We cannot do executemany with queries that return a resultset
+        rc_value = mimerapi.mimerColumnCount(self.__statement)
+        if rc_value > 0:
+            self.__close_statement()
+            self.__raise_exception(-25017)
+        
         rc_value = mimerapi.mimerParameterCount(self.__statement)
         self._number_of_parameters = rc_value
         self.__check_mimerapi_error(rc_value, self.__statement)
